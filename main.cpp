@@ -2,7 +2,7 @@
 #include "pico_cppm/cppm_decoder.h"
 #include "pico/stdlib.h"
 
-constexpr uint CPPM_GPIO_IN = 15;
+constexpr uint CPPM_GPIO_IN = 26;
 constexpr uint SYNC_PERIOD_US = 8000; //12800; //20000
 constexpr double MIN_PERIOD_US = 1000; //700;
 constexpr double MAX_PERIOD_US = 2000; //1600;
