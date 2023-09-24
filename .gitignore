@@ -1,0 +1,42 @@
+# .gitignore for a CMake-based CLion C++ project
+
+# ignore build artifacts
+*.o
+*.a
+*.so
+*.dll
+*.dylib
+*.exe
+
+# ignore CMake generated files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+*.cmake
+!CMakeLists.txt
+!pimoroni_pico_import.cmake
+
+
+# ignore CLion project files
+.idea/
+*.iml
+
+# ignore various OS generated files
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# ignore CMake build directories
+build/
+out/
+release/
+debug/
+*_build/
+*_Release/
+*_Debug/
+cmake-build*/
