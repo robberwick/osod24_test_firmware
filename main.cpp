@@ -14,7 +14,7 @@ int main() {
     sleep_ms(2500);
     printf("Beginning\n");
 
-    CPPMDecoder decoder(CPPM_GPIO_IN, pio0, NUM_CHANNELS, SYNC_PERIOD_US, MIN_PERIOD_US, MAX_PERIOD_US);
+    CPPMDecoder decoder(CPPM_GPIO_IN, pio1, NUM_CHANNELS, SYNC_PERIOD_US, MIN_PERIOD_US, MAX_PERIOD_US);
     CPPMDecoder::sharedInit(0);
     decoder.startListening();
 
