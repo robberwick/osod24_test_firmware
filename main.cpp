@@ -19,7 +19,7 @@ int main() {
     decoder.startListening();
 
     while (true) {
-        printf("AIL: %ld ELE: %ld THR: %ld RUD: %ld AUX: %ld NC: %ld ERRS: %u AGE: %u\n",
+        printf("AIL: %ld ELE: %ld THR: %ld RUD: %ld AUX: %ld NC: %ld ERRS: %lu AGE: %lu\n",
                (long) decoder.getChannelUs(0),
                (long) decoder.getChannelUs(1),
                (long) decoder.getChannelUs(2),
