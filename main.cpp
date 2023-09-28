@@ -57,6 +57,8 @@ constexpr uint CPPM_GPIO_IN = motor2040::ADC0; //26;
 const char* CPPM_CHANNEL_NAMES[] = {"AIL", "ELE", "THR", "RUD", "AUX", "NC"};
 const uint NUM_CPPM_CHANNELS = count_of(CPPM_CHANNEL_NAMES);
 
+const int motorCPPMChanel[NUM_MOTORS] = {1};
+
 
 void doCPPMPrint(CPPMDecoder &decoder);
 
@@ -108,7 +110,7 @@ int main() {
             for (auto i = 0u; i < 360; i++) {
                 float speed = sin(((float) i * (float) M_PI) / 180.0f) * SPEED_EXTENT;
                 for (auto m = 0u; m < NUM_MOTORS; m++) {
-                    motors[m]->speed(speed);
+                    motors[m]->speed((float) decoder.getChannelValue(motorCPPMChanel[m]));
                 }
                 doCPPMPrint(decoder);
                 doEncoderPrint();
@@ -141,16 +143,4 @@ void doCPPMPrint(CPPMDecoder &decoder) {
     printf("ERRS: %lu ", decoder.getFrameErrorCount());
     printf("AGE: %lu", decoder.getFrameAgeMs());
     printf("\n");
-
-
-//    printf("AIL: %ld ELE: %ld THR: %ld RUD: %ld AUX: %ld NC: %ld ERRS: %lu AGE: %lu\n",
-//           (long) decoder.getChannelUs(0),
-//           (long) decoder.getChannelUs(1),
-//           (long) decoder.getChannelUs(2),
-//           (long) decoder.getChannelUs(3),
-//           (long) decoder.getChannelUs(4),
-//           (long) decoder.getChannelUs(5),
-//           decoder.getFrameErrorCount(),
-//           decoder.getFrameAgeMs()
-//    );
 }
