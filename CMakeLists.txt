@@ -12,7 +12,10 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the SDK
 pico_sdk_init()
 
-add_executable(osod_motor_2040 main.cpp)
+add_executable(osod_motor_2040
+        main.cpp
+        tank_driver_mixer.cpp
+)
 include(libraries/motor2040/motor2040)
 
 add_subdirectory(include/pico-cppm)

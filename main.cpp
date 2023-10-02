@@ -3,6 +3,7 @@
 #include "pico_cppm/cppm_decoder.h"
 #include "pico/stdlib.h"
 #include "motor2040.hpp"
+#include "tank_driver_mixer.h"
 
 constexpr uint SYNC_PERIOD_US = 8000; //12800; //20000
 constexpr double MIN_PERIOD_US = 1000; //700;
@@ -17,18 +18,19 @@ Demonstrates how to create multiple Motor objects and control them together.
 using namespace motor;
 using namespace encoder;
 
-// How many sweeps of the motors to perform
-const uint SWEEPS = 2;
-
-// How far from zero to drive the motors when sweeping
-constexpr float SPEED_EXTENT = 0.5f; //1.0f;
+// max speed factor - scale the speed of the motors down to this value
+constexpr float SPEED_EXTENT = 0.5f;
 
 // Create an array of motor pointers
 //const pin_pair motor_pins[] = {motor2040::MOTOR_A, motor2040::MOTOR_B,
 //                               motor2040::MOTOR_C, motor2040::MOTOR_D};
-const pin_pair motor_pins[] = {motor2040::MOTOR_A};
+const pin_pair motor_pins[] = {motor2040::MOTOR_A, motor2040::MOTOR_B};
 const uint NUM_MOTORS = count_of(motor_pins);
 Motor *motors[NUM_MOTORS];
+enum MOTOR_NAMES {
+    LEFT = 0,
+    RIGHT = 1
+};
 
 /* ======================================================================================== */
 // encoder stuff
@@ -45,8 +47,8 @@ constexpr float COUNTS_PER_REV = MMME_CPR * GEAR_RATIO;
 //const pin_pair encoder_pins[] = {motor2040::ENCODER_A, motor2040::ENCODER_B,
 //                                 motor2040::ENCODER_C, motor2040::ENCODER_D};
 //const char* ENCODER_NAMES[] = {"A", "B", "C", "D"};
-const pin_pair encoder_pins[] = {motor2040::ENCODER_A};
-const char *ENCODER_NAMES[] = {"A",};
+const pin_pair encoder_pins[] = {motor2040::ENCODER_A, motor2040::ENCODER_B};
+const char *ENCODER_NAMES[] = {"A", "B"};
 const uint NUM_ENCODERS = count_of(encoder_pins);
 Encoder *encoders[NUM_ENCODERS];
 
@@ -54,11 +56,23 @@ Encoder *encoders[NUM_ENCODERS];
 // CPPM stuff
 /* ======================================================================================== */
 constexpr uint CPPM_GPIO_IN = motor2040::ADC0; //26;
-const char* CPPM_CHANNEL_NAMES[] = {"AIL", "ELE", "THR", "RUD", "AUX", "NC"};
+enum CPPM_CHANNELS {
+    AIL = 0,
+    ELE = 1,
+    THR = 2,
+    RUD = 3,
+    AUX = 4,
+    NC = 5
+};
+const char *CPPM_CHANNEL_NAMES[] = {
+        "AIL",
+        "ELE",
+        "THR",
+        "RUD",
+        "AUX",
+        "NC"
+};
 const uint NUM_CPPM_CHANNELS = count_of(CPPM_CHANNEL_NAMES);
-
-const int motorCPPMChanel[NUM_MOTORS] = {1};
-
 
 void doCPPMPrint(CPPMDecoder &decoder);
 
@@ -66,7 +80,7 @@ void doEncoderPrint();
 
 // add a function to initialise all motors
 void init_motors() {
-    // Fill the array of motors and initialise them. Up to 8 motors can be created
+    // Fill the motors array and initialise them. Up to 8 motors can be created
     for (auto m = 0u; m < NUM_MOTORS; m++) {
         motors[m] = new Motor(motor_pins[m]);
         motors[m]->init();
@@ -82,7 +96,7 @@ void enable_motors() {
 }
 
 void init_encoders() {
-    // Fill the array of motors, and initialise them. Up to 8 motors can be created
+    // Fill the encoder array, and initialise them. Up to 8 encoders can be created
     for (auto e = 0u; e < NUM_ENCODERS; e++) {
         encoders[e] = new Encoder(pio0, e, encoder_pins[e], PIN_UNUSED, NORMAL_DIR, COUNTS_PER_REV, true);
         encoders[e]->init();
@@ -105,20 +119,18 @@ int main() {
     decoder.startListening();
 
     while (true) {
-        // Do a sine speed sweep
-        for (auto j = 0u; j < SWEEPS; j++) {
-            for (auto i = 0u; i < 360; i++) {
-                float speed = sin(((float) i * (float) M_PI) / 180.0f) * SPEED_EXTENT;
-                for (auto m = 0u; m < NUM_MOTORS; m++) {
-                    motors[m]->speed((float) decoder.getChannelValue(motorCPPMChanel[m]));
-                }
-                doCPPMPrint(decoder);
-                doEncoderPrint();
-                sleep_ms(20);
-            }
-        }
+        doCPPMPrint(decoder);
+        doEncoderPrint();
+        // Get the aileron channel value for steering
+        auto steering = (float) decoder.getChannelValue(CPPM_CHANNELS::AIL);
+        // Get the elevator channel value for throttle
+        auto throttle = (float) decoder.getChannelValue(CPPM_CHANNELS::THR);
+        MotorSpeed speed = tank_steer_mix(steering, throttle, SPEED_EXTENT);
 
+        motors[MOTOR_NAMES::LEFT]->speed(speed.left);
+        motors[MOTOR_NAMES::RIGHT]->speed(speed.right);
 
+        sleep_ms(20);
     }
 }
 
@@ -130,14 +142,14 @@ void doEncoderPrint() {
 }
 
 void doCPPMPrint(CPPMDecoder &decoder) {
-    for (int i=0; i < NUM_CPPM_CHANNELS; i++) {
+    for (int i = 0; i < NUM_CPPM_CHANNELS; i++) {
         if (strcmp(CPPM_CHANNEL_NAMES[i], "NC") != 0) {
             printf(
                     "%s: %ld / %.2f, ",
                     CPPM_CHANNEL_NAMES[i],
                     (long) decoder.getChannelUs(i),
                     decoder.getChannelValue(i)
-                    );
+            );
         }
     }
     printf("ERRS: %lu ", decoder.getFrameErrorCount());
