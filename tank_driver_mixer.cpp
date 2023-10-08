@@ -17,7 +17,7 @@ struct MotorSpeed tank_steer_mix(float yaw, float throttle, float max_power) {
     }
 
     float scaled_left = (left * -max_power);
-    float scaled_right = (right * -max_power);
+    float scaled_right = (right * -max_power) * -1;
 
     struct MotorSpeed result{};
     result.left = scaled_left;
