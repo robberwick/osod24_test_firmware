@@ -19,7 +19,7 @@ using namespace motor;
 using namespace encoder;
 
 // max speed factor - scale the speed of the motors down to this value
-constexpr float SPEED_EXTENT = 0.5f;
+constexpr float SPEED_EXTENT = 1.0f;
 
 // Create an array of motor pointers
 //const pin_pair motor_pins[] = {motor2040::MOTOR_A, motor2040::MOTOR_B,
