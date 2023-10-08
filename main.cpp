@@ -124,7 +124,7 @@ int main() {
         // Get the aileron channel value for steering
         auto steering = (float) decoder.getChannelValue(CPPM_CHANNELS::AIL);
         // Get the elevator channel value for throttle
-        auto throttle = (float) decoder.getChannelValue(CPPM_CHANNELS::THR);
+        auto throttle = (float) decoder.getChannelValue(CPPM_CHANNELS::ELE);
         MotorSpeed speed = tank_steer_mix(steering, throttle, SPEED_EXTENT);
 
         motors[MOTOR_NAMES::LEFT]->speed(speed.left);
