@@ -22,14 +22,15 @@ using namespace encoder;
 constexpr float SPEED_EXTENT = 1.0f;
 
 // Create an array of motor pointers
-//const pin_pair motor_pins[] = {motor2040::MOTOR_A, motor2040::MOTOR_B,
-//                               motor2040::MOTOR_C, motor2040::MOTOR_D};
-const pin_pair motor_pins[] = {motor2040::MOTOR_A, motor2040::MOTOR_B};
+const pin_pair motor_pins[] = {motor2040::MOTOR_A, motor2040::MOTOR_B,
+                               motor2040::MOTOR_C, motor2040::MOTOR_D};
 const uint NUM_MOTORS = count_of(motor_pins);
 Motor *motors[NUM_MOTORS];
 enum MOTOR_NAMES {
-    LEFT = 0,
-    RIGHT = 1
+    LEFT_FRONT = 0,
+    RIGHT_FRONT = 1,
+    LEFT_REAR = 2,
+    RIGHT_REAR = 3,
 };
 
 /* ======================================================================================== */
@@ -44,11 +45,9 @@ constexpr float COUNTS_PER_REV = MMME_CPR * GEAR_RATIO;
 
 
 // Create an array of encoder pointers
-//const pin_pair encoder_pins[] = {motor2040::ENCODER_A, motor2040::ENCODER_B,
-//                                 motor2040::ENCODER_C, motor2040::ENCODER_D};
-//const char* ENCODER_NAMES[] = {"A", "B", "C", "D"};
-const pin_pair encoder_pins[] = {motor2040::ENCODER_A, motor2040::ENCODER_B};
-const char *ENCODER_NAMES[] = {"A", "B"};
+const pin_pair encoder_pins[] = {motor2040::ENCODER_A, motor2040::ENCODER_B,
+                                 motor2040::ENCODER_C, motor2040::ENCODER_D};
+const char* ENCODER_NAMES[] = {"A", "B", "C", "D"};
 const uint NUM_ENCODERS = count_of(encoder_pins);
 Encoder *encoders[NUM_ENCODERS];
 
@@ -127,8 +126,10 @@ int main() {
         auto throttle = (float) decoder.getChannelValue(CPPM_CHANNELS::ELE);
         MotorSpeed speed = tank_steer_mix(steering, throttle, SPEED_EXTENT);
 
-        motors[MOTOR_NAMES::LEFT]->speed(speed.left);
-        motors[MOTOR_NAMES::RIGHT]->speed(speed.right);
+        motors[MOTOR_NAMES::LEFT_FRONT]->speed(speed.left);
+        motors[MOTOR_NAMES::LEFT_REAR]->speed(speed.left);
+        motors[MOTOR_NAMES::RIGHT_FRONT]->speed(speed.right);
+        motors[MOTOR_NAMES::RIGHT_REAR]->speed(speed.right);
 
         sleep_ms(20);
     }
