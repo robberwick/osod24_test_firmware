@@ -15,14 +15,24 @@ pico_sdk_init()
 add_executable(osod_motor_2040
         main.cpp
         tank_driver_mixer.cpp
+        include/sbus/sbus.c
 )
 include(libraries/motor2040/motor2040)
 
 add_subdirectory(include/pico-cppm)
-target_include_directories(${PROJECT_NAME} PRIVATE include/pico-cppm)
+target_include_directories(${PROJECT_NAME}
+        PRIVATE include/pico-cppm
+        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/sbus
+)
 target_link_libraries(${PROJECT_NAME}
         pico_cppm
         motor2040
+)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  PICO_DEFAULT_UART=1
+  PICO_DEFAULT_UART_TX_PIN=20
+  PICO_DEFAULT_UART_RX_PIN=21
 )
 
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
