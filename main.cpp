@@ -178,8 +178,8 @@ int main() {
     while (true) {
 //        doCPPMPrint(decoder);
         doEncoderPrint();
-        if (hasSbusData()) {
-            if (readSbusData(sbusData)) {
+        if (has_sbus_data()) {
+            if (read_sbus_data(sbusData)) {
                 memset(&sbus, -1, sizeof(sbus_state_t));
 
                 decode_sbus_data(sbusData, &sbus);

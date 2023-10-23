@@ -143,16 +143,16 @@ void sbus_init(uart_inst_t *uart, int rx_pin, int tx_pin)
 
 }
 
-bool hasSbusData()
+bool has_sbus_data()
 {
     return stored > 0 && oldest != newest;
 }
 
-bool readSbusData(uint8_t *data)
+bool read_sbus_data(uint8_t *data)
 {
     bool ret = false;
     critical_section_enter_blocking(&fifo_lock);
-    if(hasSbusData())
+    if(has_sbus_data())
     {
         memcpy((void *)data, (void *)sbus_data[oldest], SBUS_MESSAGE_MAX_SIZE);
         oldest = (oldest + 1) % SBUS_FIFO_SIZE;

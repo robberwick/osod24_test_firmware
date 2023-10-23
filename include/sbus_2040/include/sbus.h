@@ -34,9 +34,9 @@ typedef struct {
     bool failsafe;
 } sbus_state_t;
 
-bool hasSbusData();
+bool has_sbus_data();
 
-bool readSbusData(uint8_t *data);
+bool read_sbus_data(uint8_t *data);
 
 void sbus_on_uart_rx();
 
