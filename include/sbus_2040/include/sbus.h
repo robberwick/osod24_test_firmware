@@ -12,10 +12,6 @@ extern "C" {
 
 #define SBUS_UART_ID uart0
 
-// We are using pins 0 and 1, but see the GPIO function select table in the
-// datasheet for information on which other pins can be used.
-//#define UART_TX_PIN 4
-//#define UART_RX_PIN 5
 
 #define SBUS_BAUD_RATE 100000
 #define SBUS_DATA_BITS 8

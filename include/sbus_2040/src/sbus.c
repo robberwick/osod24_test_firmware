@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <assert.h>
-
 #include "sbus.h"
 
 #include "pico/stdlib.h"
@@ -51,9 +49,24 @@ typedef struct {
 } chinfo_t;
 
 
-static const chinfo_t CHINFO[16] = { {0,  0, 8, 11}, {1,  3, 5, 11}, {2,  6, 2, 10}, {4,  1, 7, 11}, {5,  4, 4, 11},
-                                           {6,  7, 1, 9},  {8,  2, 6, 11}, {9,  5, 3, 11}, {11, 0, 8, 11}, {12, 3, 5, 11},
-                                           {13, 6, 2, 10}, {15, 1, 7, 11}, {16, 4, 4, 11}, {17, 7, 1, 9},  {19, 2, 6, 11},  {20, 5, 3, 11} };
+static const chinfo_t CHINFO[16] = {
+        {0,  0, 8, 11},
+        {1,  3, 5, 11},
+        {2,  6, 2, 10},
+        {4,  1, 7, 11},
+        {5,  4, 4, 11},
+        {6,  7, 1, 9},
+        {8,  2, 6, 11},
+        {9,  5, 3, 11},
+        {11, 0, 8, 11},
+        {12, 3, 5, 11},
+        {13, 6, 2, 10},
+        {15, 1, 7, 11},
+        {16, 4, 4, 11},
+        {17, 7, 1, 9},
+        {19, 2, 6, 11},
+        {20, 5, 3, 11}
+};
 
 
 void decode_sbus_data(const uint8_t *data, sbus_state_t *decoded)
@@ -66,15 +79,13 @@ void decode_sbus_data(const uint8_t *data, sbus_state_t *decoded)
         uint8_t b2 = data[idx+1];
         uint8_t b3 = data[idx+2];
 
-        uint16_t chData = ((b1 >> info->shift1) | (b2 << info->shift2) | (b3 << info->shift3)) & 0x7FF;
-
-//        assert(chData > 2048);
+        uint16_t chData = ((b1 >> info->shift1) | (b2 << info->shift2) | (b3 << info->shift3)) & SBUS_CHANNEL_BIT_MASK;
 
         decoded->ch[channel] = chData;
     }
 
-    decoded->ch[16] = data[23] & 1 ? 0x7FF : 0;
-    decoded->ch[17] = data[23] & (1<<1) ? 0x7FF : 0;
+    decoded->ch[16] = data[23] & 1 ? SBUS_CHANNEL_BIT_MASK : 0;
+    decoded->ch[17] = data[23] & (1<<1) ? SBUS_CHANNEL_BIT_MASK : 0;
     decoded->framelost = data[23] & (1<<2);
     decoded->failsafe = data[23] & (1<<3);
 }
@@ -160,8 +171,6 @@ void sbus_on_uart_rx() {
     while (uart_is_readable(sbus_uart_id)) {
         uint8_t ch = uart_getc(sbus_uart_id);
 
-//        printf("%02X", ch);
-//        printf("%02X", ~(ch));
         if(!hasStartByte && ch != SBUS_STARTBYTE)
         {
             continue;
@@ -175,14 +184,14 @@ void sbus_on_uart_rx() {
             hasStartByte = false;
             sbus_index = 0;
 
-            if(true /*current_sbus_data[SBUS_MESSAGE_MAX_SIZE - 1] == SBUS_ENDBYTE */)
+            if(current_sbus_data[SBUS_MESSAGE_MAX_SIZE - 1] == SBUS_ENDBYTE)
             {
                 critical_section_enter_blocking(&fifo_lock);
                 uint8_t nextNewest = (newest + 1) % SBUS_FIFO_SIZE;
                 // full package
                 memcpy((void *)sbus_data[nextNewest], (void *)current_sbus_data, SBUS_MESSAGE_MAX_SIZE);
                 newest = nextNewest;
-                if(oldest = nextNewest)
+                if(oldest == nextNewest)
                 {
                     oldest = (oldest + 1) % SBUS_FIFO_SIZE;
                 }
