@@ -206,7 +206,7 @@ int main() {
                     motors[MOTOR_NAMES::RIGHT_REAR]->speed(speed.right);
 
 
-//                    printf("Frame lost: %i Failsafe: %i\n", sbus.framelost, sbus.failsafe);
+//                    printf("Frame lost: %i Failsafe: %i\n", sbus_2040.framelost, sbus_2040.failsafe);
                 }
             }
         }

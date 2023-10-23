@@ -15,16 +15,17 @@ pico_sdk_init()
 add_executable(osod_motor_2040
         main.cpp
         tank_driver_mixer.cpp
-        include/sbus/sbus.c
 )
 include(libraries/motor2040/motor2040)
 
 add_subdirectory(include/pico-cppm)
+add_subdirectory(include/sbus_2040)
 target_include_directories(${PROJECT_NAME}
         PRIVATE include/pico-cppm
-        PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/sbus
+        PRIVATE include/sbus_2040
 )
 target_link_libraries(${PROJECT_NAME}
+        sbus_2040
         pico_cppm
         motor2040
 )
