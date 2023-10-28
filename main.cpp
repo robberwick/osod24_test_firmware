@@ -1,10 +1,9 @@
 #include <cstdio>
 #include <cstring>
-#include "pico_cppm/cppm_decoder.h"
 #include "pico/stdlib.h"
 #include "motor2040.hpp"
 #include "tank_driver_mixer.h"
-#include "sbus.h"
+#include "receiver.h"
 
 constexpr uint SYNC_PERIOD_US = 8000; //12800; //20000
 constexpr double MIN_PERIOD_US = 1000; //700;
@@ -105,7 +104,7 @@ const char *SBUS_CHANNEL_NAMES[] = {
 const uint NUM_SBUS_CHANNELS = count_of(CPPM_CHANNEL_NAMES);
 
 
-void doCPPMPrint(CPPMDecoder &decoder);
+//void doCPPMPrint(CPPMDecoder &decoder);
 
 void doEncoderPrint();
 
@@ -121,8 +120,8 @@ void init_motors() {
 // add a function to enable all motors
 void enable_motors() {
     // Enable all motors
-    for (auto m = 0u; m < NUM_MOTORS; m++) {
-        motors[m]->enable();
+    for (auto & motor : motors) {
+        motor->enable();
     }
 }
 
@@ -134,27 +133,22 @@ void init_encoders() {
     }
 }
 
-float map_range(float a1, float a2, float b1, float b2, float s)
-{
-    return b1 + ((s - a1) * (b2 - b1)) / (a2 - a1);
+ReceiverChannelValues get_channel_values(const sbus_state_t *sbusState) {
+    return {
+            .AIL = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::AIL)]),
+            .ELE = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::ELE)]),
+            .THR = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::THR)]),
+            .RUD = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::RUD)]),
+            .AUX = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::AUX)]),
+            .NC = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::NC)]),
+    };
 }
-float map_value_to_range(int value)
-{
-    float mapped_value;
-    float fvalue = static_cast<float>(value);
 
-    if (fvalue < 1024.0f) {
-        mapped_value = map_range(240.0f, 1024.0f, -1.0f, 0.0f, fvalue);
-    }
-    else {
-        mapped_value = map_range(1024.0f, 1807.0f, 0.0f, 1.0f, fvalue);
-    }
-
-    return mapped_value;
-}
 
 int main() {
     stdio_init_all();
+
+    init_receiver();
 
     init_motors();
     enable_motors();
@@ -162,12 +156,10 @@ int main() {
     init_encoders();
 
 
-
     sleep_ms(2500);
     printf("Beginning\n");
 
-    // Initialize SBUS and setup interrupt to read data on core0
-    sbus_init(SBUS_UART_ID, 17, 16);
+
 
 //    CPPMDecoder decoder(RC_RECV_GPIO_IN, pio1, NUM_CPPM_CHANNELS, SYNC_PERIOD_US, MIN_PERIOD_US, MAX_PERIOD_US);
 //    CPPMDecoder::sharedInit(0);
@@ -183,6 +175,7 @@ int main() {
                 memset(&sbus, -1, sizeof(sbus_state_t));
 
                 decode_sbus_data(sbusData, &sbus);
+                ReceiverChannelValues rxValues = get_channel_values(&sbus);
 
                 if (millis() - start_ms > interval_ms) {
                     start_ms = millis();
@@ -194,10 +187,10 @@ int main() {
 
                     // Get the aileron channel value for steering
                     //        auto steering = (float) decoder.getChannelValue(CPPM_CHANNELS::AIL);
-                    auto steering = (float) map_value_to_range(sbus.ch[static_cast<int>(SBUS_CHANNELS::AIL)]);
+                    auto steering = rxValues.AIL;
                     // Get the elevator channel value for throttle
                     //        auto throttle = (float) decoder.getChannelValue(CPPM_CHANNELS::ELE);
-                    auto throttle = (float) map_value_to_range(sbus.ch[static_cast<int>(SBUS_CHANNELS::ELE)]);
+                    auto throttle = rxValues.ELE;
                     MotorSpeed speed = tank_steer_mix(steering, throttle, SPEED_EXTENT);
 
                     motors[MOTOR_NAMES::LEFT_FRONT]->speed(speed.left);
@@ -223,18 +216,18 @@ void doEncoderPrint() {
     printf("\n");
 }
 
-void doCPPMPrint(CPPMDecoder &decoder) {
-    for (int i = 0; i < NUM_CPPM_CHANNELS; i++) {
-        if (strcmp(CPPM_CHANNEL_NAMES[i], "NC") != 0) {
-            printf(
-                    "%s: %ld / %.2f, ",
-                    CPPM_CHANNEL_NAMES[i],
-                    (long) decoder.getChannelUs(i),
-                    decoder.getChannelValue(i)
-            );
-        }
-    }
-    printf("ERRS: %lu ", decoder.getFrameErrorCount());
-    printf("AGE: %lu", decoder.getFrameAgeMs());
-    printf("\n");
-}
+//void doCPPMPrint(CPPMDecoder &decoder) {
+//    for (int i = 0; i < NUM_CPPM_CHANNELS; i++) {
+//        if (strcmp(CPPM_CHANNEL_NAMES[i], "NC") != 0) {
+//            printf(
+//                    "%s: %ld / %.2f, ",
+//                    CPPM_CHANNEL_NAMES[i],
+//                    (long) decoder.getChannelUs(i),
+//                    decoder.getChannelValue(i)
+//            );
+//        }
+//    }
+//    printf("ERRS: %lu ", decoder.getFrameErrorCount());
+//    printf("AGE: %lu", decoder.getFrameAgeMs());
+//    printf("\n");
+//}

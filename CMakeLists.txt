@@ -15,25 +15,47 @@ pico_sdk_init()
 add_executable(osod_motor_2040
         main.cpp
         tank_driver_mixer.cpp
+        receiver.cpp
 )
 include(libraries/motor2040/motor2040)
 
-add_subdirectory(include/pico-cppm)
-add_subdirectory(include/sbus_2040)
-target_include_directories(${PROJECT_NAME}
-        PRIVATE include/pico-cppm
-        PRIVATE include/sbus_2040
+set(SBUS_VAL 1)
+set(CPPM_VAL 2)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+        RX_PROTOCOL_SBUS=${SBUS_VAL}
+        RX_PROTOCOL_CPPM=${CPPM_VAL}
 )
+message(STATUS "RX_PROTOCOL: ${RX_PROTOCOL}")
+if (RX_PROTOCOL EQUAL ${SBUS_VAL})
+    message(STATUS "RX_PROTOCOL: SBUS")
+    add_definitions(-DRX_PROTOCOL_SBUS)
+    add_subdirectory(include/sbus_2040)
+    target_include_directories(${PROJECT_NAME}
+            PRIVATE include/sbus_2040
+    )
+    target_link_libraries(${PROJECT_NAME}
+            sbus_2040)
+else ()
+    message(STATUS "RX_PROTOCOL: CPPM")
+    add_definitions(-DRX_PROTOCOL_CPPM)
+    add_subdirectory(include/pico-cppm)
+    target_include_directories(${PROJECT_NAME}
+            PRIVATE include/pico-cppm
+    )
+    target_link_libraries(${PROJECT_NAME}
+            pico_cppm)
+endif ()
+
+
 target_link_libraries(${PROJECT_NAME}
-        sbus_2040
-        pico_cppm
         motor2040
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-  PICO_DEFAULT_UART=1
-  PICO_DEFAULT_UART_TX_PIN=20
-  PICO_DEFAULT_UART_RX_PIN=21
+        PICO_DEFAULT_UART=1
+        PICO_DEFAULT_UART_TX_PIN=20
+        PICO_DEFAULT_UART_RX_PIN=21
 )
 
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
@@ -44,9 +66,9 @@ pico_add_extra_outputs(${PROJECT_NAME})
 
 # Set up files for the release packages
 install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.uf2
-    ${CMAKE_CURRENT_LIST_DIR}/README.md
-    DESTINATION .
+        ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.uf2
+        ${CMAKE_CURRENT_LIST_DIR}/README.md
+        DESTINATION .
 )
 
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
