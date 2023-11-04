@@ -3,12 +3,15 @@
 #include "pico/stdlib.h"
 #include "motor2040.hpp"
 #include "tank_driver_mixer.h"
-#include "receiver.h"
 
-constexpr uint SYNC_PERIOD_US = 8000; //12800; //20000
-constexpr double MIN_PERIOD_US = 1000; //700;
-constexpr double MAX_PERIOD_US = 2000; //1600;
-
+#if defined( RX_PROTOCOL_SBUS)
+#include "receiver_sbus.h"
+#elif defined(RX_PROTOCOL_CPPM)
+#include "receiver_cppm.h"
+#include "pico_cppm/cppm_decoder.h"
+#else
+#error You must define either RX_PROTOCOL_SBUS or RX_PROTOCOL_CPPM
+#endif
 
 
 /*
@@ -51,11 +54,6 @@ const char *ENCODER_NAMES[] = {"A", "B", "C", "D"};
 const uint NUM_ENCODERS = count_of(encoder_pins);
 Encoder *encoders[NUM_ENCODERS];
 
-/* ======================================================================================== */
-// RC Receiver stuff
-/* ======================================================================================== */
-
-constexpr uint RC_RECV_GPIO_IN = motor2040::ADC0; //26;
 
 /* ======================================================================================== */
 // CPPM stuff
@@ -81,27 +79,16 @@ const uint NUM_CPPM_CHANNELS = count_of(CPPM_CHANNEL_NAMES);
 /* ======================================================================================== */
 // SBUS stuff
 /* ======================================================================================== */
-sbus_state_t sbus = {};
-uint8_t sbusData[SBUS_MESSAGE_MAX_SIZE] = {};
-const uint32_t interval_ms = 20;
 
-enum class SBUS_CHANNELS {
-    AIL = 0,
-    ELE = 1,
-    THR = 2,
-    RUD = 3,
-    AUX = 4,
-    NC = 5
-};
-const char *SBUS_CHANNEL_NAMES[] = {
-        "AIL",
-        "ELE",
-        "THR",
-        "RUD",
-        "AUX",
-        "NC"
-};
-const uint NUM_SBUS_CHANNELS = count_of(CPPM_CHANNEL_NAMES);
+//const char *SBUS_CHANNEL_NAMES[] = {
+//        "AIL",
+//        "ELE",
+//        "THR",
+//        "RUD",
+//        "AUX",
+//        "NC"
+//};
+//const uint NUM_SBUS_CHANNELS = count_of(CPPM_CHANNEL_NAMES);
 
 
 //void doCPPMPrint(CPPMDecoder &decoder);
@@ -133,17 +120,6 @@ void init_encoders() {
     }
 }
 
-ReceiverChannelValues get_channel_values(const sbus_state_t *sbusState) {
-    return {
-            .AIL = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::AIL)]),
-            .ELE = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::ELE)]),
-            .THR = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::THR)]),
-            .RUD = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::RUD)]),
-            .AUX = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::AUX)]),
-            .NC = (float) map_value_to_range(sbusState->ch[static_cast<int>(SBUS_CHANNELS::NC)]),
-    };
-}
-
 
 int main() {
     stdio_init_all();
@@ -159,53 +135,43 @@ int main() {
     sleep_ms(2500);
     printf("Beginning\n");
 
-
-
-//    CPPMDecoder decoder(RC_RECV_GPIO_IN, pio1, NUM_CPPM_CHANNELS, SYNC_PERIOD_US, MIN_PERIOD_US, MAX_PERIOD_US);
-//    CPPMDecoder::sharedInit(0);
-//    decoder.startListening();
-
     uint32_t start_ms = millis();
 
     while (true) {
 //        doCPPMPrint(decoder);
         doEncoderPrint();
-        if (has_sbus_data()) {
-            if (read_sbus_data(sbusData)) {
-                memset(&sbus, -1, sizeof(sbus_state_t));
+        if (get_receiver_data()) {
+            ReceiverChannelValues rxValues = get_channel_values();
 
-                decode_sbus_data(sbusData, &sbus);
-                ReceiverChannelValues rxValues = get_channel_values(&sbus);
+            if (millis() - start_ms > receiver_frame_length_ms) {
+                start_ms = millis();
 
-                if (millis() - start_ms > interval_ms) {
-                    start_ms = millis();
+                printf("AIL: %0.2f ELE: %0.2f THR: %0.2f RUD: %0.2f AUX: %0.2f NC: %0.2f\n",
+                       rxValues.AIL,
+                       rxValues.ELE,
+                       rxValues.THR,
+                       rxValues.RUD,
+                       rxValues.AUX,
+                       rxValues.NC
+                );
 
-                    for (int i = 0; i < 18; ++i) {
-                        printf("Ch%2i: %04u %0.2f ", i, sbus.ch[i], map_value_to_range(sbus.ch[i]));
-                    }
-                    printf("\n");
+                // Get the aileron channel value for steering
+                //        auto steering = (float) decoder.getChannelValue(CPPM_CHANNELS::AIL);
+                auto steering = rxValues.AIL;
+                // Get the elevator channel value for throttle
+                //        auto throttle = (float) decoder.getChannelValue(CPPM_CHANNELS::ELE);
+                auto throttle = rxValues.ELE;
+                MotorSpeed speed = tank_steer_mix(steering, throttle, SPEED_EXTENT);
 
-                    // Get the aileron channel value for steering
-                    //        auto steering = (float) decoder.getChannelValue(CPPM_CHANNELS::AIL);
-                    auto steering = rxValues.AIL;
-                    // Get the elevator channel value for throttle
-                    //        auto throttle = (float) decoder.getChannelValue(CPPM_CHANNELS::ELE);
-                    auto throttle = rxValues.ELE;
-                    MotorSpeed speed = tank_steer_mix(steering, throttle, SPEED_EXTENT);
-
-                    motors[MOTOR_NAMES::LEFT_FRONT]->speed(speed.left);
-                    motors[MOTOR_NAMES::LEFT_REAR]->speed(speed.left);
-                    motors[MOTOR_NAMES::RIGHT_FRONT]->speed(speed.right);
-                    motors[MOTOR_NAMES::RIGHT_REAR]->speed(speed.right);
-
-
-//                    printf("Frame lost: %i Failsafe: %i\n", sbus_2040.framelost, sbus_2040.failsafe);
-                }
+                motors[MOTOR_NAMES::LEFT_FRONT]->speed(speed.left);
+                motors[MOTOR_NAMES::LEFT_REAR]->speed(speed.left);
+                motors[MOTOR_NAMES::RIGHT_FRONT]->speed(speed.right);
+                motors[MOTOR_NAMES::RIGHT_REAR]->speed(speed.right);
             }
         }
 
 
-        sleep_ms(20);
+        sleep_ms(receiver_frame_length_ms);
     }
 }
 

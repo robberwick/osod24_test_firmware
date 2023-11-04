@@ -15,22 +15,21 @@ pico_sdk_init()
 add_executable(osod_motor_2040
         main.cpp
         tank_driver_mixer.cpp
-        receiver.cpp
+        receiver_utils.cpp
 )
 include(libraries/motor2040/motor2040)
 
-set(SBUS_VAL 1)
-set(CPPM_VAL 2)
+set(RX_PROTOCOL "CPPM" CACHE STRING "Set the RX protocol")  # "CPPM" is the default
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-        RX_PROTOCOL_SBUS=${SBUS_VAL}
-        RX_PROTOCOL_CPPM=${CPPM_VAL}
-)
 message(STATUS "RX_PROTOCOL: ${RX_PROTOCOL}")
-if (RX_PROTOCOL EQUAL ${SBUS_VAL})
+if (RX_PROTOCOL STREQUAL "SBUS")
     message(STATUS "RX_PROTOCOL: SBUS")
     add_definitions(-DRX_PROTOCOL_SBUS)
     add_subdirectory(include/sbus_2040)
+    target_sources(${PROJECT_NAME}
+            PRIVATE
+            receiver_sbus.cpp
+    )
     target_include_directories(${PROJECT_NAME}
             PRIVATE include/sbus_2040
     )
@@ -40,6 +39,10 @@ else ()
     message(STATUS "RX_PROTOCOL: CPPM")
     add_definitions(-DRX_PROTOCOL_CPPM)
     add_subdirectory(include/pico-cppm)
+    target_sources(${PROJECT_NAME}
+            PRIVATE
+            receiver_cppm.cpp
+    )
     target_include_directories(${PROJECT_NAME}
             PRIVATE include/pico-cppm
     )
