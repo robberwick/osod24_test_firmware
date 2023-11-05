@@ -21,7 +21,6 @@ include(libraries/motor2040/motor2040)
 
 set(RX_PROTOCOL "CPPM" CACHE STRING "Set the RX protocol")  # "CPPM" is the default
 
-message(STATUS "RX_PROTOCOL: ${RX_PROTOCOL}")
 if (RX_PROTOCOL STREQUAL "SBUS")
     message(STATUS "RX_PROTOCOL: SBUS")
     add_definitions(-DRX_PROTOCOL_SBUS)
@@ -50,7 +49,11 @@ else ()
             pico_cppm)
 endif ()
 
-
+#set the output name to have a suffix that includes the RX_PROTOCOL and a "_DEBUG suffix if debug build, and "_RELEASE" if release build
+set(RELEASE_TYPE_SUFFIX ${CMAKE_BUILD_TYPE})
+string(TOUPPER ${RELEASE_TYPE_SUFFIX} RELEASE_TYPE_SUFFIX)
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}_${RX_PROTOCOL}_${RELEASE_TYPE_SUFFIX}")
+message(STATUS "Release type suffix: ${RELEASE_TYPE_SUFFIX}")
 target_link_libraries(${PROJECT_NAME}
         motor2040
 )
