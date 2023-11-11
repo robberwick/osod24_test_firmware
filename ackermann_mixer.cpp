@@ -39,13 +39,13 @@ struct AckermannOutput AckermannMixer::ackermann_steer_mix(float yaw, float thro
             result.frontRightSpeed = -result.frontLeftSpeed;
             result.rearLeftSpeed = turnRadius * wheelTrack / 2;
             result.rearRightSpeed = -result.rearLeftSpeed;
-            result.frontLeftAngle = std::atan(wheelBase / (turnRadius - wheelTrack / 2));
-            result.frontrightAngle = std::atan(wheelBase / (turnRadius + wheelTrack / 2));
+            result.frontLeftAngle = std::atan2(wheelBase,  turnRadius - wheelTrack / 2);
+            result.frontrightAngle = std::atan2(wheelBase, turnRadius + wheelTrack / 2);
         } else {
             result.frontLeftSpeed = yaw * std::sqrt((turnRadius - wheelTrack / 2) * (turnRadius - wheelTrack / 2) + wheelBase * wheelBase);
-            result.frontLeftSpeed = result.frontLeftSpeed * std::sign(turnRadius - wheelTrack);
+            result.frontLeftSpeed = std::copysign(result.frontLeftSpeed, (turnRadius - wheelTrack / 2));
             result.frontRightSpeed = yaw * std::sqrt((turnRadius + wheelTrack / 2) * (turnRadius + wheelTrack / 2) + wheelBase * wheelBase);
-            result.frontRightSpeed = result.frontRightSpeed * std::sign(turnRadius - wheelTrack);
+            result.frontRightSpeed = std::copysign(result.frontRightSpeed, (turnRadius + wheelTrack / 2));
             result.rearLeftSpeed = throttle * (turnRadius - wheelTrack / 2) / turnRadius;
             result.rearRightSpeed = -throttle * (turnRadius + wheelTrack / 2) / turnRadius;          
             float tempFrontLeftAngle = std::atan2(wheelBase,  turnRadius - wheelTrack / 2);
