@@ -15,6 +15,7 @@ pico_sdk_init()
 add_executable(osod_motor_2040
         main.cpp
         tank_driver_mixer.cpp
+        ackermann_mixer.cpp
 )
 include(libraries/motor2040/motor2040)
 
