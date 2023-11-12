@@ -29,8 +29,8 @@ struct AckermannOutput AckermannMixer::ackermann_steer_mix(float yaw, float thro
         result.frontRightSpeed = throttle;
         result.rearLeftSpeed = throttle;
         result.rearRightSpeed = throttle;
-        result.frontLeftAngle = 0
-        result.frontRightAngle = 0
+        result.frontLeftAngle = 0;
+        result.frontRightAngle = 0;
     } else {
         if (throttle == 0) {
         // if we're only turning, the speeds are symetrical and just depends on the turn rate
@@ -40,7 +40,7 @@ struct AckermannOutput AckermannMixer::ackermann_steer_mix(float yaw, float thro
             result.rearLeftSpeed = turnRadius * wheelTrack / 2;
             result.rearRightSpeed = -result.rearLeftSpeed;
             result.frontLeftAngle = std::atan2(wheelBase,  turnRadius - wheelTrack / 2);
-            result.frontrightAngle = std::atan2(wheelBase, turnRadius + wheelTrack / 2);
+            result.frontRightAngle = std::atan2(wheelBase, turnRadius + wheelTrack / 2);
         } else {
             result.frontLeftSpeed = yaw * std::sqrt((turnRadius - wheelTrack / 2) * (turnRadius - wheelTrack / 2) + wheelBase * wheelBase);
             result.frontLeftSpeed = std::copysign(result.frontLeftSpeed, (turnRadius - wheelTrack / 2));
