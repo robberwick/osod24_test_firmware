@@ -34,14 +34,17 @@ namespace STATEMANAGER {
         printf("Velocity: %f ", requestedState.velocity);
         printf("Angular velocity: %f ", requestedState.angularVelocity);
         printf("\n");
-        MIXER::MotorSpeeds motorSpeeds = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
-        setSpeeds(motorSpeeds);
+        MIXER::AckermannOutput ackermannOutput = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
+        setSpeeds(ackermannOutput);
     }
 
-    void StateManager::setSpeeds(MIXER::MotorSpeeds motorSpeeds) const {
-        stokers.FRONT_LEFT->set_speed(motorSpeeds.FRONT_LEFT);
-        stokers.FRONT_RIGHT->set_speed(motorSpeeds.FRONT_RIGHT);
-        stokers.REAR_LEFT->set_speed(motorSpeeds.REAR_LEFT);
-        stokers.REAR_RIGHT->set_speed(motorSpeeds.REAR_RIGHT);
+    void StateManager::setSpeeds(MIXER::AckermannOutput ackermannOutput) const {
+        stokers.FRONT_LEFT->set_speed(ackermannOutput.frontLeftSpeed);
+        stokers.FRONT_RIGHT->set_speed(ackermannOutput.frontRightSpeed);
+        stokers.REAR_LEFT->set_speed(ackermannOutput.rearLeftSpeed);
+        stokers.REAR_RIGHT->set_speed(ackermannOutput.rearRightSpeed);
+        steering_servos.left->value(ackermannOutput.frontLeftAngle);
+        steering_servos.right->value(ackermannOutput.frontRightAngle);
+
     }
 } // StateManager

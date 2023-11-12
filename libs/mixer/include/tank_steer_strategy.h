@@ -6,12 +6,11 @@
 #define OSOD_MOTOR_2040_TANK_STEER_STRATEGY_H
 #include "mixer_strategy.h"
 
-
 namespace MIXER {
 
     class TankSteerStrategy : public MixerStrategy {
     public:
-        MotorSpeeds mix(float velocity, float angularVelocity) override;
+        AckermannOutput mix(float velocity, float angularVelocity) override;
     };
 }
 
