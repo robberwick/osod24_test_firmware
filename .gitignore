@@ -18,6 +18,8 @@ cmake_install.cmake
 install_manifest.txt
 *.cmake
 !CMakeLists.txt
+!pimoroni_pico_import.cmake
+
 
 # ignore CLion project files
 .idea/
