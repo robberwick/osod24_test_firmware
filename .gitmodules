@@ -1,3 +1,0 @@
-[submodule "include/pico-cppm"]
-	path = include/pico-cppm
-	url = https://github.com/cadouthat/pico-cppm.git

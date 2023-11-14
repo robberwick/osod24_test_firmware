@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
+include(FetchContent)
 set(PIMORONI_PICO_PATH $ENV{PIMORONI_PICO_PATH})
 
 include(pimoroni_pico_import.cmake)
@@ -37,7 +38,24 @@ if (RX_PROTOCOL STREQUAL "SBUS")
 else ()
     message(STATUS "RX_PROTOCOL: CPPM")
     add_definitions(-DRX_PROTOCOL_CPPM)
-    add_subdirectory(include/pico-cppm)
+
+    FetchContent_Declare(
+            pico_cppm
+            GIT_REPOSITORY "https://github.com/cadouthat/pico-cppm"
+            GIT_TAG "main"
+    )
+
+    FetchContent_GetProperties(pico-cppm)
+
+    if (NOT pico-cppm_POPULATED)
+        FetchContent_Populate(pico_cppm)
+        message(STATUS "pico_cppm source dir: ${pico_cppm_SOURCE_DIR}")
+        message(STATUS "pico_cppm binary dir: ${pico_cppm_BINARY_DIR}")
+        add_subdirectory(${pico_cppm_SOURCE_DIR})
+    endif ()
+
+    target_link_libraries(${PROJECT_NAME} pico_cppm)
+
     target_sources(${PROJECT_NAME}
             PRIVATE
             receiver_cppm.cpp
