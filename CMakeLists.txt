@@ -17,7 +17,8 @@ add_executable(osod_motor_2040
         tank_driver_mixer.cpp
         receiver_utils.cpp
 )
-include(libraries/motor2040/motor2040)
+
+add_subdirectory(${PIMORONI_PICO_PATH} ${CMAKE_BINARY_DIR}/pimoroni-pico-build)
 
 set(RX_PROTOCOL "CPPM" CACHE STRING "Set the RX protocol")  # "CPPM" is the default
 
