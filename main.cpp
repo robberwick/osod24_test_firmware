@@ -2,6 +2,8 @@
 #include <cstring>
 #include "pico/stdlib.h"
 #include "motor2040.hpp"
+#include "drivers/pid/pid.hpp"
+
 #include "tank_driver_mixer.h"
 
 #if defined( RX_PROTOCOL_SBUS)
@@ -23,6 +25,16 @@ using namespace encoder;
 
 // max speed factor - scale the speed of the motors down to this value
 constexpr float SPEED_EXTENT = 1.0f;
+
+// How many times to update the motor per second
+const uint UPDATES = 100;
+constexpr float UPDATE_RATE = 1.0f / (float)UPDATES;
+
+// PID values
+constexpr float VEL_KP = 30.0f;   // Velocity proportional (P) gain
+constexpr float VEL_KI = 0.0f;    // Velocity integral (I) gain
+constexpr float VEL_KD = 0.4f;    // Velocity derivative (D) gain
+
 
 // Create an array of motor pointers
 const pin_pair motor_pins[] = {motor2040::MOTOR_A, motor2040::MOTOR_B,
@@ -120,6 +132,8 @@ void init_encoders() {
     }
 }
 
+// Create PID object for velocity control
+PID vel_pid = PID(VEL_KP, VEL_KI, VEL_KD, UPDATE_RATE);
 
 int main() {
     stdio_init_all();
@@ -140,6 +154,9 @@ int main() {
     while (true) {
 //        doCPPMPrint(decoder);
         doEncoderPrint();
+
+        vel_pid.setpoint = 0;
+
         if (get_receiver_data()) {
             ReceiverChannelValues rxValues = get_channel_values();
 
