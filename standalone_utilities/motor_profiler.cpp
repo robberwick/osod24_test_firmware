@@ -11,52 +11,45 @@ duty cycle range using the attached encoder for feedback.
 using namespace motor;
 using namespace encoder;
 
-// The pins of the motor being profiled
-const pin_pair MOTOR_PINS = motor2040::MOTOR_A;
 
-// The pins of the encoder attached to the profiled motor
-const pin_pair ENCODER_PINS = motor2040::ENCODER_A;
-
-// The gear ratio of the motor
+// Constants
 constexpr float GEAR_RATIO = 19.22;
-
-// The counts per rev of the encoder
 constexpr int CPR = 12;
-
-// The counts per revolution of the motor's output shaft
 constexpr float COUNTS_PER_REV = CPR * GEAR_RATIO;
-
-// The direction to spin the motor in. NORMAL_DIR (0), REVERSED_DIR (1)
+constexpr float SPEED_SCALE = 495;
+constexpr float ZERO_POINT = 0.0f;
+constexpr float DEAD_ZONE = 0.09f;
+const uint DUTY_STEPS = 100;
+const uint SETTLE_TIME = 100;
+const uint CAPTURE_TIME = 200;
 const Direction DIRECTION = NORMAL_DIR;
 
-// The scaling to apply to the motor's speed. Set this to the maximum measured speed
-constexpr float SPEED_SCALE = 495;
+// Motor and Encoder Objects
+Motor motors[] = {
+    Motor(motor2040::MOTOR_A, DIRECTION, SPEED_SCALE, ZERO_POINT, DEAD_ZONE),
+    Motor(motor2040::MOTOR_B, DIRECTION, SPEED_SCALE, ZERO_POINT, DEAD_ZONE),
+    Motor(motor2040::MOTOR_C, DIRECTION, SPEED_SCALE, ZERO_POINT, DEAD_ZONE),
+    Motor(motor2040::MOTOR_D, DIRECTION, SPEED_SCALE, ZERO_POINT, DEAD_ZONE)
+};
 
-// The duty cycle that corresponds with zero speed when plotting the motor's speed as a straight line
-constexpr float ZERO_POINT = 0.0f;
+Encoder encoders[] = {
+    Encoder(pio0, 0, motor2040::ENCODER_A, PIN_UNUSED, DIRECTION, COUNTS_PER_REV, true),
+    Encoder(pio0, 1, motor2040::ENCODER_B, PIN_UNUSED, DIRECTION, COUNTS_PER_REV, true),
+    Encoder(pio0, 2, motor2040::ENCODER_C, PIN_UNUSED, DIRECTION, COUNTS_PER_REV, true),
+    Encoder(pio0, 3, motor2040::ENCODER_D, PIN_UNUSED, DIRECTION, COUNTS_PER_REV, true)
+};
 
-// The duty cycle below which the motor's friction prevents it from moving
-constexpr float DEAD_ZONE = 0.09f;
+// Additional variables to track the minimum duty cycle required to start movement
+float min_positive_duty = 1.0f; // Start with the maximum duty
+float min_negative_duty = -1.0f; // Start with the minimum negative duty
+bool found_positive_start = false;
+bool found_negative_start = false;
 
-// How many duty cycle steps to sample the speed of
-const uint DUTY_STEPS = 100;
+// Function to profile a motor at a given duty
+void profile_at_duty(Motor& m, Encoder& enc, float duty, float& min_speed, 
+                     float& max_speed, bool& found_positive_start,
+                     bool& found_negative_start, float& min_positive_duty, float& min_negative_duty) {
 
-// How long to wait after changing motor duty cycle
-const uint SETTLE_TIME = 100;
-
-// How long to capture the motor's speed at each step
-const uint CAPTURE_TIME = 200;
-
-
-// Create a motor and set its direction, speed scale, zero point, and dead zone
-Motor m = Motor(MOTOR_PINS, DIRECTION, SPEED_SCALE, ZERO_POINT, DEAD_ZONE);
-
-// Create an encoder and set its direction and counts per rev, using PIO 0 and State Machine 0
-Encoder enc = Encoder(pio0, 0, ENCODER_PINS, PIN_UNUSED, DIRECTION, COUNTS_PER_REV, true);
-
-
-// Function that performs a single profiling step
-void profile_at_duty(float duty) {
   // Set the motor to a new duty cycle and wait for it to settle
   if(DIRECTION == REVERSED_DIR)
       m.duty(0.0 - duty);
@@ -80,8 +73,22 @@ void profile_at_duty(float duty) {
   // float measured_speed = capture.radians_per_second();
 
   // Print out the expected and measured speeds, as well as their difference
-  printf("Duty = %f, Expected = %f, Measured = %f, Diff = %f\n",
-         m.duty(), m.speed(), measured_speed, m.speed() - measured_speed);
+  //printf("Duty = %f, Expected = %f, Measured = %f, Diff = %f\n",
+  //       m.duty(), m.speed(), measured_speed, m.speed() - measured_speed);
+             // Update the maximum speed if a higher speed is measured
+  if (measured_speed > max_speed) {
+      max_speed = measured_speed;
+  } else if (measured_speed < min_speed) {
+      min_speed = measured_speed;
+  }
+  if (!found_positive_start && duty > 0 && measured_speed > 0) {
+      min_positive_duty = duty;
+      found_positive_start = true;
+  }
+  if (!found_negative_start && duty < 0 && measured_speed < 0) {
+      min_negative_duty = duty;
+      found_negative_start = true;
+  }
 }
 
 
@@ -91,40 +98,60 @@ int main() {
   // Give some time to connect up a serial terminal
   sleep_ms(10000);
 
-  // Initialise the motor and enable it
-  m.init();
-  m.enable();
+  float min_speeds[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+  float max_speeds[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-  // Initialise the encoder
-  enc.init();
+  // Initialize motors and encoders, and maximum speed array
+  for(int i = 0; i < 4; i++) {
+      motors[i].init();
+      motors[i].enable();
+      encoders[i].init();
+  }
 
   printf("Profiler Starting...\n");
 
-  // Profile from 0% up to one step below 100%
-  for(uint i = 0; i < DUTY_STEPS; i++) {
-    profile_at_duty((float)i / (float)DUTY_STEPS);
+  // Perform profiling for each motor
+  for(int i = 0; i < 4; i++) {
+      found_positive_start = found_negative_start = false;
+      min_positive_duty = 1.0f;
+      min_negative_duty = -1.0f;
+      
+      printf("Profiling Motor %d...\n", i);
+      // Profile from 0% up to one step below 100%
+      for(uint j = 0; j < DUTY_STEPS; j++) {
+        profile_at_duty(motors[i], encoders[i], (float)j / (float)DUTY_STEPS,
+                        min_speeds[i], max_speeds[i], found_positive_start,
+                        found_negative_start, min_positive_duty, min_negative_duty);
+      }
+      // Profile from 100% down to one step above 0%
+      for(uint j = 0; j < DUTY_STEPS; j++) {
+        profile_at_duty(motors[i], encoders[i], (float)(DUTY_STEPS - j) / (float)DUTY_STEPS,
+                        min_speeds[i], max_speeds[i], found_positive_start,
+                        found_negative_start, min_positive_duty, min_negative_duty);
+      }
+      // Profile from 0% down to one step above -100%
+      for(uint j = 0; j < DUTY_STEPS; j++) {
+        profile_at_duty(motors[i], encoders[i], -(float)j / (float)DUTY_STEPS,
+                        min_speeds[i], max_speeds[i], found_positive_start,
+                        found_negative_start, min_positive_duty, min_negative_duty);
+      }
+      // Profile from -100% up to one step below 0%
+      for(uint j = 0; j < DUTY_STEPS; j++) {
+        profile_at_duty(motors[i], encoders[i], -(float)(DUTY_STEPS - j) / (float)DUTY_STEPS,
+                        min_speeds[i], max_speeds[i], found_positive_start,
+                        found_negative_start, min_positive_duty, min_negative_duty);
+      }
+      // Profile 0% again
+      profile_at_duty(motors[i], encoders[i], 0.0f, min_speeds[i],
+                      max_speeds[i], found_positive_start, found_negative_start,
+                      min_positive_duty, min_negative_duty);
+      motors[i].disable();
+      printf("Min and maximum speeds for Motor %d: %f, %f\n", i, min_speeds[i], max_speeds[i]);
+      printf("Min Positive Duty = %f, Min Negative Duty = %f\n", i, min_positive_duty, min_negative_duty);
   }
 
-  // Profile from 100% down to one step above 0%
-  for(uint i = 0; i < DUTY_STEPS; i++) {
-    profile_at_duty((float)(DUTY_STEPS - i) / (float)DUTY_STEPS);
-  }
 
-  // Profile from 0% down to one step above -100%
-  for(uint i = 0; i < DUTY_STEPS; i++) {
-    profile_at_duty(-(float)i / (float)DUTY_STEPS);
-  }
-
-  // Profile from -100% up to one step below 0%
-  for(uint i = 0; i < DUTY_STEPS; i++) {
-    profile_at_duty(-(float)(DUTY_STEPS - i) / (float)DUTY_STEPS);
-  }
-
-  // Profile 0% again
-  profile_at_duty(0.0f);
 
   printf("Profiler Finished...\n");
 
-  // Disable the motor now the profiler has finished
-  m.disable();
 }
