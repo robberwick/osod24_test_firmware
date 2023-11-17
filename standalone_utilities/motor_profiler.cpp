@@ -68,7 +68,7 @@ void profile_at_duty(Motor motors[], Encoder encoders[], float duty, float min_s
   
     // Perform a capture and read the measured speed
     Encoder::Capture capture = encoders[i].capture();
-    
+
     float measured_speed = capture.revolutions_per_minute();
 
     // These are some alternate speed measurements from the encoder
@@ -77,9 +77,8 @@ void profile_at_duty(Motor motors[], Encoder encoders[], float duty, float min_s
     // float measured_speed = capture.radians_per_second();
 
     // Print out the expected and measured speeds, as well as their difference
-    //printf("Duty = %f, Expected = %f, Measured = %f, Diff = %f\n",
-    //       m.duty(), m.speed(), measured_speed, m.speed() - measured_speed);
-
+    // uncomment for verbose output:
+    // printf("Motor %d, Duty = %f, Measured rpm = %f\n", i, motors[i].duty(), measured_speed);
 
     // Update the maximum and minimum speeds
     if (measured_speed > max_speeds[i]) {
