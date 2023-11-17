@@ -1,0 +1,7 @@
+include(position_on_velocity_control.cmake)
+include(position_on_velocity_tuning.cmake)
+include(motor_profiler.cmake)
+include(position_control.cmake)
+include(position_tuning.cmake)
+include(velocity_control.cmake)
+include(velocity_tuning.cmake)

@@ -9,7 +9,6 @@ project(osod_motor_2040 C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-
 # Initialize the SDK
 pico_sdk_init()
 
@@ -19,9 +18,10 @@ add_executable(osod_motor_2040
         receiver_utils.cpp
 )
 
-add_subdirectory(${PIMORONI_PICO_PATH} ${CMAKE_BINARY_DIR}/pimoroni-pico-build)
-#add_subdirectory(${PIMORONI_PICO_PATH}/drivers/pid ${CMAKE_BINARY_DIR}/pimoroni-pico-build/pid-build)
+add_subdirectory(standalone_utilities)
 
+
+add_subdirectory(${PIMORONI_PICO_PATH} ${CMAKE_BINARY_DIR}/pimoroni-pico-build)
 
 set(RX_PROTOCOL "CPPM" CACHE STRING "Set the RX protocol")  # "CPPM" is the default
 
