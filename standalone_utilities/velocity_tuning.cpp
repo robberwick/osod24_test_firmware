@@ -24,40 +24,45 @@ const pin_pair MOTOR_PINS = motor2040::MOTOR_A;
 const pin_pair ENCODER_PINS = motor2040::ENCODER_A;
 
 // The gear ratio of the motor
-constexpr float GEAR_RATIO = 50.0f;
+constexpr float GEAR_RATIO = 19.22f;
+
+constexpr int CPR = 12;
 
 // The counts per revolution of the motor's output shaft
-constexpr float COUNTS_PER_REV = MMME_CPR * GEAR_RATIO;
+constexpr float COUNTS_PER_REV = CPR * GEAR_RATIO;
 
 // The direction to spin the motor in. NORMAL_DIR (0), REVERSED_DIR (1)
 const Direction DIRECTION = NORMAL_DIR;
 
 // The scaling to apply to the motor's speed to match its real-world speed
-constexpr float SPEED_SCALE = 5.4f;
+constexpr float SPEED_SCALE = 495.0f;
 
 // How many times to update the motor per second
 const uint UPDATES = 100;
 constexpr float UPDATE_RATE = 1.0f / (float)UPDATES;
 
-// The time (in seconds) after a new setpoint, to display print out motor values
-constexpr float PRINT_WINDOW = 0.25f;
+// The time (in milliseconds) it approximately takes for the script to run, inc prints
+constexpr uint32_t UPDATE_TIME = 5;
 
 // The time (in seconds) between each new setpoint being set
-constexpr float MOVEMENT_WINDOW = 2.0f;
+constexpr float MOVEMENT_WINDOW = 1.0f;
+
+// The time (in seconds) after a new setpoint, to display print out motor values
+constexpr float PRINT_WINDOW = MOVEMENT_WINDOW;
 
 // How many of the updates should be printed (i.e. 2 would be every other update)
 const uint PRINT_DIVIDER = 1;
 
 // Multipliers for the different printed values, so they appear nicely on the Thonny plotter
-constexpr float ACC_PRINT_SCALE = 0.01f;    // Acceleration multiplier
+constexpr float ACC_PRINT_SCALE = 1.0f;    // Acceleration multiplier
 
 // How far from zero to drive the motor at, in revolutions per second
-constexpr float VELOCITY_EXTENT = 3.0f;
+constexpr float VELOCITY_EXTENT = 300.0f;
 
 // PID values
-constexpr float VEL_KP = 30.0f;   // Velocity proportional (P) gain
+constexpr float VEL_KP = 3.25f;   // Velocity proportional (P) gain
 constexpr float VEL_KI = 0.0f;    // Velocity integral (I) gain
-constexpr float VEL_KD = 0.4f;    // Velocity derivative (D) gain
+constexpr float VEL_KD = 0.003f;    // Velocity derivative (D) gain
 
 
 // Create a motor and set its direction and speed scale
@@ -97,15 +102,16 @@ int main() {
     Encoder::Capture capture = enc.capture();
 
     // Calculate the acceleration to apply to the motor to move it closer to the velocity setpoint
-    float accel = vel_pid.calculate(capture.revolutions_per_second());
+    float accel = vel_pid.calculate(capture.revolutions_per_minute());
 
     // Accelerate or decelerate the motor
-    m.speed(m.speed() + (accel * UPDATE_RATE));
+    m.speed(vel_pid.setpoint + accel);
 
     // Print out the current motor values and their setpoints,
     // but only for the first few updates and only every multiple
     if(update < (uint)(PRINT_WINDOW * UPDATES) && print_count == 0) {
-        printf("Vel = %f, ", capture.revolutions_per_second());
+        printf("Time = %.4f, ", to_ms_since_boot(get_absolute_time())/1000.0),
+        printf("Vel = %f, ", capture.revolutions_per_minute());
         printf("Vel SP = %f, ", vel_pid.setpoint);
         printf("Accel = %f, ", accel * ACC_PRINT_SCALE);
         printf("Speed = %f\n", m.speed());
@@ -124,7 +130,7 @@ int main() {
         vel_pid.setpoint = 0.0f - vel_pid.setpoint;
     }
 
-    sleep_ms(UPDATE_RATE * 1000.0f);
+    sleep_ms(UPDATE_RATE * 1000.0f - UPDATE_TIME);
   }
 
   // Disable the motor
