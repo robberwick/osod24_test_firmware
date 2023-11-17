@@ -46,48 +46,57 @@ bool found_positive_start = false;
 bool found_negative_start = false;
 
 // Function to profile a motor at a given duty
-void profile_at_duty(Motor& m, Encoder& enc, float duty, float& min_speed, 
-                     float& max_speed, bool& found_positive_start,
-                     bool& found_negative_start, float& min_positive_duty, float& min_negative_duty) {
+void profile_at_duty(Motor motors[], Encoder encoders[], float duty, float min_speeds[], 
+                     float max_speeds[], bool found_pos_starts[], float min_pos_duties[],
+                     bool found_neg_starts[], float min_neg_duties[]) {
 
-  // Set the motor to a new duty cycle and wait for it to settle
-  if(DIRECTION == REVERSED_DIR)
-      m.duty(0.0 - duty);
-  else
-      m.duty(duty);
-  sleep_ms(SETTLE_TIME);
+// Set duty for all motors
+  for(int i = 0; i < 4; i++) {
+    motors[i].duty((DIRECTION == REVERSED_DIR) ? (0.0 - duty) : duty);
+  }
+  sleep_ms(SETTLE_TIME); // Wait for motors to settle
 
-  // Perform a dummy capture to clear the encoder
-  enc.capture();
+// Capture speeds for all motors
+  for(int i = 0; i < 4; i++) {
+    encoders[i].capture(); // Clear the encoder
+  }
 
   // Wait for the capture time to pass
   sleep_ms(CAPTURE_TIME);
 
-  // Perform a capture and read the measured speed
-  Encoder::Capture capture = enc.capture();
-  //float measured_speed = capture.revolutions_per_second();
+  for(int i = 0; i < 4; i++) {
+  
+    // Perform a capture and read the measured speed
+    Encoder::Capture capture = encoders[i].capture();
+    
+    float measured_speed = capture.revolutions_per_minute();
 
-  // These are some alternate speed measurements from the encoder
-  float measured_speed = capture.revolutions_per_minute();
-  // float measured_speed = capture.degrees_per_second();
-  // float measured_speed = capture.radians_per_second();
+    // These are some alternate speed measurements from the encoder
+    //float measured_speed = capture.revolutions_per_second();
+    // float measured_speed = capture.degrees_per_second();
+    // float measured_speed = capture.radians_per_second();
 
-  // Print out the expected and measured speeds, as well as their difference
-  //printf("Duty = %f, Expected = %f, Measured = %f, Diff = %f\n",
-  //       m.duty(), m.speed(), measured_speed, m.speed() - measured_speed);
-             // Update the maximum speed if a higher speed is measured
-  if (measured_speed > max_speed) {
-      max_speed = measured_speed;
-  } else if (measured_speed < min_speed) {
-      min_speed = measured_speed;
-  }
-  if (!found_positive_start && duty > 0 && measured_speed > 0) {
-      min_positive_duty = duty;
-      found_positive_start = true;
-  }
-  if (!found_negative_start && duty < 0 && measured_speed < 0) {
-      min_negative_duty = duty;
-      found_negative_start = true;
+    // Print out the expected and measured speeds, as well as their difference
+    //printf("Duty = %f, Expected = %f, Measured = %f, Diff = %f\n",
+    //       m.duty(), m.speed(), measured_speed, m.speed() - measured_speed);
+
+
+    // Update the maximum and minimum speeds
+    if (measured_speed > max_speeds[i]) {
+      max_speeds[i] = measured_speed;
+    } else if (measured_speed < min_speeds[i]) {
+      min_speeds[i] = measured_speed;
+    }
+
+    // Check for start of movement
+    if (!found_pos_starts[i] && (duty > 0 && measured_speed > 0)) {
+      min_pos_duties[i] = duty;
+      found_pos_starts[i] = true;
+    }
+    if (!found_neg_starts[i] && duty < 0 && measured_speed < 0) {
+      min_neg_duties[i] = duty;
+      found_neg_starts[i] = true;
+    }
   }
 }
 
@@ -100,6 +109,10 @@ int main() {
 
   float min_speeds[4] = {0.0f, 0.0f, 0.0f, 0.0f};
   float max_speeds[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+  bool found_pos_starts[4] = {false, false, false, false};
+  float min_pos_duties[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+  bool found_neg_starts[4] = {false, false, false, false};
+  float min_neg_duties[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 
   // Initialize motors and encoders, and maximum speed array
   for(int i = 0; i < 4; i++) {
@@ -110,47 +123,43 @@ int main() {
 
   printf("Profiler Starting...\n");
 
-  // Perform profiling for each motor
+    // Profile from 0% up to one step below 100%
+  for(uint j = 0; j < DUTY_STEPS; j++) {
+    profile_at_duty(motors, encoders, (float)j / (float)DUTY_STEPS,
+                    min_speeds, max_speeds, found_pos_starts,
+                    min_pos_duties, found_neg_starts, min_neg_duties);
+  }
+  // Profile from 100% down to one step above 0%
+  for(uint j = 0; j < DUTY_STEPS; j++) {
+    profile_at_duty(motors, encoders, (float)(DUTY_STEPS - j) / (float)DUTY_STEPS,
+                    min_speeds, max_speeds, found_pos_starts,
+                    min_pos_duties, found_neg_starts, min_neg_duties);
+  }
+  // Profile from 0% down to one step above -100%
+  for(uint j = 0; j < DUTY_STEPS; j++) {
+    profile_at_duty(motors, encoders, -(float)j / (float)DUTY_STEPS,
+                    min_speeds, max_speeds, found_pos_starts,
+                    min_pos_duties, found_neg_starts, min_neg_duties);
+  }
+  // Profile from -100% up to one step below 0%
+  for(uint j = 0; j < DUTY_STEPS; j++) {
+    profile_at_duty(motors, encoders, -(float)(DUTY_STEPS - j) / (float)DUTY_STEPS,
+                    min_speeds, max_speeds, found_pos_starts,
+                    min_pos_duties, found_neg_starts, min_neg_duties);
+  }
+  // Profile 0% again
+  profile_at_duty(motors, encoders, 0.0f, min_speeds,
+                  max_speeds, found_pos_starts, min_pos_duties,
+                  found_neg_starts, min_neg_duties);
+
   for(int i = 0; i < 4; i++) {
-      found_positive_start = found_negative_start = false;
-      min_positive_duty = 1.0f;
-      min_negative_duty = -1.0f;
-      
-      printf("Profiling Motor %d...\n", i);
-      // Profile from 0% up to one step below 100%
-      for(uint j = 0; j < DUTY_STEPS; j++) {
-        profile_at_duty(motors[i], encoders[i], (float)j / (float)DUTY_STEPS,
-                        min_speeds[i], max_speeds[i], found_positive_start,
-                        found_negative_start, min_positive_duty, min_negative_duty);
-      }
-      // Profile from 100% down to one step above 0%
-      for(uint j = 0; j < DUTY_STEPS; j++) {
-        profile_at_duty(motors[i], encoders[i], (float)(DUTY_STEPS - j) / (float)DUTY_STEPS,
-                        min_speeds[i], max_speeds[i], found_positive_start,
-                        found_negative_start, min_positive_duty, min_negative_duty);
-      }
-      // Profile from 0% down to one step above -100%
-      for(uint j = 0; j < DUTY_STEPS; j++) {
-        profile_at_duty(motors[i], encoders[i], -(float)j / (float)DUTY_STEPS,
-                        min_speeds[i], max_speeds[i], found_positive_start,
-                        found_negative_start, min_positive_duty, min_negative_duty);
-      }
-      // Profile from -100% up to one step below 0%
-      for(uint j = 0; j < DUTY_STEPS; j++) {
-        profile_at_duty(motors[i], encoders[i], -(float)(DUTY_STEPS - j) / (float)DUTY_STEPS,
-                        min_speeds[i], max_speeds[i], found_positive_start,
-                        found_negative_start, min_positive_duty, min_negative_duty);
-      }
-      // Profile 0% again
-      profile_at_duty(motors[i], encoders[i], 0.0f, min_speeds[i],
-                      max_speeds[i], found_positive_start, found_negative_start,
-                      min_positive_duty, min_negative_duty);
       motors[i].disable();
-      printf("Min and maximum speeds for Motor %d: %f, %f\n", i, min_speeds[i], max_speeds[i]);
-      printf("Min Positive Duty = %f, Min Negative Duty = %f\n", i, min_positive_duty, min_negative_duty);
   }
 
-
+  for(int i = 0; i < 4; i++) {
+    printf("Motor %d - Min Speed: %f, Max Speed: %f, Min neg Duty: %f, Min Pos Duty: %f\n", 
+           i, min_speeds[i], max_speeds[i], min_neg_duties[i], min_pos_duties[i]);
+  }
 
   printf("Profiler Finished...\n");
 
