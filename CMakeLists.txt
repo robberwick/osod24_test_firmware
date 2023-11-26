@@ -17,8 +17,13 @@ add_executable(osod_motor_2040
 )
 add_subdirectory(${PIMORONI_PICO_PATH} ${CMAKE_BINARY_DIR}/pimoroni-pico-build)
 
+add_subdirectory(libs)
+#add_subdirectory(src)
+
 target_link_libraries(${PROJECT_NAME}
         motor2040
+        receiver
+        navigator
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

@@ -1,0 +1,2 @@
+add_subdirectory(navigator)
+add_subdirectory(receiver)
