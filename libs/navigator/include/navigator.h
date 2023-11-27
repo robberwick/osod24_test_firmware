@@ -2,10 +2,10 @@
 
 class Navigator {
 public:
-    explicit Navigator(const Receiver& receiver);
+    explicit Navigator(const Receiver* receiver);
     ~Navigator();
     void navigate();
 
 private:
-    Receiver receiver;
+    const Receiver *receiver{};
 };

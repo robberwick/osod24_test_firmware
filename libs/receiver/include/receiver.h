@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pico_cppm/cppm_decoder.h"
-
 struct ReceiverChannelValues {
     float AIL;
     float ELE;
@@ -21,21 +19,24 @@ enum class RX_CHANNELS {
 };
 extern const char *RX_CHANNEL_NAMES[];
 
-extern const uint NUM_RX_CHANNELS;
-
 class Receiver {
 public:
     // constructor
-    explicit Receiver(uint8_t pin);
+    explicit Receiver(int pin);
+
+    Receiver();
+
     // destructor
-    ~Receiver();
+    virtual ~Receiver();
 
-    ReceiverChannelValues get_channel_values();
-    bool get_receiver_data();
+    [[nodiscard]] virtual ReceiverChannelValues get_channel_values() const;
 
-private:
-    CPPMDecoder* decoder = nullptr;
+    [[nodiscard]] virtual bool get_receiver_data() const;
 };
 
+Receiver* getReceiver(int pin);
 
 
+float map_value_to_range(int value);
+
+float map_range(float a1, float a2, float b1, float b2, float s);
