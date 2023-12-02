@@ -7,6 +7,7 @@
 
 #include "receiver.h"
 #include "stoker.h"
+#include "mixer_strategy.h"
 
 namespace STATEMANAGER {
 
@@ -25,15 +26,16 @@ namespace STATEMANAGER {
 
     class StateManager {
     public:
-        StateManager();
+        explicit StateManager(MIXER::MixerStrategy *mixerStrategy);
 
         void requestState(RequestedState requestedState);
     private:
+        MIXER::MixerStrategy *mixerStrategy;
         Stokers stokers{};
         // max speed factor - scale the speed of the motors down to this value
         static constexpr float SPEED_EXTENT = 1.0f;
 
-        void mixTankDrive(RequestedState *requestedState) const;
+        void setSpeeds(MIXER::MotorSpeeds motorSpeeds) const;
     };
 
 } // StateManager

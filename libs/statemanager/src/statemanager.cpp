@@ -8,7 +8,7 @@
 
 namespace STATEMANAGER {
 
-    StateManager::StateManager() {
+    StateManager::StateManager(MIXER::MixerStrategy *mixerStrategy) : mixerStrategy(mixerStrategy) {
         printf("State manager created\n");
         // set up the stokers
         stokers.FRONT_LEFT = new STOKER::Stoker(motor::motor2040::MOTOR_A, Direction::NORMAL_DIR);
@@ -22,27 +22,14 @@ namespace STATEMANAGER {
         printf("Velocity: %f ", requestedState.velocity);
         printf("Angular velocity: %f ", requestedState.angularVelocity);
         printf("\n");
-        mixTankDrive(&requestedState);
+        MIXER::MotorSpeeds motorSpeeds = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity, SPEED_EXTENT);
+        setSpeeds(motorSpeeds);
     }
 
-    void StateManager::mixTankDrive(RequestedState *requestedState) const {
-        float left = requestedState->velocity + requestedState->angularVelocity;
-        float right = requestedState->velocity - requestedState->angularVelocity;
-        float abs_left = left >= 0 ? left : -left;
-        float abs_right = right >= 0 ? right : -right;
-        float max_abs = abs_left > abs_right ? abs_left : abs_right;
-
-        if (max_abs > 1.0) {
-            left /= max_abs;
-            right /= max_abs;
-        }
-
-        float scaled_left = (left * -SPEED_EXTENT);
-        float scaled_right = (right * -SPEED_EXTENT) * -1;
-
-        stokers.FRONT_LEFT->set_speed(scaled_left);
-        stokers.FRONT_RIGHT->set_speed(scaled_right);
-        stokers.REAR_LEFT->set_speed(scaled_left);
-        stokers.REAR_RIGHT->set_speed(scaled_right);
+    void StateManager::setSpeeds(MIXER::MotorSpeeds motorSpeeds) const {
+        stokers.FRONT_LEFT->set_speed(motorSpeeds.FRONT_LEFT);
+        stokers.FRONT_RIGHT->set_speed(motorSpeeds.FRONT_RIGHT);
+        stokers.REAR_LEFT->set_speed(motorSpeeds.REAR_LEFT);
+        stokers.REAR_RIGHT->set_speed(motorSpeeds.REAR_RIGHT);
     }
 } // StateManager

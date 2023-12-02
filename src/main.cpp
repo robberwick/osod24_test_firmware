@@ -4,6 +4,7 @@
 #include "receiver.h"
 #include "statemanager.h"
 #include "motor2040.hpp"
+#include "tank_steer_strategy.h"
 
 
 int main() {
@@ -11,7 +12,8 @@ int main() {
 
     // set up the state manager
     using namespace STATEMANAGER;
-    auto* pStateManager = new StateManager();
+    auto* pTankSteerStrategy = new MIXER::TankSteerStrategy();
+    auto* pStateManager = new StateManager(pTankSteerStrategy);
 
     // set up the receiver
     // if the cmake build flag RX_PROTOCOL is CPPM, then use the CPPM receiver
