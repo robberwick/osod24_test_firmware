@@ -2,16 +2,24 @@
 #include "pico/stdlib.h"
 #include "navigator.h"
 #include "receiver.h"
+#include "statemanager.h"
 #include "motor2040.hpp"
 
 
 int main() {
     stdio_init_all();
 
+    // set up the state manager
+    using namespace STATEMANAGER;
+    auto* pStateManager = new StateManager();
+
+    // set up the receiver
     // if the cmake build flag RX_PROTOCOL is CPPM, then use the CPPM receiver
     // otherwise use the SBUS receiver
     Receiver* pReceiver = getReceiver(motor::motor2040::RX_ECHO);
-    Navigator navigator = Navigator(pReceiver);
+
+    // set up the navigator
+    Navigator navigator = Navigator(pReceiver, pStateManager);
 
     while (true) {
         navigator.navigate();

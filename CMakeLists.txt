@@ -23,6 +23,7 @@ target_link_libraries(${PROJECT_NAME}
         motor2040
         receiver
         navigator
+        statemanager
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
