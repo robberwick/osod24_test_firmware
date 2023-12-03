@@ -5,14 +5,14 @@
 #include "statemanager.h"
 #include "motor2040.hpp"
 #include "tank_steer_strategy.h"
-
+#include "drivetrain_config.h"
 
 int main() {
     stdio_init_all();
 
     // set up the state manager
     using namespace STATEMANAGER;
-    auto* pTankSteerStrategy = new MIXER::TankSteerStrategy();
+    auto* pTankSteerStrategy = new MIXER::TankSteerStrategy(CONFIG::WHEEL_TRACK, CONFIG::WHEEL_BASE);
     auto* pStateManager = new StateManager(pTankSteerStrategy);
 
     // set up the receiver
