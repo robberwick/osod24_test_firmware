@@ -17,7 +17,7 @@ namespace MIXER {
 
     class MixerStrategy {
     public:
-        virtual MotorSpeeds mix(float velocity, float angularVelocity, float speed_factor) = 0;
+        virtual MotorSpeeds mix(float velocity, float angularVelocity) = 0;
     };
 }
 

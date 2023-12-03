@@ -11,7 +11,7 @@ namespace MIXER {
 
     class TankSteerStrategy : public MixerStrategy {
     public:
-        MotorSpeeds mix(float velocity, float angularVelocity, float speed_factor) override;
+        MotorSpeeds mix(float velocity, float angularVelocity) override;
     };
 }
 

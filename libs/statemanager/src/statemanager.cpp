@@ -22,7 +22,7 @@ namespace STATEMANAGER {
         printf("Velocity: %f ", requestedState.velocity);
         printf("Angular velocity: %f ", requestedState.angularVelocity);
         printf("\n");
-        MIXER::MotorSpeeds motorSpeeds = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity, SPEED_EXTENT);
+        MIXER::MotorSpeeds motorSpeeds = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
         setSpeeds(motorSpeeds);
     }
 

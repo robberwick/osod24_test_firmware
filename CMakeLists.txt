@@ -25,6 +25,7 @@ target_link_libraries(${PROJECT_NAME}
         navigator
         statemanager
         stoker
+        config
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
