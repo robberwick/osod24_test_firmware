@@ -3,6 +3,7 @@
 #include "navigator.h"
 #include "receiver.h"
 #include "statemanager.h"
+#include "state_estimator.h"
 #include "motor2040.hpp"
 #include "tank_steer_strategy.h"
 #include "ackermann_strategy.h"
@@ -10,6 +11,9 @@
 
 int main() {
     stdio_init_all();
+
+    // set up the state estimator
+    auto* pStateEstimator = new STATE_ESTIMATOR::StateEstimator();
 
     // set up the state manager
     using namespace STATEMANAGER;
