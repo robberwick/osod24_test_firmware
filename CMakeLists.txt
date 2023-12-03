@@ -13,12 +13,18 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 add_executable(osod_motor_2040
-        main.cpp
+        src/main.cpp
 )
 add_subdirectory(${PIMORONI_PICO_PATH} ${CMAKE_BINARY_DIR}/pimoroni-pico-build)
 
+add_subdirectory(libs)
+
 target_link_libraries(${PROJECT_NAME}
         motor2040
+        receiver
+        navigator
+        statemanager
+        stoker
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
