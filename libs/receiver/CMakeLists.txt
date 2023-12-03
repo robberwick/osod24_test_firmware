@@ -4,6 +4,16 @@ add_library(receiver STATIC
         src/receiverCPPM.cpp
 )
 
+set(RX_PROTOCOL "CPPM" CACHE STRING "Set the RX protocol")
+
+if (${RX_PROTOCOL} STREQUAL "SBUS")
+    message(STATUS "RX_PROTOCOL: SBUS")
+    add_compile_definitions(-DRX_PROTOCOL_SBUS)
+else ()
+    message(STATUS "RX_PROTOCOL: CPPM")
+    add_compile_definitions(-DRX_PROTOCOL_CPPM)
+endif ()
+
 target_include_directories(receiver PUBLIC
         PRIVATE include/sbus_2040
 )
