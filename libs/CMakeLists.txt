@@ -1,6 +1,7 @@
 add_subdirectory(config)
 add_subdirectory(navigator)
 add_subdirectory(receiver)
+add_subdirectory(state_estimator)
 add_subdirectory(statemanager)
 add_subdirectory(stoker)
 add_subdirectory(mixer)
