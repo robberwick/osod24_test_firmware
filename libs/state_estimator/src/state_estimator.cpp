@@ -24,11 +24,11 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::showValues() const {
-//        printf("FRONT_LEFT: %ld\n", encoders.FRONT_LEFT->count());
-//        printf("FRONT_RIGHT: %ld\n", encoders.FRONT_RIGHT->count());
-//        printf("REAR_LEFT: %ld\n", encoders.REAR_LEFT->count());
-//        printf("REAR_RIGHT: %ld\n", encoders.REAR_RIGHT->count());
-//        printf("\n");
+        printf("FRONT_LEFT: %ld ", encoders.FRONT_LEFT->count());
+        printf("FRONT_RIGHT: %ld ", encoders.FRONT_RIGHT->count());
+        printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
+        printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
+        printf("\n");
     }
 
     void StateEstimator::publishState() const {
