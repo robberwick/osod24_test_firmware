@@ -34,7 +34,7 @@ namespace STATEMANAGER {
     public:
         explicit StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator);
 
-        void requestState(RequestedState requestedState);
+        void requestState(STATE_ESTIMATOR::State requestedState);
     private:
         MIXER::MixerStrategy *mixerStrategy;
         STATE_ESTIMATOR::StateEstimator *stateEstimator;
