@@ -26,7 +26,7 @@ int main() {
     // set up the state manager
     using namespace STATEMANAGER;
     auto *pTankSteerStrategy = new MIXER::TankSteerStrategy(CONFIG::WHEEL_TRACK, CONFIG::WHEEL_BASE);
-    auto *pStateManager = new StateManager(pTankSteerStrategy);
+    auto *pStateManager = new StateManager(pTankSteerStrategy, pStateEstimator);
 
     // set up the receiver
     // if the cmake build flag RX_PROTOCOL is CPPM, then use the CPPM receiver
