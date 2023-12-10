@@ -42,6 +42,11 @@ namespace STATE_ESTIMATOR {
         printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
         printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
         printf("\n");
+        printf("X: %f, Y: %f, Velocity: %f, Heading: %f\n", 
+           estimatedState.x, 
+           estimatedState.y, 
+           estimatedState.velocity, 
+           estimatedState.heading);
     }
 
     void StateEstimator::publishState() const {
@@ -115,6 +120,7 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::timerCallback(repeating_timer_t *timer) {
         if (instancePtr != nullptr) {
+            instancePtr->estimateState();
             instancePtr->publishState();
         }
     }
