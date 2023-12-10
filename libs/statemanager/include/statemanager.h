@@ -12,12 +12,6 @@
 
 namespace STATEMANAGER {
 
-    // define a RequestedState struct containing the requested state parameters: velocity and angular velocity
-    struct RequestedState {
-        float velocity;
-        float angularVelocity;
-    };
-
     struct Stokers {
         STOKER::Stoker* FRONT_LEFT;
         STOKER::Stoker* FRONT_RIGHT;
@@ -29,7 +23,7 @@ namespace STATEMANAGER {
     public:
         explicit StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator);
 
-        void requestState(RequestedState requestedState);
+        void requestState(STATE_ESTIMATOR::State requestedState);
     private:
         MIXER::MixerStrategy *mixerStrategy;
         STATE_ESTIMATOR::StateEstimator *stateEstimator;
