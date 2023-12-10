@@ -37,7 +37,7 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::setupTimer() {
 // Example configuration (adjust as needed)
-        const uint32_t timerInterval = 50;  // Interval in microseconds
+        const uint32_t timerInterval = 50;  // Interval in milliseconds
 
         // Set up the repeating timer with the callback
         if (!add_repeating_timer_ms(timerInterval,
