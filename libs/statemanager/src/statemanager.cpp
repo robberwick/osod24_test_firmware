@@ -20,10 +20,10 @@ namespace STATEMANAGER {
     }
 
     void StateManager::requestState(STATE_ESTIMATOR::State requestedState) {
-        printf("Requested state...\n");
-        printf("Velocity: %f ", requestedState.velocity);
-        printf("Angular velocity: %f ", requestedState.angularVelocity);
-        printf("\n");
+        //printf("Requested state...\n");
+        //printf("Velocity: %f ", requestedState.velocity);
+        //printf("Angular velocity: %f ", requestedState.angularVelocity);
+        //printf("\n");
         MIXER::MotorSpeeds motorSpeeds = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
         setSpeeds(motorSpeeds);
     }
