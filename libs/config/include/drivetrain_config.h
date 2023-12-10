@@ -77,9 +77,9 @@ namespace CONFIG {
     constexpr float SPEED_SCALE = 495.0f;
 
 //dynamics
-    const float MAX_VELOCITY = 1;              // m/s
+    const float MAX_VELOCITY = 1.28;              // m/s
     const float MAX_ACCELERATION = 8;          // m/s^2
-    const float MAX_ANGULAR_VELOCITY = 5;      // rad/s
+    const float MAX_ANGULAR_VELOCITY = 17;      // rad/s
     const float MAX_ANGULAR_ACCELERATION = 20; // rad/s^2
 
 
