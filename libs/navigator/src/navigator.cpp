@@ -1,6 +1,8 @@
 #include <cstdio>
 #include "navigator.h"
 #include "statemanager.h"
+#include "state_estimator.h"
+
 #include "drivetrain_config.h"
 
 Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* stateManager) {
@@ -24,7 +26,7 @@ void Navigator::navigate() {
 
         // send the receiver data to the state manager
         // TODO: use a queue to send the receiver data to the state manager
-        STATEMANAGER::RequestedState requestedState{};
+        STATE_ESTIMATOR::State requestedState{};
         requestedState.velocity = values.ELE * CONFIG::MAX_VELOCITY;
         requestedState.angularVelocity = values.AIL * CONFIG::MAX_ANGULAR_VELOCITY;
         pStateManager->requestState(requestedState);
