@@ -18,7 +18,7 @@ MotorSpeeds TankSteerStrategy::mix(float velocity, float angularVelocity) {
         right /= max_abs;
     }
     const float speed_factor = 1.0f;
-    float scaled_left = (left * -speed_factor);
-    float scaled_right = (right * -speed_factor) * -1;
+    float scaled_left = (left * speed_factor);
+    float scaled_right = (right * speed_factor) * -1;
     return {scaled_left, scaled_right, scaled_left, scaled_right};
 }
