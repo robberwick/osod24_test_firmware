@@ -9,10 +9,10 @@ namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
 
     StateEstimator::StateEstimator() : encoders{
-            .FRONT_LEFT =new Encoder(pio0, 0, motor2040::ENCODER_A),
-            .FRONT_RIGHT =new Encoder(pio0, 1, motor2040::ENCODER_B),
-            .REAR_LEFT = new Encoder(pio0, 2, motor2040::ENCODER_C),
-            .REAR_RIGHT = new Encoder(pio0, 3, motor2040::ENCODER_D)
+            .FRONT_LEFT =new Encoder(pio0, 0, motor2040::ENCODER_A, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
+            .FRONT_RIGHT =new Encoder(pio0, 1, motor2040::ENCODER_B, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
+            .REAR_LEFT = new Encoder(pio0, 2, motor2040::ENCODER_C, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
+            .REAR_RIGHT = new Encoder(pio0, 3, motor2040::ENCODER_D, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV)
     }, timer(new repeating_timer_t) {
         encoders.FRONT_LEFT->init();
         encoders.FRONT_RIGHT->init();
@@ -42,11 +42,12 @@ namespace STATE_ESTIMATOR {
         printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
         printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
         printf("\n");
-        printf("X: %f, Y: %f, Velocity: %f, Heading: %f\n", 
+        printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
            estimatedState.x, 
            estimatedState.y, 
            estimatedState.velocity, 
-           estimatedState.heading);
+           estimatedState.heading,
+           estimatedState.angularVelocity);
     }
 
     void StateEstimator::publishState() const {
@@ -54,16 +55,23 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::estimateState() {
+        
+        //get current encoder state
+        auto captureFL = encoders.FRONT_LEFT->capture();
+        auto captureFR = encoders.FRONT_RIGHT->capture();
+        auto captureRL = encoders.REAR_LEFT->capture();
+        auto captureRR = encoders.REAR_RIGHT->capture();
+        
         // calculate position deltas
         float distance_travelled;
         float heading_change;
-        float left_travel;
-        float right_travel;
-        //get average wheel rotation for left side
-        left_travel = ((encoders.FRONT_LEFT->radians()) + (encoders.REAR_LEFT->radians())) / 2;
+
+        // Calculate average wheel rotation delta for left and right sides
+        float left_travel = (captureFL.radians_delta() + captureRL.radians_delta()) / 2;
+        float right_travel = (captureFR.radians_delta() + captureRR.radians_delta()) / 2;
+        
         // convert wheel rotation to distance travelled in meters
         left_travel = left_travel * CONFIG::WHEEL_DIAMETER / 2;
-        right_travel = ((encoders.FRONT_RIGHT->radians()) + (encoders.REAR_RIGHT->radians())) / 2;
         right_travel = right_travel * CONFIG::WHEEL_DIAMETER / 2;
 
         distance_travelled = (left_travel - right_travel) / 2;
@@ -79,19 +87,29 @@ namespace STATE_ESTIMATOR {
 
         //now actually update heading
         estimatedState.heading = estimatedState.heading + heading_change;
+        
+        //constrain heading to +/-pi 
+        if (estimatedState.heading > M_PI) {
+            estimatedState.heading -= 2 * M_PI;
+        }
+        if (estimatedState.heading < -M_PI) {
+            estimatedState.heading += 2 * M_PI;
+        }
 
         //calculate speeds
         float left_speed;
         float right_speed;
         
         //get wheel speeds
-        estimatedState.FL_wheel_speed = encoders.FRONT_LEFT->capture().radians_per_second();
-        estimatedState.FR_wheel_speed = encoders.FRONT_RIGHT->capture().radians_per_second();
-        estimatedState.RL_wheel_speed = encoders.REAR_LEFT->capture().radians_per_second();
-        estimatedState.RR_wheel_speed = encoders.REAR_RIGHT->capture().radians_per_second();
+        estimatedState.FL_wheel_speed = captureFL.radians_per_second();
+        estimatedState.FR_wheel_speed = captureFR.radians_per_second();
+        estimatedState.RL_wheel_speed = captureRL.radians_per_second();
+        estimatedState.RR_wheel_speed = captureRR.radians_per_second();
+
+        // average wheel speed in radians per sed
         left_speed = (estimatedState.FL_wheel_speed + estimatedState.RL_wheel_speed) / 2;
         
-        // convert wheel rotation to distance travelled in meters
+        // convert average wheel rotation speed to linear speed
         left_speed = left_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //repeat for right side
