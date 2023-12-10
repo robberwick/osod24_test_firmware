@@ -69,8 +69,8 @@ namespace STATE_ESTIMATOR {
         //assumed to be representative of heading during distance_travelled
         float tempHeading;
         tempHeading = estimatedState.heading + heading_change / 2;
-        estimatedState.x = estimatedState.x + distance_travelled * sin(estimatedState.heading);
-        estimatedState.y = estimatedState.y + distance_travelled * cos(estimatedState.heading);
+        estimatedState.x = estimatedState.x + distance_travelled * sin(tempHeading);
+        estimatedState.y = estimatedState.y + distance_travelled * cos(tempHeading);
 
         //now actually update heading
         estimatedState.heading = estimatedState.heading + heading_change;
@@ -80,10 +80,10 @@ namespace STATE_ESTIMATOR {
         float right_speed;
         
         //get wheel speeds
-        estimatedState.FL_wheel_speed = encoders.FRONT_LEFT->radians_per_second();
-        estimatedState.FR_wheel_speed = encoders.FRONT_RIGHT->radians_per_second();
-        estimatedState.RL_wheel_speed = encoders.REAR_LEFT->radians_per_second();
-        estimatedState.RR_wheel_speed = encoders.REAR_RIGHT->radians_per_second();
+        estimatedState.FL_wheel_speed = encoders.FRONT_LEFT->capture().radians_per_second();
+        estimatedState.FR_wheel_speed = encoders.FRONT_RIGHT->capture().radians_per_second();
+        estimatedState.RL_wheel_speed = encoders.REAR_LEFT->capture().radians_per_second();
+        estimatedState.RR_wheel_speed = encoders.REAR_RIGHT->capture().radians_per_second();
         left_speed = (estimatedState.FL_wheel_speed + estimatedState.RL_wheel_speed) / 2;
         
         // convert wheel rotation to distance travelled in meters
