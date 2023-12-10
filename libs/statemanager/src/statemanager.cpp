@@ -19,7 +19,7 @@ namespace STATEMANAGER {
         stokers.REAR_RIGHT = new STOKER::Stoker(motor::motor2040::MOTOR_D, Direction::NORMAL_DIR);
     }
 
-    void StateManager::requestState(RequestedState requestedState) {
+    void StateManager::requestState(STATE_ESTIMATOR::State requestedState) {
         printf("Requested state...\n");
         printf("Velocity: %f ", requestedState.velocity);
         printf("Angular velocity: %f ", requestedState.angularVelocity);

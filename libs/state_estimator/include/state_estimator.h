@@ -23,21 +23,28 @@ namespace STATE_ESTIMATOR {
     class StateEstimator {
     public:
         explicit StateEstimator();
+
         ~StateEstimator();  // Destructor to cancel the timer
         void showValues() const;
+
         void publishState() const;
 
     private:
         Encoders encoders;
         static StateEstimator *instancePtr;
-        repeating_timer_t* timer;
+        repeating_timer_t *timer;
 
-        static void timerCallback(repeating_timer_t* timer);
+        static void timerCallback(repeating_timer_t *timer);
 
         void setupTimer();
 
     };
 
+// define a RequestedState struct containing the requested state parameters: velocity and angular velocity
+    struct State {
+        float velocity;
+        float angularVelocity;
+    };
 } // STATE_ESTIMATOR
 
 #endif //OSOD_MOTOR_2040_STATE_ESTIMATOR_H
