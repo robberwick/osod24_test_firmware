@@ -8,6 +8,7 @@
 #include "pico/stdlib.h"
 #include "hardware/timer.h"
 #include "motor2040.hpp"
+#include "drivetrain_config.h"
 
 using namespace motor;
 using namespace encoder;
@@ -20,31 +21,41 @@ struct Encoders {
 
 namespace STATE_ESTIMATOR {
 
+    // define a State struct containing the state parameters that can be requested or tracked
+    struct State {
+        float x;
+        float xdot;
+        float y;
+        float ydot;
+        float velocity;
+        float heading;
+        float angularVelocity;
+        float FL_wheel_speed;
+        float FR_wheel_speed;
+        float RL_wheel_speed;
+        float RR_wheel_speed;
+    };
     class StateEstimator {
     public:
         explicit StateEstimator();
 
         ~StateEstimator();  // Destructor to cancel the timer
         void showValues() const;
-
+        void estimateState();
         void publishState() const;
 
     private:
         Encoders encoders;
         static StateEstimator *instancePtr;
         repeating_timer_t *timer;
-
+        State estimatedState;
+        State previousState;
         static void timerCallback(repeating_timer_t *timer);
 
         void setupTimer();
 
     };
 
-// define a RequestedState struct containing the requested state parameters: velocity and angular velocity
-    struct State {
-        float velocity;
-        float angularVelocity;
-    };
 } // STATE_ESTIMATOR
 
 #endif //OSOD_MOTOR_2040_STATE_ESTIMATOR_H
