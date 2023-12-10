@@ -6,6 +6,7 @@
 #define OSOD_MOTOR_2040_STATEMANAGER_H
 
 #include "receiver.h"
+#include "state_estimator.h"
 #include "stoker.h"
 #include "mixer_strategy.h"
 
@@ -26,11 +27,12 @@ namespace STATEMANAGER {
 
     class StateManager {
     public:
-        explicit StateManager(MIXER::MixerStrategy *mixerStrategy);
+        explicit StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator);
 
         void requestState(RequestedState requestedState);
     private:
         MIXER::MixerStrategy *mixerStrategy;
+        STATE_ESTIMATOR::StateEstimator *stateEstimator;
         Stokers stokers{};
         // max speed factor - scale the speed of the motors down to this value
         static constexpr float SPEED_EXTENT = 1.0f;
