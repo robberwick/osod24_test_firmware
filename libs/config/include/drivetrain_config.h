@@ -103,11 +103,3 @@ namespace CONFIG {
     constexpr float ACC_FF_GAIN = 0.0f; // Acceleration feedforward gain
 }
 #endif // DRIVETRAIN_CONFIG_H
-// feedforward values
-    constexpr float VEL_FF_GAIN = 1.0f;   // Velocity feedforward gain
-    constexpr float ACC_FF_GAIN = 0.0f;    // Acceleration feedforward gain
-
-
-}
-
-#endif // DRIVETRAIN_CONFIG_H
