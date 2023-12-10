@@ -7,7 +7,7 @@
 using namespace MIXER;
 
 MotorSpeeds TankSteerStrategy::mix(float velocity, float angularVelocity) {
-    float left = -velocity - angularVelocity * track_width / 2;
-    float right = velocity - angularVelocity * track_width / 2;
+    float left = velocity - angularVelocity * track_width / 2;
+    float right = -velocity - angularVelocity * track_width / 2;
     return {left, right, left, right};
 }
