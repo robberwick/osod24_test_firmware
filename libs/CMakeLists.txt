@@ -1,4 +1,5 @@
 add_subdirectory(config)
+add_subdirectory(i2cbus)
 add_subdirectory(navigator)
 add_subdirectory(receiver)
 add_subdirectory(statemanager)
