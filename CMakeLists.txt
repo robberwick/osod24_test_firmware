@@ -20,7 +20,6 @@ add_subdirectory(${PIMORONI_PICO_PATH} ${CMAKE_BINARY_DIR}/pimoroni-pico-build)
 add_subdirectory(libs)
 
 target_link_libraries(${PROJECT_NAME}
-        pico_stdlib 
         hardware_i2c
         motor2040
 )
