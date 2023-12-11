@@ -35,7 +35,7 @@ int main() {
     stdio_init_all();
 
     for (int i = 0; i < 10; i++) {
-        printf("time to start scan: %d secs\n", 20-i);
+        printf("time to start scan: %d secs\n", 10-i);
         sleep_ms(1000);
     }
     
