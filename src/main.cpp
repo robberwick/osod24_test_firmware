@@ -1,47 +1,68 @@
-/**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
 
-// Sweep through all 7-bit I2C addresses, to see if any slaves are present on
-// the I2C bus. Print out a table that looks like this:
-//
-// I2C Bus Scan
-//   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-// 0
-// 1       @
-// 2
-// 3             @
-// 4
-// 5
-// 6
-// 7
-//
-// E.g. if slave addresses 0x12 and 0x34 were acknowledged.
+/*
+  Using the BNO08x IMU
+
+  Example : Euler Angles
+  By: Paul Clark
+  Date: April 28th, 2020
+
+  This example shows how to output the Euler angles: roll, pitch and yaw.
+  The yaw (compass heading) is tilt-compensated, which is nice.
+  https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+  https://github.com/sparkfun/SparkFun_MPU-9250-DMP_Arduino_Library/issues/5#issuecomment-306509440
+
+  By: Nathan Seidle
+  SparkFun Electronics
+  Date: December 21st, 2017
+  SparkFun code, firmware, and software is released under the MIT License.
+	Please see LICENSE.md for further details.
+
+  Originally written by Nathan Seidle @ SparkFun Electronics, December 28th, 2017
+
+  Adjusted by Pete Lewis @ SparkFun Electronics, June 2023 to incorporate the
+  CEVA Sensor Hub Driver, found here:
+  https://github.com/ceva-dsp/sh2
+
+  Also, utilizing code from the Adafruit BNO08x Arduino Library by Bryan Siepert
+  for Adafruit Industries. Found here:
+  https://github.com/adafruit/Adafruit_BNO08x
+
+  Also, utilizing I2C and SPI read/write functions and code from the Adafruit
+  BusIO library found here:
+  https://github.com/adafruit/Adafruit_BusIO
+
+  Hardware Connections:
+  IoT RedBoard --> BNO08x
+  QWIIC --> QWIIC
+  A4  --> INT
+  A5  --> RST
+
+  BNO08x "mode" jumpers set for I2C (default):
+  PSO: OPEN
+  PS1: OPEN
+
+  Serial.print it out at 115200 baud to serial monitor.
+
+  Feel like supporting our work? Buy a board from SparkFun!
+  https://www.sparkfun.com/products/22857
+*/
+
+
+
 
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "hardware/i2c.h"
+#include "bno080.h"  // CTRL+Click here to get the library: http://librarymanager/All#SparkFun_BNO08x
 
 #define I2C_SDA_PIN 20
 #define I2C_SCL_PIN 21
-// I2C reserves some addresses for special purposes. We exclude these from the scan.
-// These are any addresses of the form 000 0xxx or 111 1xxx
-bool reserved_addr(uint8_t addr) {
-    return (addr & 0x78) == 0 || (addr & 0x78) == 0x78;
-}
 
-int main() {
-    // Enable UART so we can print status output
-    stdio_init_all();
+BNO08x myIMU;
 
-    for (int i = 0; i < 10; i++) {
-        printf("time to start scan: %d secs\n", 10-i);
-        sleep_ms(1000);
-    }
-    
-    // This example will use I2C0 on the default SDA and SCL pins (GP4, GP5 on a Pico)
+
+
+
+
     i2c_init(i2c_default, 100 * 1000);
 
     gpio_set_function(I2C_SDA_PIN, GPIO_FUNC_I2C);
@@ -49,23 +70,8 @@ int main() {
     gpio_pull_up(I2C_SDA_PIN);
     gpio_pull_up(I2C_SCL_PIN);
 
-    // Make the I2C pins available to picotool
-//    bi_decl(bi_2pins_with_func(PICO_DEFAULT_I2C_SDA_PIN, PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C));
-    while(1){
-      printf("\nI2C Bus Scan\n");
-      printf("   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n");
 
       for (int addr = 0; addr < (1 << 7); ++addr) {
-          if (addr % 16 == 0) {
-              printf("%02x ", addr);
-          }
-
-          // Perform a 1-byte dummy read from the probe address. If a slave
-          // acknowledges this address, the function returns the number of bytes
-          // transferred. If the address byte is ignored, the function returns
-          // -1.
-
-          // Skip over any reserved addresses.
           int ret;
           uint8_t rxdata;
           if (reserved_addr(addr))
@@ -73,13 +79,80 @@ int main() {
           else
               ret = i2c_read_blocking(i2c_default, addr, &rxdata, 1, false);
 
-          printf(ret < 0 ? "." : "@");
-          printf(addr % 16 == 15 ? "\n" : "  ");
-      }
-      printf("Done.\n");
-      for (int i = 0; i < 10; i++) {
-          printf("time to start next scan: %d secs\n", 10-i);
-          sleep_ms(1000);
+
+
+
+// For the most reliable interaction with the SHTP bus, we need
+// to use hardware reset control, and to monitor the H_INT pin.
+// The H_INT pin will go low when its okay to talk on the SHTP bus.
+// Note, these can be other GPIO if you like.
+// Define as -1 to disable these features.
+//#define BNO08X_INT  A4
+#define BNO08X_INT  -1
+//#define BNO08X_RST  A5
+#define BNO08X_RST  -1
+
+//#define BNO08X_ADDR 0x4B  // SparkFun BNO08x Breakout (Qwiic) defaults to 0x4B
+#define BNO08X_ADDR 0x4A // Alternate address if ADR jumper is closed
+
+// Here is where you define the sensor outputs you want to receive
+void setReports(void) {
+  printf("Setting desired reports\n");
+  if (myIMU.enableRotationVector() == true) {
+    printf(F("Rotation vector enabled\n"));
+    printf(F("Output in form roll, pitch, yaw\n"));
+  } else {
+    printf("Could not enable rotation vector\n");
+  }
+}
+
+void main() {
+  stdio_init_all();
+  
+
+  printf("BNO08x Read Example\n");
+
+
+
+  //if (myIMU.begin() == false) {  // Setup without INT/RST control (Not Recommended)
+  if (myIMU.begin(BNO08X_ADDR, Wire, BNO08X_INT, BNO08X_RST) == false) {
+    printf("BNO08x not detected at default I2C address. Check your jumpers and the hookup guide. Freezing...\n");
+    while (1)
+      ;
+  }
+  printf("BNO08x found!\n");
+
+  // Wire.setClock(400000); //Increase I2C data rate to 400kHz
+
+  setReports();
+
+  printf("Reading events\n");
+  delay(100);
+
+
+
+
+  while(1) {
+    delay(10);
+
+    if (myIMU.wasReset()) {
+      printf("sensor was reset ");
+      setReports();
+    }
+
+    // Has a new event come in on the Sensor Hub Bus?
+    if (myIMU.getSensorEvent() == true) {
+
+      // is it the correct sensor data we want?
+      if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
+
+        float roll = (myIMU.getRoll()) * 180.0 / PI; // Convert roll to degrees
+        float pitch = (myIMU.getPitch()) * 180.0 / PI; // Convert pitch to degrees
+        float yaw = (myIMU.getYaw()) * 180.0 / PI; // Convert yaw / heading to degrees
+
+        printf("Roll: %.1f, Pitch: %.1f, Yaw: %.1f\n", roll, pitch, yaw);
+
       }
     }
+  }
 }
