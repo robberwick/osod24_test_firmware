@@ -41,9 +41,12 @@
 */
 
 #include "bno080.h"
+#include <cmath>
+#include <string.h>
+#include "hardware/gpio.h"
 
 int8_t _int_pin = -1, _reset_pin = -1;
-static TwoWire *_i2cPort = NULL;		//The generic connection to user's chosen I2C hardware
+static i2c_inst_t  *_i2cPort = NULL;		//The generic connection to user's chosen I2C hardware
 static uint8_t _deviceAddress = BNO08x_DEFAULT_ADDRESS; //Keeps track of I2C address. setI2CAddress changes this.
 
 
@@ -59,7 +62,6 @@ static int i2chal_open(sh2_Hal_t *self);
 static uint32_t hal_getTimeUs(sh2_Hal_t *self);
 static void hal_callback(void *cookie, sh2_AsyncEvent_t *pEvent);
 static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent);
-static void hal_hardwareReset(void);
 
 static bool i2c_write(const uint8_t *buffer, size_t len, bool stop = true,
         const uint8_t *prefix_buffer = nullptr, size_t prefix_len = 0);
@@ -67,34 +69,20 @@ static bool i2c_write(const uint8_t *buffer, size_t len, bool stop = true,
 static bool i2c_read(uint8_t *buffer, size_t len, bool stop = true);
 static bool _i2c_read(uint8_t *buffer, size_t len, bool stop);
 
-static bool hal_wait_for_int(void);
-		
+
 
 size_t _maxBufferSize = 32;
 size_t maxBufferSize();		
 
 //Initializes the sensor with basic settings using I2C
 //Returns false if sensor is not detected
-boolean BNO08x::begin(uint8_t deviceAddress, TwoWire &wirePort, int8_t user_INTPin, int8_t user_RSTPin)
+bool BNO08x::begin(uint8_t deviceAddress, i2c_inst_t* i2c_port)
 {
   	_deviceAddress = deviceAddress;
-  	_i2cPort = &wirePort;
+  	_i2cPort = i2c_port;
 
-	// if user passes in an INT pin, then lets set that up.
-	if(user_INTPin != -1)
-	{
-		_int_pin = user_INTPin;
-		pinMode(_int_pin, INPUT_PULLUP);
-	}
 
-	// if user passes in an RESET pin, then lets set that up.
-	if(user_RSTPin != -1)
-	{
-		_reset_pin = user_RSTPin;
-		pinMode(_reset_pin, INPUT_PULLUP);
-	}
 
-  	if(_int_pin != -1) hal_wait_for_int();
 
   	if (isConnected() == false) // Check for sensor by verifying ACK response
     	return (false); 
@@ -112,14 +100,6 @@ boolean BNO08x::begin(uint8_t deviceAddress, TwoWire &wirePort, int8_t user_INTP
 }
 
 
-//Calling this function with nothing sets the debug port to Serial
-//You can also call it with other streams like Serial1, SerialUSB, etc.
-void BNO08x::enableDebugging(Stream &debugPort)
-{
-	_debugPort = &debugPort;
-	_printDebug = true;
-}
-
 // Quaternion to Euler conversion
 // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 // https://github.com/sparkfun/SparkFun_MPU-9250-DMP_Arduino_Library/issues/5#issuecomment-306509440
@@ -131,7 +111,7 @@ float BNO08x::getRoll()
 	float dqy = getQuatJ();
 	float dqz = getQuatK();
 
-	float norm = sqrt(dqw*dqw + dqx*dqx + dqy*dqy + dqz*dqz);
+	float norm = std::sqrt(dqw*dqw + dqx*dqx + dqy*dqy + dqz*dqz);
 	dqw = dqw/norm;
 	dqx = dqx/norm;
 	dqy = dqy/norm;
@@ -142,7 +122,7 @@ float BNO08x::getRoll()
 	// roll (x-axis rotation)
 	float t0 = +2.0 * (dqw * dqx + dqy * dqz);
 	float t1 = +1.0 - 2.0 * (dqx * dqx + ysqr);
-	float roll = atan2(t0, t1);
+	float roll = std::atan2(t0, t1);
 
 	return (roll);
 }
@@ -155,7 +135,7 @@ float BNO08x::getPitch()
 	float dqy = getQuatJ();
 	float dqz = getQuatK();
 
-	float norm = sqrt(dqw*dqw + dqx*dqx + dqy*dqy + dqz*dqz);
+	float norm = std::sqrt(dqw*dqw + dqx*dqx + dqy*dqy + dqz*dqz);
 	dqw = dqw/norm;
 	dqx = dqx/norm;
 	dqy = dqy/norm;
@@ -180,7 +160,7 @@ float BNO08x::getYaw()
 	float dqy = getQuatJ();
 	float dqz = getQuatK();
 
-	float norm = sqrt(dqw*dqw + dqx*dqx + dqy*dqy + dqz*dqz);
+	float norm = std::sqrt(dqw*dqw + dqx*dqx + dqy*dqy + dqz*dqz);
 	dqw = dqw/norm;
 	dqx = dqx/norm;
 	dqy = dqy/norm;
@@ -191,7 +171,7 @@ float BNO08x::getYaw()
 	// yaw (z-axis rotation)
 	float t3 = +2.0 * (dqw * dqz + dqx * dqy);
 	float t4 = +1.0 - 2.0 * (ysqr + dqz * dqz);
-	float yaw = atan2(t3, t4);
+	float yaw = std::atan2(t3, t4);
 
 	return (yaw);
 }
@@ -232,19 +212,6 @@ float BNO08x::getQuatI()
 float BNO08x::getQuatJ()
 {
 	float quat = qToFloat(rawQuatJ, rotationVector_Q1);
-	if (_printDebug == true)
-	{
-		if ((quat < -1.0) || (quat > 1.0)) // Debug the occasional non-unitary Quat
-		{
-			_debugPort->printf("getQuatJ: quat: ");
-			_debugPort->printf(quat, 2);
-			_debugPort->printf(" rawQuatJ: ");
-			_debugPort->printf(rawQuatJ);
-			_debugPort->printf(" rotationVector_Q1: ");
-			_debugPort->printf(rotationVector_Q1);
-			_debugPort->printf("/n");
-		}
-	}
 	//return (quat);
 	return _sensor_value->un.rotationVector.j;
 }
@@ -253,19 +220,6 @@ float BNO08x::getQuatJ()
 float BNO08x::getQuatK()
 {
 	float quat = qToFloat(rawQuatK, rotationVector_Q1);
-	if (_printDebug == true)
-	{
-		if ((quat < -1.0) || (quat > 1.0)) // Debug the occasional non-unitary Quat
-		{
-			_debugPort->printf("getQuatK: quat: ");
-			_debugPort->printf(quat, 2);
-			_debugPort->printf(" rawQuatK: ");
-			_debugPort->printf(rawQuatK);
-			_debugPort->printf(" rotationVector_Q1: ");
-			_debugPort->printf(rotationVector_Q1);
-			_debugPort->printf("/n");
-		}
-	}
 	//return (quat);
 	return _sensor_value->un.rotationVector.k;
 }
@@ -1118,12 +1072,6 @@ bool BNO08x::enableReport(sh2_SensorId_t sensorId, uint32_t interval_us,
   config.sensorSpecific = sensorSpecific;
 
   config.reportInterval_us = interval_us;
-
-  if(_int_pin != -1) {
-	if (!hal_wait_for_int()) {
-      return 0;
-  	}
-  }
   
   int status = sh2_setSensorConfig(sensorId, &config);
 
@@ -1142,7 +1090,6 @@ bool BNO08x::enableReport(sh2_SensorId_t sensorId, uint32_t interval_us,
 static int i2chal_open(sh2_Hal_t *self) {
   // Serial.println("I2C HAL open");
 
-  if(_int_pin != -1) hal_wait_for_int();
   
   uint8_t softreset_pkt[] = {5, 0, 1, 0, 1};
   bool success = false;
@@ -1151,11 +1098,11 @@ static int i2chal_open(sh2_Hal_t *self) {
       success = true;
       break;
     }
-    delay(30);
+    sleep_ms(30);
   }
   if (!success)
     return -1;
-  delay(300);
+  sleep_ms(300);
   return 0;
 }
 
@@ -1168,12 +1115,6 @@ static int i2chal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len,
   // Serial.println("I2C HAL read");
 
   // uint8_t *pBufferOrig = pBuffer;
-
-  if(_int_pin != -1) {
-	if (!hal_wait_for_int()) {
-    	return 0;
-  	}
-  }
 
   uint8_t header[4];
   if (!i2c_read(header, 4)) {
@@ -1208,19 +1149,14 @@ static int i2chal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len,
 
   while (cargo_remaining > 0) {
     if (first_read) {
-      read_size = min(i2c_buffer_max, (size_t)cargo_remaining);
+      read_size = std::min(i2c_buffer_max, (size_t)cargo_remaining);
     } else {
-      read_size = min(i2c_buffer_max, (size_t)cargo_remaining + 4);
+      read_size = std::min(i2c_buffer_max, (size_t)cargo_remaining + 4);
     }
 
     // Serial.print("Reading from I2C: "); Serial.println(read_size);
     // Serial.print("Remaining to read: "); Serial.println(cargo_remaining);
 
-	if(_int_pin != -1) {
-		if (!hal_wait_for_int()) {
-			return 0;
-		}
-	}
 
     if (!i2c_read(i2c_buffer, read_size)) {
       return 0;
@@ -1267,13 +1203,7 @@ static int i2chal_write(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len) {
   Serial.println(i2c_buffer_max);
   */
 
-  uint16_t write_size = min(i2c_buffer_max, len);
-
-  if(_int_pin != -1) {
-	if (!hal_wait_for_int()) {
-    	return 0;
-  	}
-  }
+  uint16_t write_size = std::min(i2c_buffer_max, len);
 
   if (!i2c_write(pBuffer, write_size)) {
     return 0;
@@ -1291,18 +1221,19 @@ static void hal_hardwareReset(void) {
   if (_reset_pin != -1) {
     // Serial.println("BNO08x Hardware reset");
 
-    pinMode(_reset_pin, OUTPUT);
-    digitalWrite(_reset_pin, HIGH);
-    delay(10);
-    digitalWrite(_reset_pin, LOW);
-    delay(10);
-    digitalWrite(_reset_pin, HIGH);
-    delay(10);
+    gpio_init(_reset_pin);
+    gpio_set_dir(_reset_pin, GPIO_OUT);
+    gpio_put(_reset_pin, 1);
+    sleep_ms(10);
+    gpio_put(_reset_pin, 0);
+    sleep_ms(10);
+    gpio_put(_reset_pin, 1);
+    sleep_ms(10);
   }
 }
 
 static uint32_t hal_getTimeUs(sh2_Hal_t *self) {
-  uint32_t t = millis() * 1000;
+  uint64_t t = to_us_since_boot(get_absolute_time());
   // Serial.printf("I2C HAL get time: %d\n", t);
   return t;
 }
@@ -1344,12 +1275,14 @@ uint8_t BNO08x::getSensorEventID()
 
 
 //Returns true if I2C device ack's
-boolean BNO08x::isConnected()
+bool BNO08x::isConnected()
 {
-  	_i2cPort->beginTransmission((uint8_t)_deviceAddress);
-  	if (_i2cPort->endTransmission() != 0)
-    	return (false); //Sensor did not ACK
-  	return (true);
+    uint8_t dummy;
+    // Attempt to read a single byte from the device
+    int result = i2c_read_blocking(_i2cPort, _deviceAddress, &dummy, 1, false);
+
+    // If the result is positive, the read was successful, which means the device is connected
+    return (result > 0);
 }
 
 /****************************************
@@ -1373,32 +1306,30 @@ boolean BNO08x::isConnected()
 bool i2c_write(const uint8_t *buffer, size_t len, bool stop,
                                const uint8_t *prefix_buffer,
                                size_t prefix_len) {
-  if ((len + prefix_len) > maxBufferSize()) {
-    // currently not guaranteed to work if more than 32 bytes!
-    // we will need to find out if some platforms have larger
-    // I2C buffer sizes :/
-    return false;
-  }
-
-  _i2cPort->beginTransmission(_deviceAddress);
-
-  // Write the prefix data (usually an address)
-  if ((prefix_len != 0) && (prefix_buffer != nullptr)) {
-    if (_i2cPort->write(prefix_buffer, prefix_len) != prefix_len) {
-      return false;
+    // Check buffer size - Adjust as per your platform's capabilities
+    if ((len + prefix_len) > maxBufferSize()) {
+        return false;
     }
-  }
 
-  // Write the data itself
-  if (_i2cPort->write(buffer, len) != len) {
-    return false;
-  }
+    // Buffer to hold prefix and data combined
+    uint8_t combined_buffer[maxBufferSize()];
+    size_t total_len = 0;
 
-  if (_i2cPort->endTransmission(stop) == 0) {
-    return true;
-  } else {
-    return false;
-  }
+    // Add prefix data if present
+    if (prefix_len != 0 && prefix_buffer != nullptr) {
+        memcpy(combined_buffer, prefix_buffer, prefix_len);
+        total_len += prefix_len;
+    }
+
+    // Add main data
+    memcpy(combined_buffer + total_len, buffer, len);
+    total_len += len;
+
+    // Perform the I2C write
+    int bytes_written = i2c_write_blocking(_i2cPort, _deviceAddress, combined_buffer, total_len, !stop);
+
+    // Check if all bytes were written
+    return bytes_written == total_len;
 }
 
 /*!
@@ -1409,7 +1340,7 @@ bool i2c_write(const uint8_t *buffer, size_t len, bool stop,
  *    @param  stop Whether to send an I2C STOP signal on read
  *    @return True if read was successful, otherwise false.
  */
-boolean i2c_read(uint8_t *buffer, size_t len, bool stop) {
+bool i2c_read(uint8_t *buffer, size_t len, bool stop) {
   size_t pos = 0;
   while (pos < len) {
     size_t read_len =
@@ -1422,24 +1353,12 @@ boolean i2c_read(uint8_t *buffer, size_t len, bool stop) {
   return true;
 }
 
-boolean _i2c_read(uint8_t *buffer, size_t len, bool stop) {
-#if defined(TinyWireM_h)
-  size_t recv = _i2cPort->requestFrom((uint8_t)_deviceAddress, (uint8_t)len);
-#elif defined(ARDUINO_ARCH_MEGAAVR)
-  size_t recv = _i2cPort->requestFrom(_deviceAddress, len, stop);
-#else
-  size_t recv = _i2cPort->requestFrom((uint8_t)_deviceAddress, (uint8_t)len, (uint8_t)stop);
-#endif
+bool _i2c_read(uint8_t *buffer, size_t len, bool stop) {
+    // Perform the I2C read
+    int bytes_read = i2c_read_blocking(_i2cPort, _deviceAddress, buffer, len, !stop);
 
-  if (recv != len) {
-    // Not enough data available to fulfill our obligation!
-    return false;
-  }
-
-  for (uint16_t i = 0; i < len; i++) {
-    buffer[i] = _i2cPort->read();
-  }
-  return true;
+    // Check if the number of bytes read is as expected
+    return bytes_read == len;
 }
 
   /*!   @brief  How many bytes we can read in a transaction
@@ -1447,5 +1366,4 @@ boolean _i2c_read(uint8_t *buffer, size_t len, bool stop) {
 size_t maxBufferSize() { return _maxBufferSize; }
 
 
-/
 

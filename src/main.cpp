@@ -47,10 +47,12 @@
   https://www.sparkfun.com/products/22857
 */
 
-
+//#define BNO08X_ADDR 0x4B  // SparkFun BNO08x Breakout (Qwiic) defaults to 0x4B
+#define BNO08X_ADDR 0x4A // Alternate address if ADR jumper is closed
 
 
 #include <stdio.h>
+#include <cmath>
 #include "pico/stdlib.h"
 #include "bno080.h"  // CTRL+Click here to get the library: http://librarymanager/All#SparkFun_BNO08x
 
@@ -59,63 +61,36 @@
 
 BNO08x myIMU;
 
-
-
-
-
-    i2c_init(i2c_default, 100 * 1000);
-
-    gpio_set_function(I2C_SDA_PIN, GPIO_FUNC_I2C);
-    gpio_set_function(I2C_SCL_PIN, GPIO_FUNC_I2C);
-    gpio_pull_up(I2C_SDA_PIN);
-    gpio_pull_up(I2C_SCL_PIN);
-
-
-      for (int addr = 0; addr < (1 << 7); ++addr) {
-          int ret;
-          uint8_t rxdata;
-          if (reserved_addr(addr))
-              ret = PICO_ERROR_GENERIC;
-          else
-              ret = i2c_read_blocking(i2c_default, addr, &rxdata, 1, false);
-
-
-
-
-// For the most reliable interaction with the SHTP bus, we need
-// to use hardware reset control, and to monitor the H_INT pin.
-// The H_INT pin will go low when its okay to talk on the SHTP bus.
-// Note, these can be other GPIO if you like.
-// Define as -1 to disable these features.
-//#define BNO08X_INT  A4
-#define BNO08X_INT  -1
-//#define BNO08X_RST  A5
-#define BNO08X_RST  -1
-
-//#define BNO08X_ADDR 0x4B  // SparkFun BNO08x Breakout (Qwiic) defaults to 0x4B
-#define BNO08X_ADDR 0x4A // Alternate address if ADR jumper is closed
-
 // Here is where you define the sensor outputs you want to receive
 void setReports(void) {
   printf("Setting desired reports\n");
   if (myIMU.enableRotationVector() == true) {
-    printf(F("Rotation vector enabled\n"));
-    printf(F("Output in form roll, pitch, yaw\n"));
+    printf("Rotation vector enabled\n");
+    printf("Output in form roll, pitch, yaw\n");
   } else {
     printf("Could not enable rotation vector\n");
   }
 }
 
-void main() {
+int main() {
   stdio_init_all();
-  
+
+  i2c_inst_t* my_i2c_port = i2c_default; // or i2c0, i2c1, etc.
+
+  i2c_init(my_i2c_port, 100 * 1000);
+
+  gpio_set_function(I2C_SDA_PIN, GPIO_FUNC_I2C);
+  gpio_set_function(I2C_SCL_PIN, GPIO_FUNC_I2C);
+  gpio_pull_up(I2C_SDA_PIN);
+  gpio_pull_up(I2C_SCL_PIN);
+
 
   printf("BNO08x Read Example\n");
 
 
 
   //if (myIMU.begin() == false) {  // Setup without INT/RST control (Not Recommended)
-  if (myIMU.begin(BNO08X_ADDR, Wire, BNO08X_INT, BNO08X_RST) == false) {
+  if (myIMU.begin(BNO08X_ADDR, my_i2c_port)) {
     printf("BNO08x not detected at default I2C address. Check your jumpers and the hookup guide. Freezing...\n");
     while (1)
       ;
@@ -127,13 +102,13 @@ void main() {
   setReports();
 
   printf("Reading events\n");
-  delay(100);
+  sleep_ms(100);
 
 
 
 
   while(1) {
-    delay(10);
+    sleep_ms(10);
 
     if (myIMU.wasReset()) {
       printf("sensor was reset ");
@@ -146,9 +121,9 @@ void main() {
       // is it the correct sensor data we want?
       if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
 
-        float roll = (myIMU.getRoll()) * 180.0 / PI; // Convert roll to degrees
-        float pitch = (myIMU.getPitch()) * 180.0 / PI; // Convert pitch to degrees
-        float yaw = (myIMU.getYaw()) * 180.0 / PI; // Convert yaw / heading to degrees
+        float roll = (myIMU.getRoll()) * 180.0 / M_PI; // Convert roll to degrees
+        float pitch = (myIMU.getPitch()) * 180.0 / M_PI; // Convert pitch to degrees
+        float yaw = (myIMU.getYaw()) * 180.0 / M_PI; // Convert yaw / heading to degrees
 
         printf("Roll: %.1f, Pitch: %.1f, Yaw: %.1f\n", roll, pitch, yaw);
 

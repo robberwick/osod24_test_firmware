@@ -21,6 +21,7 @@ add_subdirectory(libs)
 
 target_link_libraries(${PROJECT_NAME}
         motor2040
+        bno080
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
