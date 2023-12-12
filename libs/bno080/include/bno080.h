@@ -39,7 +39,8 @@
   https://github.com/adafruit/Adafruit_BNO08x
   Thank you Adafruit and your developers for all your hard work put into your Library!
 */
-
+#include <stdio.h>
+#include "pico/stdlib.h"
 #include "sh2.h"
 #include "sh2_SensorValue.h"
 #include "sh2_err.h"
@@ -137,8 +138,8 @@
 class BNO08x
 {
 public:
-	boolean begin(uint8_t deviceAddress = BNO08x_DEFAULT_ADDRESS, TwoWire &wirePort = Wire, int8_t user_INTPin = -1, int8_t user_RSTPin = -1); //By default use the default I2C addres, and use Wire port
-	boolean isConnected();
+	bool begin(uint8_t deviceAddress = BNO08x_DEFAULT_ADDRESS, i2c_inst_t* i2c_port = i2c_default); //By default use the default I2C addres, and use Wire port
+	bool isConnected();
 
     sh2_ProductIds_t prodIds; ///< The product IDs returned by the sensor
 	sh2_SensorValue_t sensorValue;
@@ -151,8 +152,6 @@ public:
     bool enableReport(sh2_SensorId_t sensor, uint32_t interval_us = 10000, uint32_t sensorSpecific = 0);
     bool getSensorEvent();
 	uint8_t getSensorEventID();
-
-	void enableDebugging(Stream &debugPort = Serial); //Turn on debug printing. If user doesn't specify then Serial will be used.
 
 	bool softReset();	  //Try to reset the IMU via software
 	bool serviceBus(void);	
@@ -295,8 +294,7 @@ public:
 
 private:
 
-	Stream *_debugPort;			 //The stream to send debug messages to if enabled. Usually Serial.
-	boolean _printDebug = false; //Flag to print debugging variables
+	bool _printDebug = false; //Flag to print debugging variables
 
 	//These are the raw sensor values (without Q applied) pulled from the user requested Input Report
 	uint16_t rawAccelX, rawAccelY, rawAccelZ, accelAccuracy;
