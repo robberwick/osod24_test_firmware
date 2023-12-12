@@ -74,7 +74,7 @@ void setReports(void) {
 
 int main() {
   stdio_init_all();
-  sleep_ms(10000);
+
   i2c_inst_t* my_i2c_port = i2c_default; // or i2c0, i2c1, etc.
 
   i2c_init(my_i2c_port, 100 * 1000);
@@ -93,7 +93,7 @@ int main() {
   if (myIMU.begin(BNO08X_ADDR, my_i2c_port)==false) {
     printf("BNO08x not detected at default I2C address. Check your jumpers and the hookup guide. Freezing...\n");
     while (1){
-      printf("stopped at line 96\n");
+      printf("BNO08x not detected at default I2C address. Check your jumpers and the hookup guide. Freezin\n");
       sleep_ms(1000);
     }
   }
@@ -109,9 +109,6 @@ int main() {
 
   while(1) {
     sleep_ms(10);
-    
-  
-    printf("at line 113\n");
   
     if (myIMU.wasReset()) {
       printf("sensor was reset ");
@@ -120,10 +117,10 @@ int main() {
 
     // Has a new event come in on the Sensor Hub Bus?
     if (myIMU.getSensorEvent() == true) {
-      printf("at line 122\n");
+
       // is it the correct sensor data we want?
       if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-        printf("at line 125\n");
+
         float roll = (myIMU.getRoll()) * 180.0 / M_PI; // Convert roll to degrees
         float pitch = (myIMU.getPitch()) * 180.0 / M_PI; // Convert pitch to degrees
         float yaw = (myIMU.getYaw()) * 180.0 / M_PI; // Convert yaw / heading to degrees
