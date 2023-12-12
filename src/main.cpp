@@ -56,8 +56,8 @@
 #include "pico/stdlib.h"
 #include "bno080.h"  // CTRL+Click here to get the library: http://librarymanager/All#SparkFun_BNO08x
 
-#define I2C_SDA_PIN 20
-#define I2C_SCL_PIN 21
+#define I2C_SDA_PIN 4
+#define I2C_SCL_PIN 5
 
 BNO08x myIMU;
 
@@ -90,11 +90,12 @@ int main() {
   
 
   //if (myIMU.begin() == false) {  // Setup without INT/RST control (Not Recommended)
-  if (myIMU.begin(BNO08X_ADDR, my_i2c_port)) {
+  if (myIMU.begin(BNO08X_ADDR, my_i2c_port)==false) {
     printf("BNO08x not detected at default I2C address. Check your jumpers and the hookup guide. Freezing...\n");
-    while (1)
+    while (1){
       printf("stopped at line 96\n");
       sleep_ms(1000);
+    }
   }
   printf("BNO08x found!\n");
 
