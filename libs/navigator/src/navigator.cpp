@@ -16,8 +16,8 @@ void Navigator::navigate() {
     if (receiver->get_receiver_data()) {
         //printf("Receiver data available\n");
         ReceiverChannelValues values = receiver->get_channel_values();
-        //printf("AIL: %f ", values.AIL);
-        //printf("ELE: %f ", values.ELE);
+        printf("AIL: %f ", values.AIL);
+        printf("ELE: %f ", values.ELE);
         //printf("THR: %f ", values.THR);
         //printf("RUD: %f ", values.RUD);
         //printf("AUX: %f ", values.AUX);
