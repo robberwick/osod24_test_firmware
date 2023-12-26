@@ -5,6 +5,7 @@
 #include <cstdio>
 #include "statemanager.h"
 #include "motor2040.hpp"
+#include "servo.hpp"
 
 namespace STATEMANAGER {
 
@@ -15,6 +16,12 @@ namespace STATEMANAGER {
         stokers.FRONT_RIGHT = new STOKER::Stoker(motor::motor2040::MOTOR_B, Direction::NORMAL_DIR);
         stokers.REAR_LEFT = new STOKER::Stoker(motor::motor2040::MOTOR_C, Direction::NORMAL_DIR);
         stokers.REAR_RIGHT = new STOKER::Stoker(motor::motor2040::MOTOR_D, Direction::NORMAL_DIR);
+        steering_servos.left = new servo::Servo(16); //PWM 0
+        steering_servos.right = new servo::Servo(28); //ADC2 / PWM 6
+        steering_servos.left->init();
+        steering_servos.right->init();
+        steering_servos.left->enable();
+        steering_servos.right->enable();
     };
 
     void StateManager::requestState(RequestedState requestedState) {
@@ -31,5 +38,9 @@ namespace STATEMANAGER {
         stokers.FRONT_RIGHT->set_speed(motorSpeeds.FRONT_RIGHT);
         stokers.REAR_LEFT->set_speed(motorSpeeds.REAR_LEFT);
         stokers.REAR_RIGHT->set_speed(motorSpeeds.REAR_RIGHT);
+        printf("Servo percent: %f ", 0.5 + 0.5 * motorSpeeds.FRONT_LEFT);
+        printf("\n");
+        steering_servos.left->to_percent(0.5 + 0.5 * motorSpeeds.FRONT_LEFT);
+        steering_servos.right->to_percent(0.5 + 0.5 * motorSpeeds.FRONT_LEFT);
     }
 } // StateManager
