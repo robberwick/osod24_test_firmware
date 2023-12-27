@@ -21,7 +21,7 @@ namespace CONFIG {
     const float WHEEL_TRACK = 0.15f; // metres
 
 //steering
-    const float MAX_STEERING_ANGLE = 45.0f; // degrees
+    const float MAX_STEERING_ANGLE = 3.14 / 4; // radians
 
 //left steering servo
     static constexpr float LEFT_MIN_PULSE = 1032.0f; // usec
