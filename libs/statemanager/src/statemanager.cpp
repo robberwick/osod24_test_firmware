@@ -21,7 +21,7 @@ namespace STATEMANAGER {
         steering_servos.left->init();
         steering_servos.right->init();
         steering_servos.left->calibration().apply_three_pairs(2200, 1599, 1032, -0.7854, 0, 0.7854);
-        steering_servos.left->calibration().apply_three_pairs(2200, 1670, 1221, -0.7854, 0, 0.7854);
+        steering_servos.right->calibration().apply_three_pairs(1221, 1670, 2200, -0.7854, 0, 0.7854);
         steering_servos.left->enable();
         steering_servos.right->enable();
         steering_servos.left->to_mid();
@@ -43,11 +43,21 @@ namespace STATEMANAGER {
         stokers.FRONT_RIGHT->set_speed(ackermannOutput.frontRightSpeed);
         stokers.REAR_LEFT->set_speed(ackermannOutput.rearLeftSpeed);
         stokers.REAR_RIGHT->set_speed(ackermannOutput.rearRightSpeed);
-        if (std::fabs(ackermannOutput.frontLeftSpeed) > 0.02) {
+        if (std::fabs(ackermannOutput.frontLeftSpeed) > 0.05) {
+            if (not(steering_servos.left->is_enabled())){
+                steering_servos.left->enable();
+            }
             steering_servos.left->value(ackermannOutput.frontLeftAngle);
+        } else {
+            steering_servos.left->disable();
         }
-        if (std::fabs(ackermannOutput.frontRightSpeed) > 0.02) {
+        if (std::fabs(ackermannOutput.frontRightSpeed) > 0.05) {
+            if (not(steering_servos.right->is_enabled())){
+                steering_servos.right->enable();
+            }
             steering_servos.right->value(ackermannOutput.frontRightAngle);
+        } else {
+            steering_servos.right->disable();
         }
     }
 } // StateManager
