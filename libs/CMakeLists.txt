@@ -1,4 +1,5 @@
 add_subdirectory(config)
+add_subdirectory(bno080)
 add_subdirectory(navigator)
 add_subdirectory(receiver)
 add_subdirectory(state_estimator)

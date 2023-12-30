@@ -1,4 +1,9 @@
-#include <cstdio>
+
+#define BNO08X_ADDR 0x4A 
+
+
+#include <stdio.h>
+#include <cmath>
 #include "pico/stdlib.h"
 #include "pico/time.h"
 #include "navigator.h"
@@ -18,7 +23,7 @@ extern "C" void timer_callback(repeating_timer_t *t) {
 }
 
 int main() {
-    stdio_init_all();
+  stdio_init_all();
 
     // set up the state estimator
     auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator();
@@ -53,4 +58,4 @@ int main() {
             shouldNavigate = false;
         }
     }
-}
+  }
