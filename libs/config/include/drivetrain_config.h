@@ -16,6 +16,11 @@ namespace CONFIG {
 // Challenge CURRENT_CHALLENGE = LAVA_PALAVA;
 // To set the current challenge and the drivetrain config appropriately
 
+    enum Handedness {
+        LEFT,
+        RIGHT
+    };
+
 // chassis geometry
     const float WHEEL_BASE = 0.18f; // metres
     const float WHEEL_TRACK = 0.15f; // metres
