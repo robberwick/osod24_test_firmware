@@ -9,9 +9,15 @@
 #include <limits>
 #include <cstdio>
 
-template <typename T>
+/**
+ * @brief Returns the sign of a value
+ * @tparam T The type of the value
+ * @param value The value to check
+ * @return 1 if the value is positive, -1 if the value is negative
+ */
+template<typename T>
 int sign(T value) {
-    return (T(0) < value) - (value < T(0));
+    return std::signbit(value) ? -1 : 1;
 }
 
 namespace MIXER {
