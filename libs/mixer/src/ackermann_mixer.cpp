@@ -21,7 +21,12 @@ int sign(T value) {
 }
 
 namespace MIXER {
-AckermannMixer::AckermannMixer(float track, float base, float angle) : wheelTrack(track), wheelBase(base), maxSteeringAngle(angle) {} 
+
+    AckermannMixer::AckermannMixer(float track, float base, float angle) : wheelTrack(track), wheelBase(base),
+                                                                           maxSteeringAngle(angle) {
+        // initialise the turn radius to zero
+        turnRadius = 0.0;
+    }
 
 AckermannOutput AckermannMixer::mix(float velocity, float angularVelocity){
     // function takes desired forward speed ("throttle") in mm/s and turn rate in radians/sec
