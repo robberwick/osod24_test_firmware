@@ -28,8 +28,6 @@ namespace MIXER {
                     float base = CONFIG::WHEEL_BASE,
                     float angle = CONFIG::MAX_STEERING_ANGLE); // constructor
 
-        [[nodiscard]] float getTurnRadius() const; //getter for turn radius
-        void setMaxSteeringAngle(float angle); //getter for turn radius
         AckermannOutput mix(float velocity, float angularVelocity) override; //mixing function
 
         [[nodiscard]] float

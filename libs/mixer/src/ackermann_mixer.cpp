@@ -158,14 +158,4 @@ namespace MIXER {
         return tmpSpeed * std::cos(slipAngle);
     }
 
-    float AckermannMixer::getTurnRadius() const {
-        //returns the current radius of turn (to the robots centreline) in mm
-        return turnRadius;
-    }
-
-    void AckermannMixer::setMaxSteeringAngle(float angle) {
-        // sets the maximum steering angle fo the steerable wheels, in radians
-        maxSteeringAngle = angle;
-    }
-
 } // namespace MIXER
