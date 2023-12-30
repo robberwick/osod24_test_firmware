@@ -39,23 +39,23 @@ namespace STATEMANAGER {
     }
 
     void StateManager::setSpeeds(MIXER::AckermannOutput ackermannOutput) const {
-        stokers.FRONT_LEFT->set_speed(ackermannOutput.frontLeftSpeed);
-        stokers.FRONT_RIGHT->set_speed(ackermannOutput.frontRightSpeed);
-        stokers.REAR_LEFT->set_speed(ackermannOutput.rearLeftSpeed);
-        stokers.REAR_RIGHT->set_speed(ackermannOutput.rearRightSpeed);
-        if (std::fabs(ackermannOutput.frontLeftSpeed) > 0.05) {
+        stokers.FRONT_LEFT->set_speed(ackermannOutput.speeds.frontLeft);
+        stokers.FRONT_RIGHT->set_speed(ackermannOutput.speeds.frontRight);
+        stokers.REAR_LEFT->set_speed(ackermannOutput.speeds.rearLeft);
+        stokers.REAR_RIGHT->set_speed(ackermannOutput.speeds.rearRight);
+        if (std::fabs(ackermannOutput.speeds.frontLeft) > 0.05) {
             if (not(steering_servos.left->is_enabled())){
                 steering_servos.left->enable();
             }
-            steering_servos.left->value(ackermannOutput.frontLeftAngle);
+            steering_servos.left->value(ackermannOutput.angles.left);
         } else {
             steering_servos.left->disable();
         }
-        if (std::fabs(ackermannOutput.frontRightSpeed) > 0.05) {
+        if (std::fabs(ackermannOutput.speeds.frontRight) > 0.05) {
             if (not(steering_servos.right->is_enabled())){
                 steering_servos.right->enable();
             }
-            steering_servos.right->value(ackermannOutput.frontRightAngle);
+            steering_servos.right->value(ackermannOutput.angles.right);
         } else {
             steering_servos.right->disable();
         }

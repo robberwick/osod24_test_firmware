@@ -44,12 +44,12 @@ namespace MIXER {
         if (std::isinf(turnRadius)) {
             // if the turn radius is infinite then we're not turning, so all wheels travel
             // at the desired forwards speed and the steerable wheels point forwards
-            result.frontLeftSpeed = velocity;
-            result.frontRightSpeed = -velocity;
-            result.rearLeftSpeed = velocity;
-            result.rearRightSpeed = -velocity;
-            result.frontLeftAngle = 0;
-            result.frontRightAngle = 0;
+            result.speeds.frontLeft = velocity;
+            result.speeds.frontRight = -velocity;
+            result.speeds.rearLeft = velocity;
+            result.speeds.rearRight = -velocity;
+            result.angles.left = 0;
+            result.angles.right = 0;
         } else {
             // calculate the x component of the turn radius of each wheel
             // where x is left/right and y is direction of travel
@@ -59,42 +59,48 @@ namespace MIXER {
 
             if (velocity == 0) {
                 // if we're only turning, the speeds are symmetrical and just depends on the turn rate
-                result.frontRightSpeed = result.frontLeftSpeed = -angularVelocity * CONFIG::STEERING_HYPOTENUSE;
-                result.rearRightSpeed = result.rearLeftSpeed = -angularVelocity * CONFIG::HALF_WHEEL_TRACK;
-                result.frontLeftAngle = getWheelAngle(leftWheelTurnRadius, velocity, CONFIG::Handedness::LEFT).constrained;
-                result.frontRightAngle = getWheelAngle(rightWheelTurnRadius, velocity, CONFIG::Handedness::RIGHT).constrained;
+                result.speeds.frontRight = result.speeds.frontLeft = -angularVelocity * CONFIG::STEERING_HYPOTENUSE;
+                result.speeds.rearRight = result.speeds.rearLeft = -angularVelocity * CONFIG::HALF_WHEEL_TRACK;
+                result.angles.left = getWheelAngle(leftWheelTurnRadius, velocity, CONFIG::Handedness::LEFT).constrained;
+                result.angles.right = getWheelAngle(rightWheelTurnRadius, velocity, CONFIG::Handedness::RIGHT).constrained;
             } else {
                 // if we're turning and moving forwards, the speeds are asymmetrical and depend on the turn rate and velocity
 
                 // calculate the angles of the steerable wheels
                 const SteeringAngle steeringAnglesLeft = getWheelAngle(leftWheelTurnRadius, velocity,
                                                                        CONFIG::Handedness::LEFT);
-                result.frontLeftAngle = steeringAnglesLeft.constrained;
+                result.angles.left = steeringAnglesLeft.constrained;
                 const SteeringAngle steeringAnglesRight = getWheelAngle(rightWheelTurnRadius,
                                                                         velocity, CONFIG::Handedness::RIGHT);
-                result.frontRightAngle = steeringAnglesRight.constrained;
+                result.angles.right = steeringAnglesRight.constrained;
 
                 // calculate the speeds of the front wheels
-                result.frontLeftSpeed = getFrontWheelSpeed(
+                result.speeds.frontLeft = getFrontWheelSpeed(
                         angularVelocity,
                         leftWheelTurnRadius,
                         steeringAnglesLeft.slip,
                         CONFIG::Handedness::LEFT
                         );
-                result.frontRightSpeed = getFrontWheelSpeed(
+                result.speeds.frontRight = getFrontWheelSpeed(
                         angularVelocity,
                         rightWheelTurnRadius,
                         steeringAnglesRight.slip,
                         CONFIG::Handedness::RIGHT
                         );
                 // calculate the speeds of the rear wheels
-                result.rearLeftSpeed = getRearWheelSpeed(velocity, leftWheelTurnRadius, CONFIG::Handedness::LEFT);
-                result.rearRightSpeed = getRearWheelSpeed(velocity, rightWheelTurnRadius, CONFIG::Handedness::RIGHT);
+                result.speeds.rearLeft = getRearWheelSpeed(velocity, leftWheelTurnRadius, CONFIG::Handedness::LEFT);
+                result.speeds.rearRight = getRearWheelSpeed(velocity, rightWheelTurnRadius, CONFIG::Handedness::RIGHT);
 
             }
 
         }
 
+        printf(", FL Speed: %.2f ", result.speeds.frontLeft);
+        printf(", FR Speed: %.2f ", result.speeds.frontRight);
+        printf(", RL Speed: %.2f ", result.speeds.rearLeft);
+        printf(", RR Speed: %.2f ", result.speeds.rearRight);
+        printf(", FL Angle: %.2f ", result.angles.left);
+        printf("FR Angle: %.2f\n", result.angles.right);
         return result;
     }
 
