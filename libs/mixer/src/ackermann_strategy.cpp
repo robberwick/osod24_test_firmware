@@ -3,7 +3,7 @@
 //
 // code for a four wheeled, independent four wheel drive, two wheel steering platform
 
-#include "ackermann_mixer.h"
+#include "ackermann_strategy.h"
 #include "mixer_strategy.h"
 #include <cmath>
 #include <limits>
