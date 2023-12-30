@@ -10,7 +10,7 @@ namespace MIXER {
 
     class TankSteerStrategy : public MixerStrategy {
     public:
-        AckermannOutput mix(float velocity, float angularVelocity) override;
+        MixerOutput mix(float velocity, float angularVelocity) override;
     };
 }
 

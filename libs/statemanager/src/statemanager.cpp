@@ -34,11 +34,11 @@ namespace STATEMANAGER {
         //printf("Velocity: %f ", requestedState.velocity);
         //printf("Angular velocity: %f ", requestedState.angularVelocity);
         //printf("\n");
-        MIXER::AckermannOutput ackermannOutput = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
+        MIXER::MixerOutput ackermannOutput = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
         setSpeeds(ackermannOutput);
     }
 
-    void StateManager::setSpeeds(MIXER::AckermannOutput ackermannOutput) const {
+    void StateManager::setSpeeds(MIXER::MixerOutput ackermannOutput) const {
         stokers.FRONT_LEFT->set_speed(ackermannOutput.speeds.frontLeft);
         stokers.FRONT_RIGHT->set_speed(ackermannOutput.speeds.frontRight);
         stokers.REAR_LEFT->set_speed(ackermannOutput.speeds.rearLeft);

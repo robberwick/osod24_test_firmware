@@ -41,7 +41,7 @@ namespace STATEMANAGER {
         // max speed factor - scale the speed of the motors down to this value
         static constexpr float SPEED_EXTENT = 1.0f;
 
-        void setSpeeds(MIXER::AckermannOutput motorSpeeds) const;
+        void setSpeeds(MIXER::MixerOutput motorSpeeds) const;
     };
 
 } // StateManager

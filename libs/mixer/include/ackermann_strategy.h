@@ -15,7 +15,7 @@ namespace MIXER {
         float constrained;
         float slip;
     };
-    
+
     class AckermannMixer : public MixerStrategy {
     private:
         float wheelTrack;         // Distance between the left and right wheels (m)
@@ -28,7 +28,7 @@ namespace MIXER {
                     float base = CONFIG::WHEEL_BASE,
                     float angle = CONFIG::MAX_STEERING_ANGLE); // constructor
 
-        AckermannOutput mix(float velocity, float angularVelocity) override; //mixing function
+        MixerOutput mix(float velocity, float angularVelocity) override; //mixing function
 
         [[nodiscard]] float
         getFrontWheelSpeed(float angularVelocity, float wheelTurnRadius, float slipAngle,

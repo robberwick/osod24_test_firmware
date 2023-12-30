@@ -21,14 +21,14 @@ namespace MIXER {
         float right;
     };
 
-    struct AckermannOutput {
+    struct MixerOutput {
         MotorSpeeds speeds;
         SteeringAngles angles;
     };
 
     class MixerStrategy {
     public:
-        virtual AckermannOutput mix(float velocity, float angularVelocity) = 0;
+        virtual MixerOutput mix(float velocity, float angularVelocity) = 0;
     };
 }
 
