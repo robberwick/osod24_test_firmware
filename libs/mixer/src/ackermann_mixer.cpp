@@ -31,7 +31,7 @@ namespace MIXER {
 
     AckermannOutput AckermannMixer::mix(float velocity, float angularVelocity) {
         // function takes desired forward speed ("throttle") in mm/s and turn rate in radians/sec
-        // and outputs individual wheel speeds in mm/sec and turn angle of steerable wheels in radians
+        // and outputs individual wheel speeds in m/s and turn angle of steerable wheels in radians
 
         printf("velocity: %.2f ", velocity);
         printf(", yaw: %.2f ", angularVelocity);
