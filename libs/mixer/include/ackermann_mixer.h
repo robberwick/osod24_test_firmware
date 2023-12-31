@@ -9,6 +9,12 @@
 #include "mixer_strategy.h"
 
 namespace MIXER {
+
+    struct SteeringAngle {
+        float raw;
+        float constrained;
+        float slip;
+    };
     
     class AckermannMixer : public MixerStrategy {
     private:
@@ -18,13 +24,22 @@ namespace MIXER {
         float turnRadius;         // calculated turn radius from inputs, m to centreline
 
     public:
-        AckermannMixer(float track = CONFIG::WHEEL_TRACK,
+        explicit AckermannMixer(float track = CONFIG::WHEEL_TRACK,
                     float base = CONFIG::WHEEL_BASE,
                     float angle = CONFIG::MAX_STEERING_ANGLE); // constructor
 
-        float getTurnRadius() const; //getter for turn radius
-        void setMaxSteeringAngle(float angle); //getter for turn radius
         AckermannOutput mix(float velocity, float angularVelocity) override; //mixing function
+
+        [[nodiscard]] float
+        getFrontWheelSpeed(float angularVelocity, float wheelTurnRadius, float slipAngle,
+                           CONFIG::Handedness side) const;
+
+        [[nodiscard]] float getRearWheelSpeed(float velocity, float wheelTurnRadius, CONFIG::Handedness side) const;
+
+        [[nodiscard]] SteeringAngle
+        getWheelAngle(float wheelTurnRadius, float velocity, CONFIG::Handedness side) const;
+
+        [[nodiscard]] float constrainSteeringAngle(float angle) const;
 
     };
 } // namespace MIXER
