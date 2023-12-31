@@ -4,11 +4,12 @@
 #include <cstdio>
 #include "state_estimator.h"
 #include "drivetrain_config.h"
+#include "bno080.h"
 
 namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
 
-    StateEstimator::StateEstimator() : encoders{
+    StateEstimator::StateEstimator(i2c_inst_t* port) : encoders{
             .FRONT_LEFT =new Encoder(pio0, 0, motor2040::ENCODER_A, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             .FRONT_RIGHT =new Encoder(pio0, 1, motor2040::ENCODER_B, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             .REAR_LEFT = new Encoder(pio0, 2, motor2040::ENCODER_C, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
@@ -32,6 +33,14 @@ namespace STATE_ESTIMATOR {
         estimatedState.RL_wheel_speed = 0.0f;
         estimatedState.RR_wheel_speed = 0.0f;
         
+        if (IMU.begin(CONFIG::BNO08X_ADDR, port)==false) {
+            printf("BNO08x not detected at default I2C address. Check your jumpers and the hookup guide. Freezing...\n");
+            while (1){
+                printf("BNO08x not detected at default I2C address. Check your jumpers and the hookup guide. Freezin\n");
+                sleep_ms(1000);
+            }
+        }
+
         instancePtr = this;
         setupTimer();
     }

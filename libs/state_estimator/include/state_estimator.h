@@ -9,6 +9,7 @@
 #include "hardware/timer.h"
 #include "motor2040.hpp"
 #include "drivetrain_config.h"
+#include "bno080.h"
 
 using namespace motor;
 using namespace encoder;
@@ -37,7 +38,7 @@ namespace STATE_ESTIMATOR {
     };
     class StateEstimator {
     public:
-        explicit StateEstimator();
+        explicit StateEstimator(i2c_inst_t* port);
 
         ~StateEstimator();  // Destructor to cancel the timer
         void showValues() const;
@@ -46,6 +47,7 @@ namespace STATE_ESTIMATOR {
 
     private:
         Encoders encoders;
+        BNO08x IMU;
         static StateEstimator *instancePtr;
         repeating_timer_t *timer;
         State estimatedState;

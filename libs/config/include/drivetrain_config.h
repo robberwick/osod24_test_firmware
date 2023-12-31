@@ -3,6 +3,7 @@
 #define DRIVETRAIN_CONFIG_H
 #include <cmath>
 
+#include <cstdio>
 namespace CONFIG {
     enum Challenge {
         LAVA_PALAVA,
