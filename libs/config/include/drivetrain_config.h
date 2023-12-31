@@ -46,17 +46,17 @@ namespace CONFIG {
     static constexpr float RIGHT_MIN_VALUE = 3.14 / 4;  // radians  @RIGHT_MIN_PULSE (pi/4radians = 45degrees)
 
 
-//wheels and gearing
-    const float LARGE_WHEEL_DIAMETER = 0.0816f; // metres valid for Lego 2902 "81.6" tyres
-    const float SMALL_WHEEL_DIAMETER = 0.0495f; // metres valid for Lego 15413 tyres
-    const float MECANUM_DIAMETER = 0.048f; // metres, valid for "48mm" mecanums
-    const float GEARMOTOR_RATIO = 19.22f;  // -to-1
+    //wheels and gearing
+    constexpr float LARGE_WHEEL_DIAMETER = 0.0816f; // metres valid for Lego 2902 "81.6" tyres
+    constexpr float SMALL_WHEEL_DIAMETER = 0.0495f; // metres valid for Lego 15413 tyres
+    constexpr float MECANUM_DIAMETER = 0.048f; // metres, valid for "48mm" mecanums
+    constexpr float GEARMOTOR_RATIO = 19.22f; // -to-1
 
 
 // Define WHEEL_DIAMETER and GEAR_RATIO based on CURRENT_CHALLENGE
 #if CURRENT_CHALLENGE == ECO_DISASTER
-    const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-    const float GEAR_RATIO = 42 / 18 * GEARMOTOR_RATIO;
+    constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
+    constexpr float GEAR_RATIO = 42.0 / 18.0 * GEARMOTOR_RATIO;
 #elif CURRENT_CHALLENGE == ESCAPE_ROUTE || CURRENT_CHALLENGE == MINESWEEPER || CURRENT_CHALLENGE == ZOMBIE_APOCALYPSE
     const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
     const float GEAR_RATIO = GEARMOTOR_RATIO;
@@ -77,18 +77,18 @@ namespace CONFIG {
 // motor properties
 // The counts per rev of the motor
     constexpr int CPR = 12;
-// The counts per revolution of the wheel
-// note that this is not constexpr because it depends on the gear ratio which is not constexpr
-// because it depends on the value of CURRENT_CHALLENGE which is not evaluated until the preprocessing stage
-    const float COUNTS_PER_REV = CPR * GEAR_RATIO;
-// The scaling to apply to the motor's speed to match its real-world speed
+    // The counts per revolution of the wheel
+    // note that this is not constexpr because it depends on the gear ratio which is not constexpr
+    // because it depends on the value of CURRENT_CHALLENGE which is not evaluated until the preprocessing stage
+    constexpr float COUNTS_PER_REV = CPR * GEAR_RATIO;
+    // The scaling to apply to the motor's speed to match its real-world speed
     constexpr float SPEED_SCALE = 495.0f;
 
-//dynamics
-    const float MAX_VELOCITY = 1.28;              // m/s
-    const float MAX_ACCELERATION = 8;          // m/s^2
-    const float MAX_ANGULAR_VELOCITY = 17;      // rad/s
-    const float MAX_ANGULAR_ACCELERATION = 20; // rad/s^2
+    //dynamics
+    constexpr float MAX_VELOCITY = 1.28; // m/s
+    constexpr float MAX_ACCELERATION = 8; // m/s^2
+    constexpr float MAX_ANGULAR_VELOCITY = 17; // rad/s
+    constexpr float MAX_ANGULAR_ACCELERATION = 20; // rad/s^2
 
 
 // Control constants such as PID & feedforward
