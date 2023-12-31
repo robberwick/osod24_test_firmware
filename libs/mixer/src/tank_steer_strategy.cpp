@@ -1,5 +1,5 @@
 //
-// Created by robbe on 02/12/2023.
+// Created by markmellors on 03/12/2023.
 //
 
 #include "tank_steer_strategy.h"
@@ -24,6 +24,6 @@ MixerOutput TankSteerStrategy::mix(float velocity, float angularVelocity) {
     MixerOutput result = {};
     result.speeds = {scaled_left, scaled_right, scaled_left, scaled_right};
     result.angles = {0, 0};
-    
+
     return result;
 }

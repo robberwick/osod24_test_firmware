@@ -13,11 +13,11 @@ int main() {
 
     // set up the state manager
     using namespace STATEMANAGER;
-  
-    auto* pAckermannSteerStrategy = new MIXER::AckermannMixer();
+
+    auto* pAckermannSteerStrategy = new MIXER::AckermannMixer(CONFIG::WHEEL_TRACK, CONFIG::WHEEL_BASE);
     auto* pStateManager = new StateManager(pAckermannSteerStrategy);
 
-  
+
     // set up the receiver
     // if the cmake build flag RX_PROTOCOL is CPPM, then use the CPPM receiver
     // otherwise use the SBUS receiver
