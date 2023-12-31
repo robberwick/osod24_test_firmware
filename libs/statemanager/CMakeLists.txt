@@ -7,10 +7,12 @@ target_link_libraries(statemanager PUBLIC
         state_estimator
         stoker
         mixer
+        servo
 )
 
 target_include_directories(statemanager PUBLIC
         include
+        servo
         receiver
         stoker
         mixer
