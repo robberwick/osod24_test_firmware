@@ -95,12 +95,6 @@ namespace MIXER {
 
         }
 
-        printf(", FL Speed: %.2f ", result.speeds.frontLeft);
-        printf(", FR Speed: %.2f ", result.speeds.frontRight);
-        printf(", RL Speed: %.2f ", result.speeds.rearLeft);
-        printf(", RR Speed: %.2f ", result.speeds.rearRight);
-        printf(", FL Angle: %.2f ", result.angles.left);
-        printf("FR Angle: %.2f\n", result.angles.right);
         return result;
     }
 
