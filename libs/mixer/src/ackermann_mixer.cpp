@@ -70,11 +70,11 @@ namespace MIXER {
                 // if we're turning and moving forwards, the speeds are asymmetrical and depend on the turn rate and velocity
 
                 // calculate the angles of the steerable wheels
-                SteeringAngle steeringAnglesLeft = getWheelAngle(leftWheelTurnRadius, velocity,
-                                                                 CONFIG::Handedness::LEFT);
+                const SteeringAngle steeringAnglesLeft = getWheelAngle(leftWheelTurnRadius, velocity,
+                                                                       CONFIG::Handedness::LEFT);
                 result.frontLeftAngle = steeringAnglesLeft.constrained;
-                SteeringAngle steeringAnglesRight = getWheelAngle(rightWheelTurnRadius,
-                                                                  velocity, CONFIG::Handedness::RIGHT);
+                const SteeringAngle steeringAnglesRight = getWheelAngle(rightWheelTurnRadius,
+                                                                        velocity, CONFIG::Handedness::RIGHT);
                 result.frontRightAngle = steeringAnglesRight.constrained;
 
                 // calculate the speeds of the front wheels
