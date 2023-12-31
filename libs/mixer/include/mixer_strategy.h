@@ -9,15 +9,26 @@ namespace MIXER {
 
     // define a struct containing the motor speeds
     struct MotorSpeeds {
-        float FRONT_LEFT;
-        float FRONT_RIGHT;
-        float REAR_LEFT;
-        float REAR_RIGHT;
+        float frontLeft;
+        float frontRight;
+        float rearLeft;
+        float rearRight;
+    };
+
+    // define a struct containing the steering angles
+    struct SteeringAngles {
+        float left;
+        float right;
+    };
+
+    struct MixerOutput {
+        MotorSpeeds speeds;
+        SteeringAngles angles;
     };
 
     class MixerStrategy {
     public:
-        virtual MotorSpeeds mix(float velocity, float angularVelocity) = 0;
+        virtual MixerOutput mix(float velocity, float angularVelocity) = 0;
     };
 }
 

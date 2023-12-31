@@ -8,6 +8,7 @@
 #include "receiver.h"
 #include "stoker.h"
 #include "mixer_strategy.h"
+#include "servo.hpp"
 
 namespace STATEMANAGER {
 
@@ -15,6 +16,10 @@ namespace STATEMANAGER {
     struct RequestedState {
         float velocity;
         float angularVelocity;
+    };
+    struct SteeringServos {
+        servo::Servo* left;
+        servo::Servo* right;
     };
 
     struct Stokers {
@@ -32,10 +37,11 @@ namespace STATEMANAGER {
     private:
         MIXER::MixerStrategy *mixerStrategy;
         Stokers stokers{};
+        SteeringServos steering_servos{};
         // max speed factor - scale the speed of the motors down to this value
         static constexpr float SPEED_EXTENT = 1.0f;
 
-        void setSpeeds(MIXER::MotorSpeeds motorSpeeds) const;
+        void setSpeeds(MIXER::MixerOutput motorSpeeds) const;
     };
 
 } // StateManager
