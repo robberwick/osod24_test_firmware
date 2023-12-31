@@ -1,6 +1,6 @@
 add_library(mixer STATIC
         src/tank_steer_strategy.cpp
-        src/ackermann_mixer.cpp
+        src/ackermann_strategy.cpp
 )
 
 target_link_libraries(mixer PUBLIC

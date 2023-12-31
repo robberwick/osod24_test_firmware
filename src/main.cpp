@@ -5,7 +5,7 @@
 #include "statemanager.h"
 #include "motor2040.hpp"
 #include "tank_steer_strategy.h"
-#include "ackermann_mixer.h"
+#include "ackermann_strategy.h"
 #include "drivetrain_config.h"
 
 int main() {

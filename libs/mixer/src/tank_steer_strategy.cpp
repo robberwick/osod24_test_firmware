@@ -6,7 +6,7 @@
 
 using namespace MIXER;
 
-AckermannOutput TankSteerStrategy::mix(float velocity, float angularVelocity) {
+MixerOutput TankSteerStrategy::mix(float velocity, float angularVelocity) {
     float left = velocity - angularVelocity;
     float right = velocity + angularVelocity;
     float abs_left = left >= 0 ? left : -left;
@@ -20,6 +20,10 @@ AckermannOutput TankSteerStrategy::mix(float velocity, float angularVelocity) {
     const float speed_factor = 1.0f;
     float scaled_left = (left * speed_factor);
     float scaled_right = (right * speed_factor) * -1;
+
+    MixerOutput result = {};
+    result.speeds = {scaled_left, scaled_right, scaled_left, scaled_right};
+    result.angles = {0, 0};
     
-    return {scaled_left, scaled_right, scaled_left, scaled_right, 0, 0};
+    return result;
 }

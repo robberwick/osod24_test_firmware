@@ -2,8 +2,8 @@
 // Created by markm on 11/11/2023.
 //
 
-#ifndef OSOD_MOTOR_2040_ACKERMANN_MIXER_H
-#define OSOD_MOTOR_2040_ACKERMANN_MIXER_H
+#ifndef OSOD_MOTOR_2040_ACKERMANN_STRATEGY_H
+#define OSOD_MOTOR_2040_ACKERMANN_STRATEGY_H
 
 #include "drivetrain_config.h"
 #include "mixer_strategy.h"
@@ -15,7 +15,7 @@ namespace MIXER {
         float constrained;
         float slip;
     };
-    
+
     class AckermannMixer : public MixerStrategy {
     private:
         float wheelTrack;         // Distance between the left and right wheels (m)
@@ -28,7 +28,7 @@ namespace MIXER {
                     float base = CONFIG::WHEEL_BASE,
                     float angle = CONFIG::MAX_STEERING_ANGLE); // constructor
 
-        AckermannOutput mix(float velocity, float angularVelocity) override; //mixing function
+        MixerOutput mix(float velocity, float angularVelocity) override; //mixing function
 
         [[nodiscard]] float
         getFrontWheelSpeed(float angularVelocity, float wheelTurnRadius, float slipAngle,
@@ -43,4 +43,4 @@ namespace MIXER {
 
     };
 } // namespace MIXER
-#endif //OSOD_MOTOR_2040_ACKERMANN_MIXER_H
+#endif //OSOD_MOTOR_2040_ACKERMANN_STRATEGY_H
