@@ -27,6 +27,7 @@ target_link_libraries(${PROJECT_NAME}
         statemanager
         stoker
         config
+        common
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

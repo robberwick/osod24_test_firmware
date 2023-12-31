@@ -8,6 +8,7 @@ target_link_libraries(statemanager PUBLIC
         stoker
         mixer
         servo
+        common
 )
 
 target_include_directories(statemanager PUBLIC
@@ -16,4 +17,5 @@ target_include_directories(statemanager PUBLIC
         receiver
         stoker
         mixer
+        common
 )
