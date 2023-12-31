@@ -2,6 +2,7 @@
 #ifndef DRIVETRAIN_CONFIG_H
 #define DRIVETRAIN_CONFIG_H
 
+#include <cstdio>
 namespace CONFIG {
     #define LAVA_PALAVA 0
     #define ECO_DISASTER 1
@@ -11,7 +12,12 @@ namespace CONFIG {
     #define PI_NOON 5
     #define TEMPLE_OF_DOOM 6
 
+
     #define CURRENT_CHALLENGE ESCAPE_ROUTE
+
+    constexpr int I2C_SDA_PIN = 4;
+    constexpr int I2C_SCL_PIN = 5;
+    constexpr uint8_t BNO08X_ADDR = 0x4A;
 
 // chassis geometry
     const float WHEEL_BASE = 0.18f; // metres
@@ -88,7 +94,6 @@ namespace CONFIG {
 // feedforward values
     constexpr float VEL_FF_GAIN = 1.0f;   // Velocity feedforward gain
     constexpr float ACC_FF_GAIN = 0.0f;    // Acceleration feedforward gain
-
 
 }
 

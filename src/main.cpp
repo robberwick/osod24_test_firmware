@@ -1,7 +1,3 @@
-
-#define BNO08X_ADDR 0x4A 
-
-
 #include <stdio.h>
 #include <cmath>
 #include "pico/stdlib.h"
@@ -13,6 +9,8 @@
 #include "motor2040.hpp"
 #include "tank_steer_strategy.h"
 #include "drivetrain_config.h"
+#include "hardware/i2c.h"
+#include "hardware/gpio.h"
 
 Navigator *navigator;
 bool shouldNavigate = false;
@@ -23,10 +21,19 @@ extern "C" void timer_callback(repeating_timer_t *t) {
 }
 
 int main() {
-  stdio_init_all();
+    stdio_init_all();
+
+    i2c_inst_t* i2c_port0 = i2c_default; // or i2c0, i2c1, etc.
+
+    i2c_init(i2c_port0, 100 * 1000);
+
+    gpio_set_function(CONFIG::I2C_SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(CONFIG::I2C_SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(CONFIG::I2C_SDA_PIN);
+    gpio_pull_up(CONFIG::I2C_SCL_PIN);
 
     // set up the state estimator
-    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator();
+    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(i2c_port0);
 
     // set up the state manager
     using namespace STATEMANAGER;
