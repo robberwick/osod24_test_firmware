@@ -54,18 +54,16 @@ namespace MIXER {
             result.frontLeftAngle = 0;
             result.frontRightAngle = 0;
         } else {
-            const float halfWheelTrack = wheelTrack / 2;
-
             // calculate the x component of the turn radius of each wheel
             // where x is left/right and y is direction of travel
-            const float leftWheelTurnRadius = turnRadius - halfWheelTrack;
-            const float rightWheelTurnRadius = turnRadius + halfWheelTrack;
+            const float leftWheelTurnRadius = turnRadius - CONFIG::HALF_WHEEL_TRACK;
+            const float rightWheelTurnRadius = turnRadius + CONFIG::HALF_WHEEL_TRACK;
 
 
             if (velocity == 0) {
                 // if we're only turning, the speeds are symmetrical and just depends on the turn rate
-                result.frontRightSpeed = result.frontLeftSpeed = -angularVelocity * std::sqrt((halfWheelTrack) * (halfWheelTrack) + wheelBase * wheelBase);
-                result.rearRightSpeed = result.rearLeftSpeed = -angularVelocity * halfWheelTrack;
+                result.frontRightSpeed = result.frontLeftSpeed = -angularVelocity * CONFIG::STEERING_HYPOTENUSE;
+                result.rearRightSpeed = result.rearLeftSpeed = -angularVelocity * CONFIG::HALF_WHEEL_TRACK;
                 result.frontLeftAngle = getWheelAngle(leftWheelTurnRadius, velocity, CONFIG::Handedness::LEFT).constrained;
                 result.frontRightAngle = getWheelAngle(rightWheelTurnRadius, velocity, CONFIG::Handedness::RIGHT).constrained;
             } else {

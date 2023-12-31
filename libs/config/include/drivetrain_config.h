@@ -1,6 +1,7 @@
 // drivetrain_config.h
 #ifndef DRIVETRAIN_CONFIG_H
 #define DRIVETRAIN_CONFIG_H
+#include <cmath>
 
 namespace CONFIG {
     enum Challenge {
@@ -21,12 +22,14 @@ namespace CONFIG {
         RIGHT
     };
 
-// chassis geometry
-    const float WHEEL_BASE = 0.18f; // metres
-    const float WHEEL_TRACK = 0.15f; // metres
+    // chassis geometry
+    constexpr float WHEEL_BASE = 0.18f; // metres
+    constexpr float WHEEL_TRACK = 0.15f; // metres
+    constexpr float HALF_WHEEL_TRACK = WHEEL_TRACK / 2;
 
-//steering
-    const float MAX_STEERING_ANGLE = 3.14 / 4; // radians
+    //steering
+    constexpr float MAX_STEERING_ANGLE = 3.14 / 4; // radians
+    const float STEERING_HYPOTENUSE = std::sqrt(HALF_WHEEL_TRACK * HALF_WHEEL_TRACK + WHEEL_BASE * WHEEL_BASE);
 
 //left steering servo
     static constexpr float LEFT_MIN_PULSE = 1032.0f; // usec
