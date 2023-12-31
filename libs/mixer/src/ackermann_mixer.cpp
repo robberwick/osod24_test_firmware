@@ -30,11 +30,8 @@ namespace MIXER {
     }
 
     AckermannOutput AckermannMixer::mix(float velocity, float angularVelocity) {
-        // function takes desired forward speed ("throttle") in mm/s and turn rate in radians/sec
+        // function takes desired forward speed ("throttle") in m/s and turn rate in radians/sec
         // and outputs individual wheel speeds in m/s and turn angle of steerable wheels in radians
-
-        printf("velocity: %.2f ", velocity);
-        printf(", yaw: %.2f ", angularVelocity);
 
         if (std::fabs(angularVelocity) > 0) {
             turnRadius = velocity / angularVelocity;
@@ -42,7 +39,7 @@ namespace MIXER {
             // Handle the case when yaw rate is close to zero to avoid division by zero
             turnRadius = std::numeric_limits<float>::infinity();
         }
-        printf(", turnRadius: %.2f ", turnRadius);
+
         AckermannOutput result{};
         if (std::isinf(turnRadius)) {
             // if the turn radius is infinite then we're not turning, so all wheels travel
@@ -98,12 +95,6 @@ namespace MIXER {
 
         }
 
-        printf(", FL Speed: %.2f ", result.frontLeftSpeed);
-        printf(", FR Speed: %.2f ", result.frontRightSpeed);
-        printf(", RL Speed: %.2f ", result.rearLeftSpeed);
-        printf(", RR Speed: %.2f ", result.rearRightSpeed);
-        printf(", FL Angle: %.2f ", result.frontLeftAngle);
-        printf("FR Angle: %.2f\n", result.frontRightAngle);
         return result;
     }
 
