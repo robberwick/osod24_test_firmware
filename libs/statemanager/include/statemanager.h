@@ -28,9 +28,13 @@ namespace STATEMANAGER {
 
     class StateManager {
     public:
+        void initialiseServo(servo::Servo*& servo, const uint pin, float minPulse, const float midPulse, const float maxPulse, const float minValue, float midValue, float maxValue);
+
         explicit StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator);
 
         void requestState(const STATE_ESTIMATOR::State& requestedState);
+
+        void setServoSteeringAngle(const COMMON::DriveTrainState& driveTrainState, CONFIG::Handedness side) const;
     private:
         MIXER::MixerStrategy *mixerStrategy;
         STATE_ESTIMATOR::StateEstimator *stateEstimator;
