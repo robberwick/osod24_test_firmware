@@ -38,6 +38,7 @@ namespace STATEMANAGER {
         //printf("\n");
         const COMMON::DriveTrainState driveTrainState = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
         setSpeeds(driveTrainState);
+        currentDriveTrainState = driveTrainState;
     }
 
     void StateManager::setSpeeds(const COMMON::DriveTrainState& motorSpeeds) const {
