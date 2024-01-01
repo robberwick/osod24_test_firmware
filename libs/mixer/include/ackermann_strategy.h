@@ -29,7 +29,7 @@ namespace MIXER {
                     float base = CONFIG::WHEEL_BASE,
                     float angle = CONFIG::MAX_STEERING_ANGLE); // constructor
 
-        COMMON::MixerOutput mix(float velocity, float angularVelocity) override; //mixing function
+        COMMON::DriveTrainState mix(float velocity, float angularVelocity) override; //mixing function
 
         [[nodiscard]] float
         getFrontWheelSpeed(float angularVelocity, float wheelTurnRadius, float slipAngle,

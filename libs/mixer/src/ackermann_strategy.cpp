@@ -30,7 +30,7 @@ namespace MIXER {
         turnRadius = 0.0;
     }
 
-    COMMON::MixerOutput AckermannMixer::mix(float velocity, float angularVelocity) {
+    COMMON::DriveTrainState AckermannMixer::mix(float velocity, float angularVelocity) {
         // function takes desired forward speed ("throttle") in m/s and turn rate in radians/sec
         // and outputs individual wheel speeds in m/s and turn angle of steerable wheels in radians
 
@@ -41,7 +41,7 @@ namespace MIXER {
             turnRadius = std::numeric_limits<float>::infinity();
         }
 
-        COMMON::MixerOutput result{};
+        COMMON::DriveTrainState result{};
         if (std::isinf(turnRadius)) {
             // if the turn radius is infinite then we're not turning, so all wheels travel
             // at the desired forwards speed and the steerable wheels point forwards

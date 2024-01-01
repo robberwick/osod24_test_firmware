@@ -18,7 +18,7 @@ namespace COMMON {
         float right;
     };
 
-    struct MixerOutput {
+    struct DriveTrainState {
         MotorSpeeds speeds;
         SteeringAngles angles;
     };

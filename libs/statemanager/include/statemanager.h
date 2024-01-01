@@ -39,7 +39,7 @@ namespace STATEMANAGER {
         // max speed factor - scale the speed of the motors down to this value
         static constexpr float SPEED_EXTENT = 1.0f;
 
-        void setSpeeds(COMMON::MixerOutput motorSpeeds) const;
+        void setSpeeds(COMMON::DriveTrainState motorSpeeds) const;
     };
 
 } // StateManager
