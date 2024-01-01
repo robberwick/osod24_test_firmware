@@ -65,5 +65,8 @@ namespace STATEMANAGER {
 
         // save the current state
         currentDriveTrainState = motorSpeeds;
+
+        // update the state estimator with the current state
+        stateEstimator->updateCurrentDriveTrainState(motorSpeeds);
     }
 } // StateManager
