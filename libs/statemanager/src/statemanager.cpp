@@ -3,13 +3,15 @@
 //
 
 #include <cstdio>
+#include "state_estimator.h"
 #include "statemanager.h"
 #include "motor2040.hpp"
 #include "servo.hpp"
 
 namespace STATEMANAGER {
 
-    StateManager::StateManager(MIXER::MixerStrategy *mixerStrategy) : mixerStrategy(mixerStrategy) {
+    StateManager::StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator) : mixerStrategy(mixerStrategy), stateEstimator(stateEstimator) {
+        printf("State estimator created\n");
         printf("State manager created\n");
         // set up the stokers
         stokers.FRONT_LEFT = new STOKER::Stoker(motor::motor2040::MOTOR_A, Direction::NORMAL_DIR);

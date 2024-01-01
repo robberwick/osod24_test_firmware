@@ -28,7 +28,7 @@ int main() {
     using namespace STATEMANAGER;
 
     auto* pAckermannSteerStrategy = new MIXER::AckermannMixer(CONFIG::WHEEL_TRACK, CONFIG::WHEEL_BASE);
-    auto* pStateManager = new StateManager(pAckermannSteerStrategy);
+    auto* pStateManager = new StateManager(pAckermannSteerStrategy, pStateEstimator);
 
 
     // set up the receiver
