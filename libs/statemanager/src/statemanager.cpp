@@ -36,8 +36,8 @@ namespace STATEMANAGER {
         //printf("Velocity: %f ", requestedState.velocity);
         //printf("Angular velocity: %f ", requestedState.angularVelocity);
         //printf("\n");
-        COMMON::DriveTrainState ackermannOutput = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
-        setSpeeds(ackermannOutput);
+        const COMMON::DriveTrainState driveTrainState = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
+        setSpeeds(driveTrainState);
     }
 
     void StateManager::setSpeeds(const COMMON::DriveTrainState& motorSpeeds) const {
