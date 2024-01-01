@@ -5,18 +5,15 @@
 #ifndef OSOD_MOTOR_2040_STATEMANAGER_H
 #define OSOD_MOTOR_2040_STATEMANAGER_H
 
+#include "types.h"
 #include "receiver.h"
+#include "state_estimator.h"
 #include "stoker.h"
 #include "mixer_strategy.h"
 #include "servo.hpp"
 
 namespace STATEMANAGER {
 
-    // define a RequestedState struct containing the requested state parameters: velocity and angular velocity
-    struct RequestedState {
-        float velocity;
-        float angularVelocity;
-    };
     struct SteeringServos {
         servo::Servo* left;
         servo::Servo* right;
@@ -31,17 +28,18 @@ namespace STATEMANAGER {
 
     class StateManager {
     public:
-        explicit StateManager(MIXER::MixerStrategy *mixerStrategy);
+        explicit StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator);
 
-        void requestState(RequestedState requestedState);
+        void requestState(STATE_ESTIMATOR::State requestedState);
     private:
         MIXER::MixerStrategy *mixerStrategy;
+        STATE_ESTIMATOR::StateEstimator *stateEstimator;
         Stokers stokers{};
         SteeringServos steering_servos{};
         // max speed factor - scale the speed of the motors down to this value
         static constexpr float SPEED_EXTENT = 1.0f;
 
-        void setSpeeds(MIXER::MixerOutput motorSpeeds) const;
+        void setSpeeds(COMMON::DriveTrainState motorSpeeds) const;
     };
 
 } // StateManager

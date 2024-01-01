@@ -6,6 +6,7 @@ add_library(mixer STATIC
 target_link_libraries(mixer PUBLIC
         motor
         config
+        common
 )
 
 target_include_directories(mixer PUBLIC

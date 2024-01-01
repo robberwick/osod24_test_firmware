@@ -4,19 +4,15 @@
 #include <cmath>
 
 namespace CONFIG {
-    enum Challenge {
-        LAVA_PALAVA,
-        ECO_DISASTER,
-        ESCAPE_ROUTE,
-        MINESWEEPER,
-        ZOMBIE_APOCALYPSE,
-        PI_NOON,
-        TEMPLE_OF_DOOM
-    };
+    #define LAVA_PALAVA 0
+    #define ECO_DISASTER 1
+    #define ESCAPE_ROUTE 2
+    #define MINESWEEPER 3
+    #define ZOMBIE_APOCALYPSE 4
+    #define PI_NOON 5
+    #define TEMPLE_OF_DOOM 6
 
-    // define CURRENT_CHALLENGE in a earlier file with:
-    // Challenge CURRENT_CHALLENGE = LAVA_PALAVA;
-    // To set the current challenge and the drivetrain config appropriately
+    #define CURRENT_CHALLENGE ESCAPE_ROUTE
 
     enum Handedness {
         LEFT,
@@ -49,39 +45,38 @@ namespace CONFIG {
 
     //wheels and gearing
     constexpr float LARGE_WHEEL_DIAMETER = 0.0816f; // metres valid for Lego 2902 "81.6" tyres
-    constexpr float SMALL_WHEEL_DIAMETER = 0.0495f; // metres valid for Lego 15413 tyres
+    constexpr float SMALL_WHEEL_DIAMETER = 0.052f; // metres valid for Lego 15413 tyres
     constexpr float MECANUM_DIAMETER = 0.048f; // metres, valid for "48mm" mecanums
     constexpr float GEARMOTOR_RATIO = 19.22f; // -to-1
 
 
     // Define WHEEL_DIAMETER and GEAR_RATIO based on CURRENT_CHALLENGE
-#if CURRENT_CHALLENGE == ECO_DISASTER
-    constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-    constexpr float GEAR_RATIO = 42.0 / 18.0 * GEARMOTOR_RATIO;
-#elif CURRENT_CHALLENGE == ESCAPE_ROUTE || CURRENT_CHALLENGE == MINESWEEPER || CURRENT_CHALLENGE == ZOMBIE_APOCALYPSE
-    const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-    const float GEAR_RATIO = GEARMOTOR_RATIO;
-#elif CURRENT_CHALLENGE == PI_NOON
-    const float WHEEL_DIAMETER = MECANUM_DIAMETER;
-    const float GEAR_RATIO = GEARMOTOR_RATIO;
-#elif  CURRENT_CHALLENGE == LAVA_PALAVA || CURRENT_CHALLENGE == TEMPLE_OF_DOOM
-    // Default case
-    const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-    const float GEAR_RATIO = GEARMOTOR_RATIO;
-#else
-    // Default case
-    const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-    const float GEAR_RATIO = GEARMOTOR_RATIO;
-#endif
+    #if (CURRENT_CHALLENGE == ECO_DISASTER)
+        constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
+        constexpr float GEAR_RATIO = 42.0 / 18.0 * GEARMOTOR_RATIO;
+    #elif (CURRENT_CHALLENGE == ESCAPE_ROUTE || CURRENT_CHALLENGE == MINESWEEPER || CURRENT_CHALLENGE == ZOMBIE_APOCALYPSE)
+        const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
+        const float GEAR_RATIO = GEARMOTOR_RATIO;
+    #elif (CURRENT_CHALLENGE == PI_NOON)
+        const float WHEEL_DIAMETER = MECANUM_DIAMETER;
+        const float GEAR_RATIO = GEARMOTOR_RATIO;
+    #elif  (CURRENT_CHALLENGE == LAVA_PALAVA || CURRENT_CHALLENGE == TEMPLE_OF_DOOM)
+        const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
+        const float GEAR_RATIO = GEARMOTOR_RATIO;
+    #else
+        // Default case
+        const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
+        const float GEAR_RATIO = GEARMOTOR_RATIO;
+    #endif
 
 
     // motor properties
     // The counts per rev of the motor
-    constexpr int CPR = 12;
+    constexpr int CPR = 3;
     // The counts per revolution of the wheel
     // note that this is not constexpr because it depends on the gear ratio which is not constexpr
     // because it depends on the value of CURRENT_CHALLENGE which is not evaluated until the preprocessing stage
-    constexpr float COUNTS_PER_REV = CPR * GEAR_RATIO;
+    const float COUNTS_PER_REV = CPR * GEAR_RATIO;
     // The scaling to apply to the motor's speed to match its real-world speed
     constexpr float SPEED_SCALE = 495.0f;
 
@@ -98,8 +93,10 @@ namespace CONFIG {
     constexpr float VEL_KI = 0.0f; // Velocity integral (I) gain
     constexpr float VEL_KD = 0.003f; // Velocity derivative (D) gain
 
-    // feedforward values
-    constexpr float VEL_FF_GAIN = 1.0f; // Velocity feedforward gain
-    constexpr float ACC_FF_GAIN = 0.0f; // Acceleration feedforward gain
+// feedforward values
+    constexpr float VEL_FF_GAIN = 1.0f;   // Velocity feedforward gain
+    constexpr float ACC_FF_GAIN = 0.0f;    // Acceleration feedforward gain
+
+
 }
 #endif // DRIVETRAIN_CONFIG_H

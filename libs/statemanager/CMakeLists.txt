@@ -4,9 +4,11 @@ add_library(statemanager STATIC
 
 target_link_libraries(statemanager PUBLIC
         receiver
+        state_estimator
         stoker
         mixer
         servo
+        common
 )
 
 target_include_directories(statemanager PUBLIC
@@ -15,4 +17,5 @@ target_include_directories(statemanager PUBLIC
         receiver
         stoker
         mixer
+        common
 )
