@@ -3,6 +3,7 @@ add_library(state_estimator STATIC
 )
 
 target_link_libraries(state_estimator PUBLIC
+        common
         config
         motor2040
         encoder

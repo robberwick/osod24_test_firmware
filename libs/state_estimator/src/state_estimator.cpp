@@ -27,10 +27,12 @@ namespace STATE_ESTIMATOR {
         estimatedState.velocity = 0.0f;
         estimatedState.heading = 0.0f;
         estimatedState.angularVelocity = 0.0f;
-        estimatedState.FL_wheel_speed = 0.0f;
-        estimatedState.FR_wheel_speed = 0.0f;
-        estimatedState.RL_wheel_speed = 0.0f;
-        estimatedState.RR_wheel_speed = 0.0f;
+        estimatedState.driveTrainState.speeds.frontLeft = 0.0f;
+        estimatedState.driveTrainState.speeds.frontRight = 0.0f;
+        estimatedState.driveTrainState.speeds.frontRight = 0.0f;
+        estimatedState.driveTrainState.speeds.rearRight = 0.0f;
+        estimatedState.driveTrainState.angles.left = 0.0f;
+        estimatedState.driveTrainState.angles.right = 0.0f;
         
         instancePtr = this;
         setupTimer();
@@ -101,19 +103,19 @@ namespace STATE_ESTIMATOR {
         float right_speed;
         
         //get wheel speeds
-        estimatedState.FL_wheel_speed = captureFL.radians_per_second();
-        estimatedState.FR_wheel_speed = captureFR.radians_per_second();
-        estimatedState.RL_wheel_speed = captureRL.radians_per_second();
-        estimatedState.RR_wheel_speed = captureRR.radians_per_second();
+        estimatedState.driveTrainState.speeds.frontLeft = captureFL.radians_per_second();
+        estimatedState.driveTrainState.speeds.frontRight = captureFR.radians_per_second();
+        estimatedState.driveTrainState.speeds.rearLeft = captureRL.radians_per_second();
+        estimatedState.driveTrainState.speeds.rearRight = captureRR.radians_per_second();
 
         // average wheel speed in radians per sed
-        left_speed = (estimatedState.FL_wheel_speed + estimatedState.RL_wheel_speed) / 2;
+        left_speed = (estimatedState.driveTrainState.speeds.frontLeft + estimatedState.driveTrainState.speeds.rearLeft) / 2;
         
         // convert average wheel rotation speed to linear speed
         left_speed = left_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //repeat for right side
-        right_speed = (estimatedState.FR_wheel_speed + estimatedState.RR_wheel_speed) / 2;
+        right_speed = (estimatedState.driveTrainState.speeds.frontRight + estimatedState.driveTrainState.speeds.rearRight) / 2;
         right_speed = right_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //calc all velocities
