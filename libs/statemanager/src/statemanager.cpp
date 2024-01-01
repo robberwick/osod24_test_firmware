@@ -41,7 +41,7 @@ namespace STATEMANAGER {
         currentDriveTrainState = driveTrainState;
     }
 
-    void StateManager::setSpeeds(const COMMON::DriveTrainState& motorSpeeds) const {
+    void StateManager::setSpeeds(const COMMON::DriveTrainState& motorSpeeds) {
         stokers.FRONT_LEFT->set_speed(motorSpeeds.speeds.frontLeft);
         stokers.FRONT_RIGHT->set_speed(motorSpeeds.speeds.frontRight);
         stokers.REAR_LEFT->set_speed(motorSpeeds.speeds.rearLeft);
@@ -62,5 +62,8 @@ namespace STATEMANAGER {
         } else {
             steering_servos.right->disable();
         }
+
+        // save the current state
+        currentDriveTrainState = motorSpeeds;
     }
 } // StateManager
