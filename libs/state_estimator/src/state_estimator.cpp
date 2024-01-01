@@ -59,10 +59,10 @@ namespace STATE_ESTIMATOR {
     void StateEstimator::estimateState() {
         
         //get current encoder state
-        auto captureFL = encoders.FRONT_LEFT->capture();
-        auto captureFR = encoders.FRONT_RIGHT->capture();
-        auto captureRL = encoders.REAR_LEFT->capture();
-        auto captureRR = encoders.REAR_RIGHT->capture();
+        const auto captureFL = encoders.FRONT_LEFT->capture();
+        const auto captureFR = encoders.FRONT_RIGHT->capture();
+        const auto captureRL = encoders.REAR_LEFT->capture();
+        const auto captureRR = encoders.REAR_RIGHT->capture();
         
         // calculate position deltas
 
@@ -74,13 +74,13 @@ namespace STATE_ESTIMATOR {
         left_travel = left_travel * CONFIG::WHEEL_DIAMETER / 2;
         right_travel = right_travel * CONFIG::WHEEL_DIAMETER / 2;
 
-        float distance_travelled = (left_travel - right_travel) / 2;
-        float heading_change = (left_travel + right_travel) / CONFIG::WHEEL_TRACK;
+        const float distance_travelled = (left_travel - right_travel) / 2;
+        const float heading_change = (left_travel + right_travel) / CONFIG::WHEEL_TRACK;
 
         //calculate new position and orientation
         //calc a temp heading halfway between old heading and new
         //assumed to be representative of heading during distance_travelled
-        float tempHeading = estimatedState.heading + heading_change / 2;
+        const float tempHeading = estimatedState.heading + heading_change / 2;
         estimatedState.x = estimatedState.x + distance_travelled * sin(tempHeading);
         estimatedState.y = estimatedState.y + distance_travelled * cos(tempHeading);
 
@@ -123,9 +123,9 @@ namespace STATE_ESTIMATOR {
 
     }
 
-    void StateEstimator::setupTimer() {
-// Example configuration (adjust as needed)
-        const uint32_t timerInterval = 50;  // Interval in milliseconds
+    void StateEstimator::setupTimer() const {
+        // Example configuration (adjust as needed)
+        constexpr uint32_t timerInterval = 50;  // Interval in milliseconds
 
         // Set up the repeating timer with the callback
         if (!add_repeating_timer_ms(timerInterval,

@@ -50,7 +50,7 @@ namespace STATE_ESTIMATOR {
         State previousState;
         static void timerCallback(repeating_timer_t *timer);
 
-        void setupTimer();
+        void setupTimer() const;
 
     };
 
