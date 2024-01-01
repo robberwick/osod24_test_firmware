@@ -48,8 +48,13 @@ namespace STATE_ESTIMATOR {
         repeating_timer_t *timer;
         State estimatedState;
         State previousState;
+        COMMON::DriveTrainState currentDriveTrainState;
         static void timerCallback(repeating_timer_t *timer);
 
+    public:
+        void updateCurrentDriveTrainState(const COMMON::DriveTrainState& newDriveTrainState);
+
+    private:
         void setupTimer() const;
 
     };

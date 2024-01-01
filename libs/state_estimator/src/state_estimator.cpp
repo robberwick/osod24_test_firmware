@@ -142,6 +142,10 @@ namespace STATE_ESTIMATOR {
         }
     }
 
+    void StateEstimator::updateCurrentDriveTrainState(const COMMON::DriveTrainState& newDriveTrainState) {
+        currentDriveTrainState = newDriveTrainState;
+    }
+
     StateEstimator::~StateEstimator() {
         delete encoders.FRONT_LEFT;
         delete encoders.FRONT_RIGHT;
