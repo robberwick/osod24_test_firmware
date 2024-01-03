@@ -11,6 +11,7 @@
 #include "drivetrain_config.h"
 #include "interfaces.h"
 #include "types.h"
+#include "bno080.h"
 
 using namespace motor;
 using namespace encoder;
@@ -60,6 +61,9 @@ namespace STATE_ESTIMATOR {
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         static StateEstimator* instancePtr;
         repeating_timer_t* timer;
+        Encoders encoders;
+        BNO08x IMU;
+        repeating_timer_t *timer;
         State estimatedState;
         State previousState;
         DriveTrainState currentDriveTrainState;

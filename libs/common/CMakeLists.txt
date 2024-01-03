@@ -1,4 +1,4 @@
-add_library(common INTERFACE
+add_library(common STATIC
         include/interfaces.h
         src/utils.cpp
 )
