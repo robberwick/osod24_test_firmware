@@ -67,8 +67,14 @@ namespace STATE_ESTIMATOR {
         // calculate position deltas
 
         // Calculate average wheel rotation delta for left and right sides
-        float left_travel = (captureFL.radians_delta() + captureRL.radians_delta()) / 2;
-        float right_travel = (captureFR.radians_delta() + captureRR.radians_delta()) / 2;
+        // for the front wheels we only use the forward component of the movement
+        //this should give a more accurate estimate for distance_travelled
+        // but less accurate for heading_change. 
+        // In future, the heading will be taken entirely from the IMU though
+        float left_travel = (captureFL.radians_delta() * cos(estimatedState.driveTrainState.angles.left)
+                             + captureRL.radians_delta()) / 2;
+        float right_travel = (captureFR.radians_delta() * cos(estimatedState.driveTrainState.angles.right)
+                              + captureRR.radians_delta()) / 2;
         
         // convert wheel rotation to distance travelled in meters
         left_travel = left_travel * CONFIG::WHEEL_DIAMETER / 2;
@@ -103,22 +109,24 @@ namespace STATE_ESTIMATOR {
         estimatedState.driveTrainState.speeds.rearLeft = captureRL.radians_per_second();
         estimatedState.driveTrainState.speeds.rearRight = captureRR.radians_per_second();
 
-        // average wheel speed in radians per sed
-        float left_speed = (estimatedState.driveTrainState.speeds.frontLeft + estimatedState.driveTrainState.speeds.
-                            rearLeft) / 2;
+        // average wheel speed in radians per side, accounting for angle of front wheels
+        float left_speed = (estimatedState.driveTrainState.speeds.frontLeft * cos(estimatedState.driveTrainState.angles.left)
+                             + estimatedState.driveTrainState.speeds.rearLeft) / 2;
         
         // convert average wheel rotation speed to linear speed
         left_speed = left_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //repeat for right side
-        float right_speed = (estimatedState.driveTrainState.speeds.frontRight + estimatedState.driveTrainState.speeds.
-                             rearRight) / 2;
+        float right_speed = (estimatedState.driveTrainState.speeds.frontRight * cos(estimatedState.driveTrainState.angles.right)
+                             + estimatedState.driveTrainState.speeds.rearRight) / 2;
         right_speed = right_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //calc all velocities
         estimatedState.velocity = (left_speed - right_speed) / 2;
         estimatedState.xdot = estimatedState.velocity * sin(estimatedState.heading);
         estimatedState.ydot = estimatedState.velocity * cos(estimatedState.heading);
+
+        //now less accurate as we're taking the wrong component of the front wheel speeds. will be taken from IMU in future
         estimatedState.angularVelocity= (left_speed + right_speed) / CONFIG::WHEEL_TRACK;
 
     }
