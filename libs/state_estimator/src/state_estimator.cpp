@@ -27,10 +27,12 @@ namespace STATE_ESTIMATOR {
         estimatedState.velocity = 0.0f;
         estimatedState.heading = 0.0f;
         estimatedState.angularVelocity = 0.0f;
-        estimatedState.FL_wheel_speed = 0.0f;
-        estimatedState.FR_wheel_speed = 0.0f;
-        estimatedState.RL_wheel_speed = 0.0f;
-        estimatedState.RR_wheel_speed = 0.0f;
+        estimatedState.driveTrainState.speeds.frontLeft = 0.0f;
+        estimatedState.driveTrainState.speeds.frontRight = 0.0f;
+        estimatedState.driveTrainState.speeds.frontRight = 0.0f;
+        estimatedState.driveTrainState.speeds.rearRight = 0.0f;
+        estimatedState.driveTrainState.angles.left = 0.0f;
+        estimatedState.driveTrainState.angles.right = 0.0f;
         
         instancePtr = this;
         setupTimer();
@@ -57,14 +59,12 @@ namespace STATE_ESTIMATOR {
     void StateEstimator::estimateState() {
         
         //get current encoder state
-        auto captureFL = encoders.FRONT_LEFT->capture();
-        auto captureFR = encoders.FRONT_RIGHT->capture();
-        auto captureRL = encoders.REAR_LEFT->capture();
-        auto captureRR = encoders.REAR_RIGHT->capture();
+        const auto captureFL = encoders.FRONT_LEFT->capture();
+        const auto captureFR = encoders.FRONT_RIGHT->capture();
+        const auto captureRL = encoders.REAR_LEFT->capture();
+        const auto captureRR = encoders.REAR_RIGHT->capture();
         
         // calculate position deltas
-        float distance_travelled;
-        float heading_change;
 
         // Calculate average wheel rotation delta for left and right sides
         float left_travel = (captureFL.radians_delta() + captureRL.radians_delta()) / 2;
@@ -74,14 +74,13 @@ namespace STATE_ESTIMATOR {
         left_travel = left_travel * CONFIG::WHEEL_DIAMETER / 2;
         right_travel = right_travel * CONFIG::WHEEL_DIAMETER / 2;
 
-        distance_travelled = (left_travel - right_travel) / 2;
-        heading_change = (left_travel + right_travel) / CONFIG::WHEEL_TRACK;
+        const float distance_travelled = (left_travel - right_travel) / 2;
+        const float heading_change = (left_travel + right_travel) / CONFIG::WHEEL_TRACK;
 
         //calculate new position and orientation
         //calc a temp heading halfway between old heading and new
         //assumed to be representative of heading during distance_travelled
-        float tempHeading;
-        tempHeading = estimatedState.heading + heading_change / 2;
+        const float tempHeading = estimatedState.heading + heading_change / 2;
         estimatedState.x = estimatedState.x + distance_travelled * sin(tempHeading);
         estimatedState.y = estimatedState.y + distance_travelled * cos(tempHeading);
 
@@ -97,23 +96,23 @@ namespace STATE_ESTIMATOR {
         }
 
         //calculate speeds
-        float left_speed;
-        float right_speed;
-        
+
         //get wheel speeds
-        estimatedState.FL_wheel_speed = captureFL.radians_per_second();
-        estimatedState.FR_wheel_speed = captureFR.radians_per_second();
-        estimatedState.RL_wheel_speed = captureRL.radians_per_second();
-        estimatedState.RR_wheel_speed = captureRR.radians_per_second();
+        estimatedState.driveTrainState.speeds.frontLeft = captureFL.radians_per_second();
+        estimatedState.driveTrainState.speeds.frontRight = captureFR.radians_per_second();
+        estimatedState.driveTrainState.speeds.rearLeft = captureRL.radians_per_second();
+        estimatedState.driveTrainState.speeds.rearRight = captureRR.radians_per_second();
 
         // average wheel speed in radians per sed
-        left_speed = (estimatedState.FL_wheel_speed + estimatedState.RL_wheel_speed) / 2;
+        float left_speed = (estimatedState.driveTrainState.speeds.frontLeft + estimatedState.driveTrainState.speeds.
+                            rearLeft) / 2;
         
         // convert average wheel rotation speed to linear speed
         left_speed = left_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //repeat for right side
-        right_speed = (estimatedState.FR_wheel_speed + estimatedState.RR_wheel_speed) / 2;
+        float right_speed = (estimatedState.driveTrainState.speeds.frontRight + estimatedState.driveTrainState.speeds.
+                             rearRight) / 2;
         right_speed = right_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //calc all velocities
@@ -124,9 +123,9 @@ namespace STATE_ESTIMATOR {
 
     }
 
-    void StateEstimator::setupTimer() {
-// Example configuration (adjust as needed)
-        const uint32_t timerInterval = 50;  // Interval in milliseconds
+    void StateEstimator::setupTimer() const {
+        // Example configuration (adjust as needed)
+        constexpr uint32_t timerInterval = 50;  // Interval in milliseconds
 
         // Set up the repeating timer with the callback
         if (!add_repeating_timer_ms(timerInterval,
@@ -141,6 +140,10 @@ namespace STATE_ESTIMATOR {
             instancePtr->estimateState();
             instancePtr->publishState();
         }
+    }
+
+    void StateEstimator::updateCurrentDriveTrainState(const COMMON::DriveTrainState& newDriveTrainState) {
+        currentDriveTrainState = newDriveTrainState;
     }
 
     StateEstimator::~StateEstimator() {

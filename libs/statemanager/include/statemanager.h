@@ -30,16 +30,17 @@ namespace STATEMANAGER {
     public:
         explicit StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator);
 
-        void requestState(STATE_ESTIMATOR::State requestedState);
+        void requestState(const STATE_ESTIMATOR::State& requestedState);
     private:
         MIXER::MixerStrategy *mixerStrategy;
         STATE_ESTIMATOR::StateEstimator *stateEstimator;
+        COMMON::DriveTrainState currentDriveTrainState{};
         Stokers stokers{};
         SteeringServos steering_servos{};
         // max speed factor - scale the speed of the motors down to this value
         static constexpr float SPEED_EXTENT = 1.0f;
 
-        void setSpeeds(COMMON::DriveTrainState motorSpeeds) const;
+        void setDriveTrainState(const COMMON::DriveTrainState& motorSpeeds);
     };
 
 } // StateManager

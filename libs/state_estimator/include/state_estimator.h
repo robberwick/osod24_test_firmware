@@ -9,6 +9,7 @@
 #include "hardware/timer.h"
 #include "motor2040.hpp"
 #include "drivetrain_config.h"
+#include "types.h"
 
 using namespace motor;
 using namespace encoder;
@@ -30,10 +31,7 @@ namespace STATE_ESTIMATOR {
         float velocity;
         float heading;
         float angularVelocity;
-        float FL_wheel_speed;
-        float FR_wheel_speed;
-        float RL_wheel_speed;
-        float RR_wheel_speed;
+        COMMON::DriveTrainState driveTrainState;
     };
     class StateEstimator {
     public:
@@ -50,9 +48,14 @@ namespace STATE_ESTIMATOR {
         repeating_timer_t *timer;
         State estimatedState;
         State previousState;
+        COMMON::DriveTrainState currentDriveTrainState;
         static void timerCallback(repeating_timer_t *timer);
 
-        void setupTimer();
+    public:
+        void updateCurrentDriveTrainState(const COMMON::DriveTrainState& newDriveTrainState);
+
+    private:
+        void setupTimer() const;
 
     };
 

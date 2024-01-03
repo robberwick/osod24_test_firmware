@@ -31,16 +31,17 @@ namespace STATEMANAGER {
 
     }
 
-    void StateManager::requestState(STATE_ESTIMATOR::State requestedState) {
+    void StateManager::requestState(const STATE_ESTIMATOR::State& requestedState) {
         //printf("Requested state...\n");
         //printf("Velocity: %f ", requestedState.velocity);
         //printf("Angular velocity: %f ", requestedState.angularVelocity);
         //printf("\n");
-        COMMON::DriveTrainState ackermannOutput = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
-        setSpeeds(ackermannOutput);
+        const COMMON::DriveTrainState driveTrainState = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
+        setDriveTrainState(driveTrainState);
+        currentDriveTrainState = driveTrainState;
     }
 
-    void StateManager::setSpeeds(COMMON::DriveTrainState motorSpeeds) const {
+    void StateManager::setDriveTrainState(const COMMON::DriveTrainState& motorSpeeds) {
         stokers.FRONT_LEFT->set_speed(motorSpeeds.speeds.frontLeft);
         stokers.FRONT_RIGHT->set_speed(motorSpeeds.speeds.frontRight);
         stokers.REAR_LEFT->set_speed(motorSpeeds.speeds.rearLeft);
@@ -61,5 +62,11 @@ namespace STATEMANAGER {
         } else {
             steering_servos.right->disable();
         }
+
+        // save the current state
+        currentDriveTrainState = motorSpeeds;
+
+        // update the state estimator with the current state
+        stateEstimator->updateCurrentDriveTrainState(motorSpeeds);
     }
 } // StateManager
