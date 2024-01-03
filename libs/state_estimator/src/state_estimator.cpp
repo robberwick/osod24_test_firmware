@@ -47,11 +47,11 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::showValues() const {
-        printf("FRONT_LEFT: %ld ", encoders[MOTOR_POSITION::FRONT_LEFT]->count());
-        printf("FRONT_RIGHT: %ld ", encoders[MOTOR_POSITION::FRONT_RIGHT]->count());
-        printf("REAR_LEFT: %ld ", encoders[MOTOR_POSITION::REAR_LEFT]->count());
-        printf("REAR_RIGHT: %ld ", encoders[MOTOR_POSITION::REAR_RIGHT]->count());
-        printf("\n");
+        //printf("FRONT_LEFT: %ld ", encoders.FRONT_LEFT->count());
+        //printf("FRONT_RIGHT: %ld ", encoders.FRONT_RIGHT->count());
+        //printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
+        //printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
+        //printf("\n");
         printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
            estimatedState.odometry.x,
            estimatedState.odometry.y,
@@ -101,49 +101,39 @@ namespace STATE_ESTIMATOR {
         right_speed = right_speed * CONFIG::WHEEL_DIAMETER / 2;
     }
 
-    void StateEstimator::get_position_deltas(Encoder::Capture encoderCaptures[4], float& distance_travelled, float& heading_change) const {
+    void StateEstimator::get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const {
         // Calculate average wheel rotation delta for left and right sides
         // for the front wheels we only use the forward component of the movement
         //this should give a more accurate estimate for distance_travelled
-        // but less accurate for heading_change.
-        // In future, the heading will be taken entirely from the IMU though
         float left_travel = (encoderCaptures[MOTOR_POSITION::FRONT_LEFT].radians_delta() * cos(estimatedState.driveTrainState.angles.left)
                              + encoderCaptures[MOTOR_POSITION::REAR_LEFT].radians_delta()) / 2;
         float right_travel = (encoderCaptures[MOTOR_POSITION::FRONT_RIGHT].radians_delta() * cos(estimatedState.driveTrainState.angles.right)
                               + encoderCaptures[MOTOR_POSITION::REAR_RIGHT].radians_delta()) / 2;
 
         // convert wheel rotation to distance travelled in meters
-        left_travel = left_travel * CONFIG::WHEEL_DIAMETER / 2;
-        right_travel = right_travel * CONFIG::WHEEL_DIAMETER / 2;
-
-        distance_travelled = (left_travel - right_travel) / 2;
-        heading_change = (left_travel + right_travel) / CONFIG::WHEEL_TRACK;
+        distance_travelled = ((left_travel - right_travel) / 2) * CONFIG::WHEEL_DIAMETER / 2;
     }
 
-    void StateEstimator::calculate_new_position_orientation(State& tmpState, const float distance_travelled, const float heading_change) {
-        //calc a temp heading halfway between old heading and new
-        //assumed to be representative of heading during distance_travelled
-        const float tempHeading = tmpState.odometry.heading + heading_change / 2;
-        tmpState.odometry.x += distance_travelled * sin(tempHeading);
-        tmpState.odometry.y += distance_travelled * cos(tempHeading);
+    void StateEstimator::calculate_new_position(State& tmpState, const float distance_travelled, const float heading) {
+        //use the latest heading and distance travleled to update the estiamted position
+        tmpState.odometry.x += distance_travelled * sin(heading);
+        tmpState.odometry.y += distance_travelled * cos(heading);
 
-        //now actually update heading
-        tmpState.odometry.heading += heading_change;
+        //now actually update odometry's heading
+        tmpState.odometry.heading = heading;
 
         //constrain heading to +/-pi
         tmpState.odometry.heading = wrap_pi(tmpState.odometry.heading);
     }
 
-    Velocity StateEstimator::calculate_velocities(const float heading, const float left_speed, const float right_speed) {
+    Velocity StateEstimator::calculate_velocities(const float new_heading, const float previous_heading, const float left_speed, const float right_speed) {
         // TODO return a velocities struct instead of setting individual values
         Velocity tmpVelocity{};
         tmpVelocity.velocity = (left_speed - right_speed) / 2;
-        tmpVelocity.x_dot = tmpVelocity.velocity * sin(heading);
-        tmpVelocity.y_dot = tmpVelocity.velocity * cos(heading);
-
-        //now less accurate as we're taking the wrong component of the front wheel speeds.
-        // TODO: fix this by using the IMU for heading
-        tmpVelocity.angular_velocity = (left_speed + right_speed) / CONFIG::WHEEL_TRACK;
+        tmpVelocity.x_dot = tmpVelocity.velocity * sin(new_heading);
+        tmpVelocity.y_dot = tmpVelocity.velocity * cos(new_heading);
+       
+        tmpVelocity.angular_velocity = 1000 * (wrap_pi(new_heading - previous_heading)) / timerInterval;
         return tmpVelocity;
     }
 
@@ -170,11 +160,19 @@ namespace STATE_ESTIMATOR {
         // calculate position deltas
 
         float distance_travelled = 0.0f;
-        float heading_change = 0.0f;
-        get_position_deltas(encoderCaptures, distance_travelled, heading_change);
+        get_position_delta(encoderCaptures, distance_travelled);
+
+
+        float heading = 0.0f;
+        get_latest_heading(heading);
 
         //calculate new position and orientation
-        calculate_new_position_orientation(tmpState, distance_travelled, heading_change);
+        calculate_new_position(tmpState, distance_travelled, heading);
+
+        //calculate new position
+        estimatedState.odometry.x = estimatedState.odometry.x + distance_travelled * sin(estimatedState.odometry.heading);
+        estimatedState.odometry.y = estimatedState.odometry.y + distance_travelled * cos(estimatedState.odometry.heading);
+
 
         //calculate speeds
 
@@ -190,7 +188,7 @@ namespace STATE_ESTIMATOR {
         calculate_bilateral_speeds(tmpState.driveTrainState.speeds, tmpState.driveTrainState.angles, left_speed, right_speed);
 
         //calc all velocities
-        tmpState.velocity = calculate_velocities(tmpState.odometry.heading, left_speed, right_speed);
+        tmpState.velocity = calculate_velocities(tmpState.odometry.heading, previousState.odometry.heading, left_speed, right_speed);
 
         // update the estimated state
         estimatedState = tmpState;
@@ -200,9 +198,20 @@ namespace STATE_ESTIMATOR {
 
     }
 
+    void StateEstimator::get_latest_heading(float& heading) {
+      //default latest heading is the current heading
+      heading = estimatedState.odometry.heading;
+      
+      //if possible, update the heading with the latest from the IMU
+      if (IMU.getSensorEvent() == true) {
+            if (IMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
+                heading = IMU.getYaw();
+            }
+        }  
+    }
+
     void StateEstimator::setupTimer() const {
         // Example configuration (adjust as needed)
-        constexpr uint32_t timerInterval = 50;  // Interval in milliseconds
 
         // Set up the repeating timer with the callback
         if (!add_repeating_timer_ms(timerInterval,
