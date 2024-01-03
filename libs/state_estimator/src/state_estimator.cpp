@@ -68,7 +68,7 @@ namespace STATE_ESTIMATOR {
 
         // Calculate average wheel rotation delta for left and right sides
         // for the front wheels we only use the forward component of the movement
-        //this should give a more accurate estiamte for distance_travelled
+        //this should give a more accurate estimate for distance_travelled
         // but less accurate for heading_change. 
         // In future, the heading will be taken entirely from the IMU though
         float left_travel = (captureFL.radians_delta() * cos(estimatedState.driveTrainState.angles.left)
