@@ -42,6 +42,11 @@ namespace STATE_ESTIMATOR {
                 sleep_ms(1000);
             }
         }
+        if (IMU.enableRotationVector() == true) {
+            printf("Rotation vector enabled\n");
+        } else {
+            printf("Could not enable rotation vector\n");
+        }
         instancePtr = this;
         setupTimer();
     }
