@@ -43,7 +43,6 @@ namespace STATEMANAGER {
         //printf("\n");
         const COMMON::DriveTrainState driveTrainState = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
         setDriveTrainState(driveTrainState);
-        currentDriveTrainState = driveTrainState;
     }
 
     void StateManager::setServoSteeringAngle(const COMMON::DriveTrainState& driveTrainState, const CONFIG::Handedness side) const {
@@ -72,10 +71,10 @@ namespace STATEMANAGER {
     }
 
     void StateManager::setDriveTrainState(const COMMON::DriveTrainState& motorSpeeds) {
-        stokers.FRONT_LEFT->set_speed(motorSpeeds.speeds.frontLeft);
-        stokers.FRONT_RIGHT->set_speed(motorSpeeds.speeds.frontRight);
-        stokers.REAR_LEFT->set_speed(motorSpeeds.speeds.rearLeft);
-        stokers.REAR_RIGHT->set_speed(motorSpeeds.speeds.rearRight);
+        stokers.FRONT_LEFT->set_requested_speed(motorSpeeds.speeds.frontLeft);
+        stokers.FRONT_RIGHT->set_requested_speed(motorSpeeds.speeds.frontRight);
+        stokers.REAR_LEFT->set_requested_speed(motorSpeeds.speeds.rearLeft);
+        stokers.REAR_RIGHT->set_requested_speed(motorSpeeds.speeds.rearRight);
         setServoSteeringAngle(motorSpeeds, CONFIG::Handedness::LEFT);
         setServoSteeringAngle(motorSpeeds, CONFIG::Handedness::RIGHT);
 
