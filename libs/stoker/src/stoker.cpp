@@ -13,4 +13,9 @@ namespace STOKER {
         motor.speed(speed);
 
     }
+
+    void Stoker::update(COMMON::DriveTrainState newState) {
+        current_motor_speeds_ = newState.speeds;
+    }
+
 } // STOKER

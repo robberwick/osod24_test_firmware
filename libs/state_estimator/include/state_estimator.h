@@ -9,6 +9,7 @@
 #include "hardware/timer.h"
 #include "motor2040.hpp"
 #include "drivetrain_config.h"
+#include "interfaces.h"
 #include "types.h"
 
 using namespace motor;
@@ -33,14 +34,18 @@ namespace STATE_ESTIMATOR {
         float angularVelocity;
         COMMON::DriveTrainState driveTrainState;
     };
-    class StateEstimator {
+    class StateEstimator: public COMMON::Subject {
     public:
         explicit StateEstimator();
 
+    protected:
         ~StateEstimator();  // Destructor to cancel the timer
+    public:
         void showValues() const;
         void estimateState();
         void publishState() const;
+        void addObserver(COMMON::Observer* observer) override;
+        void notifyObservers(COMMON::DriveTrainState newState) override;
 
     private:
         Encoders encoders;
@@ -56,6 +61,10 @@ namespace STATE_ESTIMATOR {
 
     private:
         void setupTimer() const;
+        COMMON::Observer* observers[10];
+        int observerCount = 0;
+
+
 
     };
 

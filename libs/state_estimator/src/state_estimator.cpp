@@ -56,6 +56,18 @@ namespace STATE_ESTIMATOR {
         showValues();
     }
 
+    void StateEstimator::addObserver(COMMON::Observer* observer) {
+        if (observerCount < 10) {
+            observers[observerCount++] = observer;
+        }
+    }
+
+    void StateEstimator::notifyObservers(const COMMON::DriveTrainState newState) {
+        for (int i = 0; i < observerCount; i++) {
+            observers[i]->update(newState);
+        }
+    }
+
     void StateEstimator::estimateState() {
         
         //get current encoder state
@@ -129,6 +141,9 @@ namespace STATE_ESTIMATOR {
 
         //now less accurate as we're taking the wrong component of the front wheel speeds. will be taken from IMU in future
         estimatedState.angularVelocity= (left_speed + right_speed) / CONFIG::WHEEL_TRACK;
+
+        // notify observers of the new state
+        notifyObservers(estimatedState.driveTrainState);
 
     }
 

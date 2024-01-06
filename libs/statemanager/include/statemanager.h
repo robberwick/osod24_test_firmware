@@ -5,6 +5,7 @@
 #ifndef OSOD_MOTOR_2040_STATEMANAGER_H
 #define OSOD_MOTOR_2040_STATEMANAGER_H
 
+#include "interfaces.h"
 #include "types.h"
 #include "receiver.h"
 #include "state_estimator.h"
@@ -35,12 +36,17 @@ namespace STATEMANAGER {
         void requestState(const STATE_ESTIMATOR::State& requestedState);
 
         void setServoSteeringAngle(const COMMON::DriveTrainState& driveTrainState, CONFIG::Handedness side) const;
+
     private:
         MIXER::MixerStrategy *mixerStrategy;
         STATE_ESTIMATOR::StateEstimator *stateEstimator;
         COMMON::DriveTrainState currentDriveTrainState{};
         Stokers stokers{};
         SteeringServos steering_servos{};
+
+        COMMON::Observer* observers[COMMON::MOTOR_POSITION::MOTOR_POSITION_COUNT] = {};
+        int observerCount = 0;
+
         // max speed factor - scale the speed of the motors down to this value
         static constexpr float SPEED_EXTENT = 1.0f;
 
