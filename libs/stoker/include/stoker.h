@@ -15,14 +15,15 @@ namespace STOKER {
         ~Stoker() = default;
 
     public:
-        Stoker(const pin_pair &pins, Direction direction);
+        Stoker(const pin_pair &pins, COMMON::MOTOR_POSITION::MotorPosition position, Direction direction);
         void set_speed(float speed);
 
         void update(COMMON::DriveTrainState newState) override;
 
     private:
         motor::Motor motor;
-        COMMON::MotorSpeeds current_motor_speeds_;
+        float current_motor_speed = 0.0f;
+        COMMON::MOTOR_POSITION::MotorPosition motor_position_;
     };
 
 } // STOKER
