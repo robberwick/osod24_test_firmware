@@ -27,10 +27,10 @@ namespace STATE_ESTIMATOR {
         estimatedState.velocity = 0.0f;
         estimatedState.heading = 0.0f;
         estimatedState.angularVelocity = 0.0f;
-        estimatedState.driveTrainState.speeds.frontLeft = 0.0f;
-        estimatedState.driveTrainState.speeds.frontRight = 0.0f;
-        estimatedState.driveTrainState.speeds.frontRight = 0.0f;
-        estimatedState.driveTrainState.speeds.rearRight = 0.0f;
+        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT] = 0.0f;
+        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT] = 0.0f;
+        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_LEFT] = 0.0f;
+        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT] = 0.0f;
         estimatedState.driveTrainState.angles.left = 0.0f;
         estimatedState.driveTrainState.angles.right = 0.0f;
         
@@ -104,21 +104,22 @@ namespace STATE_ESTIMATOR {
         //calculate speeds
 
         //get wheel speeds
-        estimatedState.driveTrainState.speeds.frontLeft = captureFL.radians_per_second();
-        estimatedState.driveTrainState.speeds.frontRight = captureFR.radians_per_second();
-        estimatedState.driveTrainState.speeds.rearLeft = captureRL.radians_per_second();
-        estimatedState.driveTrainState.speeds.rearRight = captureRR.radians_per_second();
+        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT] = captureFL.radians_per_second();
+
+        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT] = captureFR.radians_per_second();
+        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_LEFT] = captureRL.radians_per_second();
+        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT] = captureRR.radians_per_second();
 
         // average wheel speed in radians per side, accounting for angle of front wheels
-        float left_speed = (estimatedState.driveTrainState.speeds.frontLeft * cos(estimatedState.driveTrainState.angles.left)
-                             + estimatedState.driveTrainState.speeds.rearLeft) / 2;
+        float left_speed = (estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT] * cos(estimatedState.driveTrainState.angles.left)
+                             + estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_LEFT]) / 2;
         
         // convert average wheel rotation speed to linear speed
         left_speed = left_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //repeat for right side
-        float right_speed = (estimatedState.driveTrainState.speeds.frontRight * cos(estimatedState.driveTrainState.angles.right)
-                             + estimatedState.driveTrainState.speeds.rearRight) / 2;
+        float right_speed = (estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT] * cos(estimatedState.driveTrainState.angles.right)
+                             + estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT]) / 2;
         right_speed = right_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //calc all velocities

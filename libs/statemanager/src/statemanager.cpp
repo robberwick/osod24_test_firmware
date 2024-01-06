@@ -53,11 +53,11 @@ namespace STATEMANAGER {
         if (side == CONFIG::Handedness::LEFT) {
             servo = steering_servos.left;
             angle = driveTrainState.angles.left;
-            speed = driveTrainState.speeds.frontLeft;
+            speed = driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT];
         } else {
             servo = steering_servos.right;
             angle = driveTrainState.angles.right;
-            speed = driveTrainState.speeds.frontRight;
+            speed = driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT];
         }
 
         if (std::fabs(speed) > 0.05) {
@@ -71,10 +71,10 @@ namespace STATEMANAGER {
     }
 
     void StateManager::setDriveTrainState(const COMMON::DriveTrainState& motorSpeeds) {
-        stokers.FRONT_LEFT->set_requested_speed(motorSpeeds.speeds.frontLeft);
-        stokers.FRONT_RIGHT->set_requested_speed(motorSpeeds.speeds.frontRight);
-        stokers.REAR_LEFT->set_requested_speed(motorSpeeds.speeds.rearLeft);
-        stokers.REAR_RIGHT->set_requested_speed(motorSpeeds.speeds.rearRight);
+        stokers.FRONT_LEFT->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT]);
+        stokers.FRONT_RIGHT->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT]);
+        stokers.REAR_LEFT->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::REAR_LEFT]);
+        stokers.REAR_RIGHT->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT]);
         setServoSteeringAngle(motorSpeeds, CONFIG::Handedness::LEFT);
         setServoSteeringAngle(motorSpeeds, CONFIG::Handedness::RIGHT);
 

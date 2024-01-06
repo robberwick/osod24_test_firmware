@@ -23,7 +23,11 @@ COMMON::DriveTrainState TankSteerStrategy::mix(float velocity, float angularVelo
     float scaled_right = (right * speed_factor) * -1;
 
     COMMON::DriveTrainState result = {};
-    result.speeds = {scaled_left, scaled_right, scaled_left, scaled_right};
+    result.speeds = {};
+    result.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT] = scaled_left;
+    result.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT] = scaled_right;
+    result.speeds[COMMON::MOTOR_POSITION::REAR_LEFT] = scaled_left;
+    result.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT] = scaled_right;
     result.angles = {0, 0};
 
     return result;
