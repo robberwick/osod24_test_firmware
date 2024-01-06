@@ -22,9 +22,9 @@ namespace STATEMANAGER {
 
     class StateManager {
     public:
-        void initialiseServo(servo::Servo*& servo, const uint pin, float minPulse, const float midPulse, const float maxPulse, const float minValue, float midValue, float maxValue);
-
         explicit StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator);
+
+        void initialiseServo(servo::Servo*& servo, uint pin, float minPulse, float midPulse, float maxPulse, float minValue, float midValue, float maxValue);
 
         void requestState(const STATE_ESTIMATOR::State& requestedState);
 
