@@ -24,10 +24,10 @@ namespace STATEMANAGER {
         printf("State estimator created\n");
         printf("State manager created\n");
         // set up the stokers
-        stokers.FRONT_LEFT = new STOKER::Stoker(motor::motor2040::MOTOR_A, Direction::NORMAL_DIR);
-        stokers.FRONT_RIGHT = new STOKER::Stoker(motor::motor2040::MOTOR_B, Direction::NORMAL_DIR);
-        stokers.REAR_LEFT = new STOKER::Stoker(motor::motor2040::MOTOR_C, Direction::NORMAL_DIR);
-        stokers.REAR_RIGHT = new STOKER::Stoker(motor::motor2040::MOTOR_D, Direction::NORMAL_DIR);
+        stokers[COMMON::MOTOR_POSITION::FRONT_LEFT] = new STOKER::Stoker(motor::motor2040::MOTOR_A, COMMON::MOTOR_POSITION::FRONT_LEFT, Direction::NORMAL_DIR);
+        stokers[COMMON::MOTOR_POSITION::FRONT_RIGHT] = new STOKER::Stoker(motor::motor2040::MOTOR_B, COMMON::MOTOR_POSITION::FRONT_RIGHT, Direction::NORMAL_DIR);
+        stokers[COMMON::MOTOR_POSITION::REAR_LEFT] = new STOKER::Stoker(motor::motor2040::MOTOR_C, COMMON::MOTOR_POSITION::REAR_LEFT, Direction::NORMAL_DIR);
+        stokers[COMMON::MOTOR_POSITION::REAR_RIGHT] = new STOKER::Stoker(motor::motor2040::MOTOR_D, COMMON::MOTOR_POSITION::REAR_RIGHT, Direction::NORMAL_DIR);
 
         // set up the servos
         // left - ADC2 / PWM 6 - Pin 28
@@ -71,10 +71,10 @@ namespace STATEMANAGER {
     }
 
     void StateManager::setDriveTrainState(const COMMON::DriveTrainState& motorSpeeds) {
-        stokers.FRONT_LEFT->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT]);
-        stokers.FRONT_RIGHT->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT]);
-        stokers.REAR_LEFT->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::REAR_LEFT]);
-        stokers.REAR_RIGHT->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT]);
+        stokers[COMMON::MOTOR_POSITION::FRONT_LEFT]->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT]);
+        stokers[COMMON::MOTOR_POSITION::FRONT_RIGHT]->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT]);
+        stokers[COMMON::MOTOR_POSITION::REAR_LEFT]->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::REAR_LEFT]);
+        stokers[COMMON::MOTOR_POSITION::REAR_RIGHT]->set_speed(motorSpeeds.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT]);
         setServoSteeringAngle(motorSpeeds, CONFIG::Handedness::LEFT);
         setServoSteeringAngle(motorSpeeds, CONFIG::Handedness::RIGHT);
 

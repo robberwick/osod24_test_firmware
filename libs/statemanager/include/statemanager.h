@@ -20,13 +20,6 @@ namespace STATEMANAGER {
         servo::Servo* right;
     };
 
-    struct Stokers {
-        STOKER::Stoker* FRONT_LEFT;
-        STOKER::Stoker* FRONT_RIGHT;
-        STOKER::Stoker* REAR_LEFT;
-        STOKER::Stoker* REAR_RIGHT;
-    };
-
     class StateManager {
     public:
         void initialiseServo(servo::Servo*& servo, const uint pin, float minPulse, const float midPulse, const float maxPulse, const float minValue, float midValue, float maxValue);
@@ -41,7 +34,7 @@ namespace STATEMANAGER {
         MIXER::MixerStrategy *mixerStrategy;
         STATE_ESTIMATOR::StateEstimator *stateEstimator;
         COMMON::DriveTrainState currentDriveTrainState{};
-        Stokers stokers{};
+        STOKER::Stoker* stokers[COMMON::MOTOR_POSITION::MOTOR_POSITION_COUNT] = {};
         SteeringServos steering_servos{};
 
         COMMON::Observer* observers[COMMON::MOTOR_POSITION::MOTOR_POSITION_COUNT] = {};
