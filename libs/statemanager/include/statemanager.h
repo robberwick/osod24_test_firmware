@@ -14,7 +14,7 @@
 #include "servo.hpp"
 
 namespace STATEMANAGER {
-
+    using namespace COMMON;
     struct SteeringServos {
         servo::Servo* left;
         servo::Servo* right;
@@ -28,22 +28,22 @@ namespace STATEMANAGER {
 
         void requestState(const STATE_ESTIMATOR::State& requestedState);
 
-        void setServoSteeringAngle(const COMMON::DriveTrainState& driveTrainState, CONFIG::Handedness side) const;
+        void setServoSteeringAngle(const DriveTrainState& driveTrainState, CONFIG::Handedness side) const;
 
     private:
         MIXER::MixerStrategy *mixerStrategy;
         STATE_ESTIMATOR::StateEstimator *stateEstimator;
-        COMMON::DriveTrainState currentDriveTrainState{};
-        STOKER::Stoker* stokers[COMMON::MOTOR_POSITION::MOTOR_POSITION_COUNT] = {};
+        DriveTrainState currentDriveTrainState{};
+        STOKER::Stoker* stokers[MOTOR_POSITION::MOTOR_POSITION_COUNT] = {};
         SteeringServos steering_servos{};
 
-        COMMON::Observer* observers[COMMON::MOTOR_POSITION::MOTOR_POSITION_COUNT] = {};
+        Observer* observers[MOTOR_POSITION::MOTOR_POSITION_COUNT] = {};
         int observerCount = 0;
 
         // max speed factor - scale the speed of the motors down to this value
         static constexpr float SPEED_EXTENT = 1.0f;
 
-        void setDriveTrainState(const COMMON::DriveTrainState& motorSpeeds);
+        void setDriveTrainState(const DriveTrainState& motorSpeeds);
     };
 
 } // StateManager

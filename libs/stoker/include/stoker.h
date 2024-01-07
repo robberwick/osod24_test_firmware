@@ -9,21 +9,21 @@
 #include "drivers/motor/motor.hpp"
 
 namespace STOKER {
-
-    class Stoker: public COMMON::Observer {
+    using namespace COMMON;
+    class Stoker: public Observer {
     protected:
         ~Stoker() = default;
 
     public:
-        Stoker(const pin_pair &pins, COMMON::MOTOR_POSITION::MotorPosition position, Direction direction);
+        Stoker(const pin_pair &pins, MOTOR_POSITION::MotorPosition position, Direction direction);
         void set_speed(float speed);
 
-        void update(COMMON::DriveTrainState newState) override;
+        void update(DriveTrainState newState) override;
 
     private:
         motor::Motor motor;
         float current_motor_speed = 0.0f;
-        COMMON::MOTOR_POSITION::MotorPosition motor_position_;
+        MOTOR_POSITION::MotorPosition motor_position_;
     };
 
 } // STOKER

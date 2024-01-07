@@ -5,7 +5,7 @@
 #include "../include/stoker.h"
 
 namespace STOKER {
-    Stoker::Stoker(const pin_pair &pins, const COMMON::MOTOR_POSITION::MotorPosition position, Direction direction = Direction::NORMAL_DIR) : motor(pins), motor_position_(position) {
+    Stoker::Stoker(const pin_pair &pins, const MOTOR_POSITION::MotorPosition position, Direction direction = Direction::NORMAL_DIR) : motor(pins), motor_position_(position) {
         motor.init();
     }
 
@@ -14,7 +14,7 @@ namespace STOKER {
 
     }
 
-    void Stoker::update(const COMMON::DriveTrainState newState) {
+    void Stoker::update(const DriveTrainState newState) {
         current_motor_speed = newState.speeds[motor_position_];
     }
 

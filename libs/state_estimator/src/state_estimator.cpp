@@ -27,10 +27,10 @@ namespace STATE_ESTIMATOR {
         estimatedState.velocity = 0.0f;
         estimatedState.heading = 0.0f;
         estimatedState.angularVelocity = 0.0f;
-        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT] = 0.0f;
-        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT] = 0.0f;
-        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_LEFT] = 0.0f;
-        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT] = 0.0f;
+        estimatedState.driveTrainState.speeds[MOTOR_POSITION::FRONT_LEFT] = 0.0f;
+        estimatedState.driveTrainState.speeds[MOTOR_POSITION::FRONT_RIGHT] = 0.0f;
+        estimatedState.driveTrainState.speeds[MOTOR_POSITION::REAR_LEFT] = 0.0f;
+        estimatedState.driveTrainState.speeds[MOTOR_POSITION::REAR_RIGHT] = 0.0f;
         estimatedState.driveTrainState.angles.left = 0.0f;
         estimatedState.driveTrainState.angles.right = 0.0f;
         
@@ -56,13 +56,13 @@ namespace STATE_ESTIMATOR {
         showValues();
     }
 
-    void StateEstimator::addObserver(COMMON::Observer* observer) {
+    void StateEstimator::addObserver(Observer* observer) {
         if (observerCount < 10) {
             observers[observerCount++] = observer;
         }
     }
 
-    void StateEstimator::notifyObservers(const COMMON::DriveTrainState newState) {
+    void StateEstimator::notifyObservers(const DriveTrainState newState) {
         for (int i = 0; i < observerCount; i++) {
             observers[i]->update(newState);
         }
@@ -116,22 +116,22 @@ namespace STATE_ESTIMATOR {
         //calculate speeds
 
         //get wheel speeds
-        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT] = captureFL.radians_per_second();
+        estimatedState.driveTrainState.speeds[MOTOR_POSITION::FRONT_LEFT] = captureFL.radians_per_second();
 
-        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT] = captureFR.radians_per_second();
-        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_LEFT] = captureRL.radians_per_second();
-        estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT] = captureRR.radians_per_second();
+        estimatedState.driveTrainState.speeds[MOTOR_POSITION::FRONT_RIGHT] = captureFR.radians_per_second();
+        estimatedState.driveTrainState.speeds[MOTOR_POSITION::REAR_LEFT] = captureRL.radians_per_second();
+        estimatedState.driveTrainState.speeds[MOTOR_POSITION::REAR_RIGHT] = captureRR.radians_per_second();
 
         // average wheel speed in radians per side, accounting for angle of front wheels
-        float left_speed = (estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT] * cos(estimatedState.driveTrainState.angles.left)
-                             + estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_LEFT]) / 2;
+        float left_speed = (estimatedState.driveTrainState.speeds[MOTOR_POSITION::FRONT_LEFT] * cos(estimatedState.driveTrainState.angles.left)
+                             + estimatedState.driveTrainState.speeds[MOTOR_POSITION::REAR_LEFT]) / 2;
         
         // convert average wheel rotation speed to linear speed
         left_speed = left_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //repeat for right side
-        float right_speed = (estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT] * cos(estimatedState.driveTrainState.angles.right)
-                             + estimatedState.driveTrainState.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT]) / 2;
+        float right_speed = (estimatedState.driveTrainState.speeds[MOTOR_POSITION::FRONT_RIGHT] * cos(estimatedState.driveTrainState.angles.right)
+                             + estimatedState.driveTrainState.speeds[MOTOR_POSITION::REAR_RIGHT]) / 2;
         right_speed = right_speed * CONFIG::WHEEL_DIAMETER / 2;
 
         //calc all velocities
@@ -166,7 +166,7 @@ namespace STATE_ESTIMATOR {
         }
     }
 
-    void StateEstimator::updateCurrentDriveTrainState(const COMMON::DriveTrainState& newDriveTrainState) {
+    void StateEstimator::updateCurrentDriveTrainState(const DriveTrainState& newDriveTrainState) {
         currentDriveTrainState = newDriveTrainState;
     }
 

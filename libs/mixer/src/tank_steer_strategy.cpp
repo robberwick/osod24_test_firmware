@@ -7,7 +7,7 @@
 
 using namespace MIXER;
 
-COMMON::DriveTrainState TankSteerStrategy::mix(float velocity, float angularVelocity) {
+DriveTrainState TankSteerStrategy::mix(float velocity, float angularVelocity) {
     float left = velocity - angularVelocity;
     float right = velocity + angularVelocity;
     float abs_left = left >= 0 ? left : -left;
@@ -22,12 +22,12 @@ COMMON::DriveTrainState TankSteerStrategy::mix(float velocity, float angularVelo
     float scaled_left = (left * speed_factor);
     float scaled_right = (right * speed_factor) * -1;
 
-    COMMON::DriveTrainState result = {};
+    DriveTrainState result = {};
     result.speeds = {};
-    result.speeds[COMMON::MOTOR_POSITION::FRONT_LEFT] = scaled_left;
-    result.speeds[COMMON::MOTOR_POSITION::FRONT_RIGHT] = scaled_right;
-    result.speeds[COMMON::MOTOR_POSITION::REAR_LEFT] = scaled_left;
-    result.speeds[COMMON::MOTOR_POSITION::REAR_RIGHT] = scaled_right;
+    result.speeds[MOTOR_POSITION::FRONT_LEFT] = scaled_left;
+    result.speeds[MOTOR_POSITION::FRONT_RIGHT] = scaled_right;
+    result.speeds[MOTOR_POSITION::REAR_LEFT] = scaled_left;
+    result.speeds[MOTOR_POSITION::REAR_RIGHT] = scaled_right;
     result.angles = {0, 0};
 
     return result;

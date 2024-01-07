@@ -22,7 +22,7 @@ struct Encoders {
 };
 
 namespace STATE_ESTIMATOR {
-
+    using namespace COMMON;
     // define a State struct containing the state parameters that can be requested or tracked
     struct State {
         float x;
@@ -32,9 +32,9 @@ namespace STATE_ESTIMATOR {
         float velocity;
         float heading;
         float angularVelocity;
-        COMMON::DriveTrainState driveTrainState;
+        DriveTrainState driveTrainState;
     };
-    class StateEstimator: public COMMON::Subject {
+    class StateEstimator: public Subject {
     public:
         explicit StateEstimator();
 
@@ -44,8 +44,8 @@ namespace STATE_ESTIMATOR {
         void showValues() const;
         void estimateState();
         void publishState() const;
-        void addObserver(COMMON::Observer* observer) override;
-        void notifyObservers(COMMON::DriveTrainState newState) override;
+        void addObserver(Observer* observer) override;
+        void notifyObservers(DriveTrainState newState) override;
 
     private:
         Encoders encoders;
@@ -53,15 +53,15 @@ namespace STATE_ESTIMATOR {
         repeating_timer_t *timer;
         State estimatedState;
         State previousState;
-        COMMON::DriveTrainState currentDriveTrainState;
+        DriveTrainState currentDriveTrainState;
         static void timerCallback(repeating_timer_t *timer);
 
     public:
-        void updateCurrentDriveTrainState(const COMMON::DriveTrainState& newDriveTrainState);
+        void updateCurrentDriveTrainState(const DriveTrainState& newDriveTrainState);
 
     private:
         void setupTimer() const;
-        COMMON::Observer* observers[10];
+        Observer* observers[10];
         int observerCount = 0;
 
 
