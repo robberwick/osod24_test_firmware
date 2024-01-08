@@ -148,6 +148,10 @@ namespace STATE_ESTIMATOR {
         return wheelSpeeds;
     }
 
+    SteeringAngles StateEstimator::estimate_steering_angles() const {
+        return currentSteeringAngles;
+    }
+
     void StateEstimator::estimateState() {
         // instantiate a copy of the current state
         State tmpState = estimatedState;
@@ -169,6 +173,9 @@ namespace STATE_ESTIMATOR {
 
         //get wheel speeds
         tmpState.driveTrainState.speeds = get_wheel_speeds(encoderCaptures);
+
+        // estimate steering angles
+        tmpState.driveTrainState.angles = estimate_steering_angles();
 
         // calculate left and right speeds
         float left_speed;

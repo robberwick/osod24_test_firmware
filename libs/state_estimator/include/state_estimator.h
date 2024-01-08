@@ -82,6 +82,8 @@ namespace STATE_ESTIMATOR {
         Velocity calculate_velocities(float heading, float left_speed, float right_speed);
 
         static MotorSpeeds get_wheel_speeds(const Encoder::Capture* encoderCaptures);
+
+        [[nodiscard]] SteeringAngles estimate_steering_angles() const;
     };
 } // STATE_ESTIMATOR
 
