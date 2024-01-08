@@ -205,8 +205,8 @@ namespace STATE_ESTIMATOR {
         }
     }
 
-    void StateEstimator::updateCurrentDriveTrainState(const DriveTrainState& newDriveTrainState) {
-        currentDriveTrainState = newDriveTrainState;
+    void StateEstimator::updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles) {
+        currentSteeringAngles = newSteeringAngles;
     }
 
     StateEstimator::~StateEstimator() {

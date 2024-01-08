@@ -81,7 +81,7 @@ namespace STATEMANAGER {
         // save the current state
         currentDriveTrainState = motorSpeeds;
 
-        // update the state estimator with the current state
-        stateEstimator->updateCurrentDriveTrainState(motorSpeeds);
+        // update the state estimator with the current steering angles
+        stateEstimator->updateCurrentSteeringAngles(motorSpeeds.angles);
     }
 } // StateManager

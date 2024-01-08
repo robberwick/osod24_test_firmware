@@ -49,7 +49,7 @@ namespace STATE_ESTIMATOR {
 
         void notifyObservers(DriveTrainState newState) override;
 
-        void updateCurrentDriveTrainState(const DriveTrainState& newDriveTrainState);
+        void updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles);
 
         static float wrap_pi(float heading);
 
@@ -63,6 +63,7 @@ namespace STATE_ESTIMATOR {
         State estimatedState;
         State previousState;
         DriveTrainState currentDriveTrainState;
+        SteeringAngles currentSteeringAngles;
 
         static void timerCallback(repeating_timer_t* timer);
 
