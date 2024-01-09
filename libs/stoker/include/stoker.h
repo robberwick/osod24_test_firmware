@@ -26,8 +26,11 @@ namespace STOKER {
         motor::Motor motor;
         float current_motor_speed = 0.0f;
         MOTOR_POSITION::MotorPosition motor_position_;
-        
-        // UPDATE_RATE a fixed number for now, should really be passed in at initialisation
+
+        /* UPDATE_RATE is a fixed number for now. 
+        note the parameter doesn't drive updates, it's just used for scaling PID parameters 
+        TODO: allow update rate to be settable on iniitalisation 
+         and independent of calls to set_speed(), see issue #42 */
         float UPDATE_RATE = 0.02; //seconds
         PID vel_pid = PID(CONFIG::VEL_KP, CONFIG::VEL_KI, CONFIG::VEL_KD, UPDATE_RATE);
     };
