@@ -41,7 +41,7 @@ namespace STATEMANAGER {
         //printf("Velocity: %f ", requestedState.velocity);
         //printf("Angular velocity: %f ", requestedState.angularVelocity);
         //printf("\n");
-        const DriveTrainState driveTrainState = mixerStrategy->mix(requestedState.velocity, requestedState.angularVelocity);
+        const DriveTrainState driveTrainState = mixerStrategy->mix(requestedState.velocity.velocity, requestedState.velocity.angular_velocity);
         setDriveTrainState(driveTrainState);
     }
 
@@ -81,7 +81,7 @@ namespace STATEMANAGER {
         // save the current state
         currentDriveTrainState = motorSpeeds;
 
-        // update the state estimator with the current state
-        stateEstimator->updateCurrentDriveTrainState(motorSpeeds);
+        // update the state estimator with the current steering angles
+        stateEstimator->updateCurrentSteeringAngles(motorSpeeds.angles);
     }
 } // StateManager
