@@ -10,8 +10,9 @@ namespace STOKER {
     }
 
     void Stoker::set_speed(const float speed) {
-        motor.speed(speed);
-
+        vel_pid.setpoint = speed;
+        float accel = vel_pid.calculate(current_motor_speed);
+        motor.speed(speed + accel);
     }
 
     void Stoker::update(const DriveTrainState newState) {
