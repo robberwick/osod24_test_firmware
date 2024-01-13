@@ -40,9 +40,6 @@ namespace STATEMANAGER {
         Observer* observers[MOTOR_POSITION::MOTOR_POSITION_COUNT] = {};
         int observerCount = 0;
 
-        // max speed factor - scale the speed of the motors down to this value
-        static constexpr float SPEED_EXTENT = 1.0f;
-
         void setDriveTrainState(const DriveTrainState& motorSpeeds);
     };
 
