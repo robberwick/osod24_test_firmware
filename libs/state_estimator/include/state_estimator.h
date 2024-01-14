@@ -62,6 +62,8 @@ namespace STATE_ESTIMATOR {
         static StateEstimator* instancePtr;
         repeating_timer_t* timer;
         BNO08x IMU;
+
+        //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
         State estimatedState;
         State previousState;
