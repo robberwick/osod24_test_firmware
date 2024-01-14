@@ -121,7 +121,7 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::calculate_new_position(State& tmpState, const float distance_travelled, const float heading) {
         //use the latest heading and distance travleled to update the estiamted position
-        tmpState.odometry.x += distance_travelled * sin(heading);
+        tmpState.odometry.x -= distance_travelled * sin(heading);
         tmpState.odometry.y += distance_travelled * cos(heading);
 
         //now actually update odometry's heading
