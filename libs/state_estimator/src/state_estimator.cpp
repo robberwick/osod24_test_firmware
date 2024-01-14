@@ -48,6 +48,13 @@ namespace STATE_ESTIMATOR {
             printf("Could not enable rotation vector\n");
         }
         instancePtr = this;
+
+        if (initialise_heading_offset() == false) {
+            while (1){
+                printf("failed to set initial heading offset\n");
+                sleep_ms(1000);
+            }
+        }
         setupTimer();
     }
 
@@ -204,11 +211,11 @@ namespace STATE_ESTIMATOR {
       heading = estimatedState.odometry.heading;
       
       //if possible, update the heading with the latest from the IMU
-      if (IMU.getSensorEvent() == true) {
+        if (IMU.getSensorEvent() == true) {
             if (IMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-                heading = IMU.getYaw();
+                heading = IMU.getYaw() - heading_offset;
             }
-        }  
+        }
     }
 
     void StateEstimator::setupTimer() const {
@@ -231,6 +238,25 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles) {
         currentSteeringAngles = newSteeringAngles;
+    }
+
+    bool StateEstimator::initialise_heading_offset() {
+        // function sets the heading_offset to the current heading
+        // returns true if the offset is set, false if timed out (no heading updates available)
+        long timeoutDuration = 5000;
+        long startTime = millis();
+        bool isUpdated = false; // Flag to indicate if heading_offset is updated
+
+        while (millis() - startTime < timeoutDuration && !isUpdated) {
+            if (IMU.getSensorEvent() == true) {
+                if (IMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
+                    heading_offset = IMU.getYaw();
+                    isUpdated = true;
+                }
+            }
+        }
+        //if the timer expired before the heading was set, return false
+        return isUpdated;
     }
 
     StateEstimator::~StateEstimator() {
