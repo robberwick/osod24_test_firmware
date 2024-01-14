@@ -174,11 +174,6 @@ namespace STATE_ESTIMATOR {
         //calculate new position and orientation
         calculate_new_position(tmpState, distance_travelled, heading);
 
-        //calculate new position
-        estimatedState.odometry.x = estimatedState.odometry.x + distance_travelled * sin(estimatedState.odometry.heading);
-        estimatedState.odometry.y = estimatedState.odometry.y + distance_travelled * cos(estimatedState.odometry.heading);
-
-
         //calculate speeds
 
         //get wheel speeds
@@ -195,7 +190,8 @@ namespace STATE_ESTIMATOR {
         //calc all velocities
         tmpState.velocity = calculate_velocities(tmpState.odometry.heading, previousState.odometry.heading, left_speed, right_speed);
 
-        // update the estimated state
+        // update the estimated states
+        previousState = estimatedState;
         estimatedState = tmpState;
 
         // notify observers of the new state
