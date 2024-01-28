@@ -14,9 +14,9 @@ constexpr double MAX_PERIOD_US = 2000; //1600;
 
 Receiver* getReceiver(int pin) {
 #ifdef RX_PROTOCOL_CPPM
-    auto* receiver = new ReceiverCPPM(motor::motor2040::RX_ECHO);
+    auto* receiver = new ReceiverCPPM(pin);
 #else
-    auto* receiver = new ReceiverSBUS(motor::motor2040::RX_ECHO);
+    auto* receiver = new ReceiverSBUS(pin);
 #endif
     return receiver;
 }
