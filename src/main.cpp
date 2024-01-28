@@ -34,7 +34,7 @@ int main() {
     // set up the receiver
     // if the cmake build flag RX_PROTOCOL is CPPM, then use the CPPM receiver
     // otherwise use the SBUS receiver
-    Receiver *pReceiver = getReceiver(motor::motor2040::RX_ECHO);
+    Receiver *pReceiver = getReceiver(motor::motor2040::SHARED_ADC);
 
     // set up the navigator
     navigator = new Navigator(pReceiver, pStateManager);
