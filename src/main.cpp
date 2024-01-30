@@ -60,7 +60,7 @@ int main() {
     bool adcPresent;
     BalancePort balancePort;
     adcPresent = balancePort.initADC(i2c_port0); // Initialize ADC
-   
+
     //set up IMU
     BNO08x IMU;
     if (IMU.begin(CONFIG::BNO08X_ADDR, i2c_port0)==false) {
@@ -102,10 +102,10 @@ int main() {
     while (true) {
         // Do nothing in the main loop
         if (timerCallbackData.shouldNavigate) {
-            // Call the navigate function in the interrupt handler
             navigator->navigate();
             timerCallbackData.shouldNavigate = false;
-        }
+
+}
 
         if (adcPresent && timerCallbackData.shouldReadCellStatus) {
             balancePort.raiseCellStatus();

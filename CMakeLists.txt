@@ -29,6 +29,8 @@ target_link_libraries(${PROJECT_NAME}
         tf_luna
         config
         common
+        usb_serial
+        serialtransfer
         balance_port
         bno080
         waypoint_navigation
