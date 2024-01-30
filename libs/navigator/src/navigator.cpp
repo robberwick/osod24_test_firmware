@@ -52,7 +52,7 @@ void Navigator::navigate() {
         // TODO: use a queue to send the receiver data to the state manager
         pStateManager->requestState(requestedState);
     } else {
-        printf("No receiver data available\n");
+        // printf("No receiver data available\n");
     }
 }
 
