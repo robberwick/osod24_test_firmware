@@ -10,7 +10,7 @@
 namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
 
-    StateEstimator::StateEstimator(i2c_inst_t* port) : encoders{
+    StateEstimator::StateEstimator(BNO08x* IMUinstance) : encoders{
             [MOTOR_POSITION::FRONT_LEFT] =new Encoder(pio0, 0, motor2040::ENCODER_A, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             [MOTOR_POSITION::FRONT_RIGHT] =new Encoder(pio0, 1, motor2040::ENCODER_B, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             [MOTOR_POSITION::REAR_LEFT] = new Encoder(pio0, 2, motor2040::ENCODER_C, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
@@ -36,17 +36,8 @@ namespace STATE_ESTIMATOR {
         estimatedState.driveTrainState.angles.left = 0.0f;
         estimatedState.driveTrainState.angles.right = 0.0f;
         
-        if (IMU.begin(CONFIG::BNO08X_ADDR, port)==false) {
-            while (1){
-                printf("BNO08x not detected at default I2C address. Check wiring. Freezin\n");
-                sleep_ms(1000);
-            }
-        }
-        if (IMU.enableRotationVector() == true) {
-            printf("Rotation vector enabled\n");
-        } else {
-            printf("Could not enable rotation vector\n");
-        }
+        IMU = IMUinstance;
+        
         instancePtr = this;
 
         if (initialise_heading_offset() == false) {
@@ -211,9 +202,9 @@ namespace STATE_ESTIMATOR {
       heading = estimatedState.odometry.heading;
       
       //if possible, update the heading with the latest from the IMU
-        if (IMU.getSensorEvent() == true) {
-            if (IMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-                heading = IMU.getYaw() - heading_offset;
+        if (IMU->getSensorEvent() == true) {
+            if (IMU->getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
+                heading = IMU->getYaw() - heading_offset;
             }
         }
     }
@@ -248,9 +239,9 @@ namespace STATE_ESTIMATOR {
         bool isUpdated = false; // Flag to indicate if heading_offset is updated
 
         while (millis() - startTime < timeoutDuration && !isUpdated) {
-            if (IMU.getSensorEvent() == true) {
-                if (IMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-                    heading_offset = IMU.getYaw();
+            if (IMU->getSensorEvent() == true) {
+                if (IMU->getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
+                    heading_offset = IMU->getYaw();
                     isUpdated = true;
                 }
             }

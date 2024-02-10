@@ -35,7 +35,7 @@ namespace STATE_ESTIMATOR {
 
     class StateEstimator : public Subject {
     public:
-        explicit StateEstimator(i2c_inst_t* port);
+        explicit StateEstimator(BNO08x* IMUinstance);
 
     protected:
         ~StateEstimator(); // Destructor to cancel the timer
@@ -61,7 +61,7 @@ namespace STATE_ESTIMATOR {
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         static StateEstimator* instancePtr;
         repeating_timer_t* timer;
-        BNO08x IMU;
+        BNO08x* IMU;
         float heading_offset;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
