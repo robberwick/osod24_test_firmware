@@ -18,6 +18,8 @@
   BusIO library found here:
   https://github.com/adafruit/Adafruit_BusIO
 
+  Ported by Mark Mellors for use on an RP2040
+
   The BNO08x IMU is a powerful triple axis gyro/accel/magnetometer coupled with an ARM processor
   to maintain and complete all the complex calculations for various VR, inertial, step counting,
   and movement operations.
@@ -26,9 +28,6 @@
   for different readings.
 
   https://github.com/sparkfun/SparkFun_BNO08x_Arduino_Library
-
-  Development environment specifics:
-  Arduino IDE 1.8.5
 
   SparkFun code, firmware, and software is released under the MIT License.
   Please see LICENSE.md for further details.
