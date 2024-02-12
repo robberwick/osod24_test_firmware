@@ -9,6 +9,7 @@
 #include "tank_steer_strategy.h"
 #include "ackermann_strategy.h"
 #include "drivetrain_config.h"
+#include "utils.h"
 #include "tf_luna.h"
 
 Navigator *navigator;
@@ -21,6 +22,8 @@ extern "C" void timer_callback(repeating_timer_t *t) {
 
 int main() {
     stdio_init_all();
+    i2c_inst_t* i2c_port0;
+    initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
 
     // set up the state estimator
     auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator();
@@ -51,7 +54,7 @@ int main() {
 
     while (true) {
         // Do nothing in the main loop
-        LidarData lidarData = getLidarData(address); // Get and process radar data
+        LidarData lidarData = getLidarData(tf_luna_default_address); // Get and process radar data
         printf("distance = %5dcm, strength = %5d, temperature = %5d°C\n",
                lidarData.distance, lidarData.strength, lidarData.temperature);
                
