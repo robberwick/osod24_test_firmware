@@ -26,6 +26,7 @@ target_link_libraries(${PROJECT_NAME}
         state_estimator
         statemanager
         stoker
+        tf_luna
         config
         common
 )

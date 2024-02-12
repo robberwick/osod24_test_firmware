@@ -9,6 +9,7 @@
 #include "tank_steer_strategy.h"
 #include "ackermann_strategy.h"
 #include "drivetrain_config.h"
+#include "tf_luna.h"
 
 Navigator *navigator;
 bool shouldNavigate = false;
@@ -50,6 +51,11 @@ int main() {
 
     while (true) {
         // Do nothing in the main loop
+        LidarData lidarData = getLidarData(address); // Get and process radar data
+        printf("distance = %5dcm, strength = %5d, temperature = %5d°C\n",
+               lidarData.distance, lidarData.strength, lidarData.temperature);
+               
+        sleep_ms(1000); // Delay for 1 second
         if (shouldNavigate) {
             // Call the navigate function in the interrupt handler
             navigator->navigate();
