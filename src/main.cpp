@@ -26,9 +26,9 @@ int main() {
     stdio_init_all();
     i2c_inst_t* i2c_port0;
     initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
-
+bool adcPresent;
     BalancePort balancePort;
-    balancePort.initADC(i2c_port0); // Initialize ADC
+    adcPresent = balancePort.initADC(i2c_port0); // Initialize ADC
 
     //set up IMU
     BNO08x IMU;
@@ -68,9 +68,16 @@ int main() {
     );
 
     while (true) {
-        adcVoltages inputVoltages = balancePort.getCellVoltages();
-        printf("cell 1: %fV, cell 2: %fV, cell 3: %fV, PSU: %fV\n",
-               inputVoltages.cell1, inputVoltages.cell2, inputVoltages.cell3, inputVoltages.psu);
+        if (adcPresent){
+            CellStatus cellStatus = balancePort.getCellStatus();
+            if (!cellStatus.allOk) {
+                printf("input voltage error! %s Voltages: ",
+                      cellStatus.fault.c_str());
+                printf("cell 1: %fV, cell 2: %fV, cell 3: %fV, PSU: %fV\n",
+                       cellStatus.voltages.cell1, cellStatus.voltages.cell2,
+                       cellStatus.voltages.cell3, cellStatus.voltages.psu);
+            }
+        }
         sleep_ms(100); // Delay for 0.5 second
         // Do nothing in the main loop
         if (shouldNavigate) {
