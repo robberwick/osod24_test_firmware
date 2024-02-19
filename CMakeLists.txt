@@ -28,6 +28,9 @@ target_link_libraries(${PROJECT_NAME}
         stoker
         config
         common
+        hardware_spi
+        screen
+        
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
