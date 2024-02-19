@@ -36,6 +36,6 @@ ReceiverChannelValues ReceiverCPPM::get_channel_values() const {
 }
 
 bool ReceiverCPPM::get_receiver_data() const {
-    return decoder->getFrameAgeMs() > 0;
+    return decoder->getFrameAgeUs() > 0;
 }
 
