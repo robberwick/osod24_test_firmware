@@ -1,3 +1,4 @@
+add_subdirectory(balance_port)
 add_subdirectory(common)
 add_subdirectory(config)
 add_subdirectory(navigator)

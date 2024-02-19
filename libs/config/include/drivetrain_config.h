@@ -14,6 +14,9 @@ namespace CONFIG {
 
     #define CURRENT_CHALLENGE ESCAPE_ROUTE
 
+    constexpr int I2C_SDA_PIN = 20;
+    constexpr int I2C_SCL_PIN = 21;
+    
     enum Handedness {
         LEFT,
         RIGHT
