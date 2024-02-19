@@ -29,5 +29,6 @@ struct FourTofDistances {
 };
 
 // Function to get Lidar data
-LidarData getLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port);
+LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port);
 FourTofDistances getAllLidarDistances(i2c_inst_t* i2c_port);
+
