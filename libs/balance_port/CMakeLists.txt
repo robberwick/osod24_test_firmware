@@ -3,9 +3,10 @@ add_library(balance_port STATIC
         src/balance_port.cpp
 )
 
-target_link_libraries(balance_port
+target_link_libraries(balance_port PUBLIC
         pico_stdlib 
         hardware_i2c
+        config
 )
 
 target_include_directories(balance_port PUBLIC

@@ -12,7 +12,6 @@
 #include "utils.h"
 #include "balance_port.h"
 
-PICO_ADS1015 inputVoltagesADC; // initialise adc for cell voltages
 
 Navigator *navigator;
 bool shouldNavigate = false;
@@ -26,15 +25,11 @@ int main() {
     stdio_init_all();
     i2c_inst_t* i2c_port0;
     initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
+    
+    BalancePort balancePort;
+    balancePort.initADC(i2c_port0); // Initialize ADC
+   
 
-    inputVoltagesADC.setGain(ADSXGain_ONE);
-
-    if (!inputVoltagesADC.beginADSX(ADSX_ADDRESS_GND, i2c_port0, 100, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN)) {
-      while (1){
-        printf("ADS1x15 : Failed to initialize ADS.!\r\n");
-        sleep_ms(5000); // Delay for 5 seconds
-      };
-    }
     // set up the state estimator
     auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator();
 
@@ -63,7 +58,7 @@ int main() {
     );
 
     while (true) {
-        adcVoltages inputVoltages = getCellVoltages();  
+        adcVoltages inputVoltages = balancePort.getCellVoltages();  
         
         printf("cell 1: %fV, cell 2: %fV, cell 3: %fV, PSU: %fV\n",
                inputVoltages.cell1, inputVoltages.cell2, inputVoltages.cell3, inputVoltages.psu);
