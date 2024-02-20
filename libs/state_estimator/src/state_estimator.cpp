@@ -76,7 +76,7 @@ namespace STATE_ESTIMATOR {
         }
     }
 
-    void StateEstimator::notifyObservers(const DriveTrainState newState) {
+    void StateEstimator::notifyObservers(const State newState) {
         for (int i = 0; i < observerCount; i++) {
             observers[i]->update(newState);
         }
@@ -196,7 +196,7 @@ namespace STATE_ESTIMATOR {
         estimatedState = tmpState;
 
         // notify observers of the new state
-        notifyObservers(estimatedState.driveTrainState);
+        notifyObservers(estimatedState);
 
     }
 
