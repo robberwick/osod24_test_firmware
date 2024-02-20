@@ -11,6 +11,7 @@
 #include "drivetrain_config.h"
 #include "utils.h"
 #include "tf_luna.h"
+#include "bno080.h"
 
 Navigator *navigator;
 bool shouldNavigate = false;
@@ -25,8 +26,25 @@ int main() {
     i2c_inst_t* i2c_port0;
     initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
 
+    i2c_inst_t* i2c_port0;
+    initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
+
+    //set up IMU
+    BNO08x IMU;
+    if (IMU.begin(CONFIG::BNO08X_ADDR, i2c_port0)==false) {
+        while (1){
+            printf("BNO08x not detected at default I2C address. Check wiring. Freezing\n");
+            sleep_ms(1000);
+        }
+    }
+    if (IMU.enableRotationVector() == true) {
+        printf("Rotation vector enabled\n");
+    } else {
+        printf("Could not enable rotation vector\n");
+    }
+
     // set up the state estimator
-    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator();
+    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU);
 
     // set up the state manager
     using namespace STATEMANAGER;

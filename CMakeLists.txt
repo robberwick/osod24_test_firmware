@@ -29,6 +29,7 @@ target_link_libraries(${PROJECT_NAME}
         tf_luna
         config
         common
+        bno080
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
