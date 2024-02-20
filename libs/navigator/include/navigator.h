@@ -4,6 +4,7 @@
 #include "types.h"
 #include "interfaces.h"
 #include "drivetrain_config.h"
+#include "waypoint_navigation.h"
 
 using namespace COMMON;
 class Navigator: public Observer {
@@ -21,4 +22,5 @@ private:
     State current_state;
     float waypointSignalThreshold = 0.5; //if signal above this, we're move into waypoint mode
     COMMON::NavigationMode determineMode(float signal);
+    WaypointNavigation waypointNavigator;
 };
