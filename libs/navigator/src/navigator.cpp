@@ -57,4 +57,8 @@ COMMON::NavigationMode Navigator::determineMode(float signal){
     return mode;
 }
 
+void Navigator::update(const State newState) {
+    current_state = newState;
+}
+
 Navigator::~Navigator() = default;

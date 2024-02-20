@@ -26,12 +26,6 @@ namespace STATE_ESTIMATOR {
     using namespace COMMON;
 
     // define a State struct containing the state parameters that can be requested or tracked
-    struct State {
-        Velocity velocity;
-        Odometry odometry;
-        DriveTrainState driveTrainState;
-    };
-
     class StateEstimator : public Subject {
     public:
         explicit StateEstimator();
@@ -47,7 +41,7 @@ namespace STATE_ESTIMATOR {
 
         void addObserver(Observer* observer) override;
 
-        void notifyObservers(DriveTrainState newState) override;
+        void notifyObservers(State newState) override;
 
         void updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles);
 
