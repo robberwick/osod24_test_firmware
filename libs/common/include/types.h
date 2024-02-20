@@ -37,6 +37,12 @@ namespace COMMON {
         SteeringAngles angles;
     };
 
+    struct ToFDistances {
+        float front;
+        float right;
+        float rear;
+        float left;
+    };
     struct Odometry {
         float x;
         float y;

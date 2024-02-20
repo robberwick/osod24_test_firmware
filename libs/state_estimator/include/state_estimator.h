@@ -31,17 +31,19 @@ namespace STATE_ESTIMATOR {
         Velocity velocity;
         Odometry odometry;
         DriveTrainState driveTrainState;
+        ToFDistances tofDistances;
     };
 
     class StateEstimator : public Subject {
     public:
-        explicit StateEstimator(BNO08x* IMUinstance, CONFIG::SteeringStyle direction);
+        explicit StateEstimator(BNO08x* IMUinstance, i2c_inst_t* port, CONFIG::SteeringStyle direction);
 
     protected:
         ~StateEstimator(); // Destructor to cancel the timer
     public:
         void showValues() const;
-
+        void showValuesViaCSV() const;
+        
         void estimateState();
 
         void publishState() const;
@@ -65,6 +67,7 @@ namespace STATE_ESTIMATOR {
         static StateEstimator* instancePtr;
         repeating_timer_t* timer;
         BNO08x* IMU;
+        i2c_inst_t* i2c_port;
         float heading_offset;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
