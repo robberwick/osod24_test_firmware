@@ -20,7 +20,7 @@ namespace STOKER {
         Stoker(const pin_pair &pins, MOTOR_POSITION::MotorPosition position, Direction direction);
         void set_speed(float speed);
 
-        void update(DriveTrainState newState) override;
+        void update(State newState) override;
 
     private:
         motor::Motor motor;
