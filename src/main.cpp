@@ -100,20 +100,6 @@ int main() {
 
     while (true) {
         // Do nothing in the main loop
-        LidarData frontLidarData = getSingleLidarData(tf_luna_front, i2c_port0); // Get and process radar data
-        printf("front: distance = %5dcm, strength = %5d, temperature = %5d°C\n",
-               frontLidarData.distance, frontLidarData.strength, frontLidarData.temperature);
-        LidarData rightLidarData = getSingleLidarData(tf_luna_right, i2c_port0); // Get and process radar data
-        printf("right: distance = %5dcm, strength = %5d, temperature = %5d°C\n",
-               rightLidarData.distance, rightLidarData.strength, rightLidarData.temperature);
-        LidarData rearLidarData = getSingleLidarData(tf_luna_rear, i2c_port0); // Get and process radar data
-        printf("rear: distance = %5dcm, strength = %5d, temperature = %5d°C\n",
-               rearLidarData.distance, rearLidarData.strength, rearLidarData.temperature);
-        LidarData leftLidarData = getSingleLidarData(tf_luna_left, i2c_port0); // Get and process radar data
-        printf("left: distance = %5dcm, strength = %5d, temperature = %5d°C\n",
-               leftLidarData.distance, leftLidarData.strength, leftLidarData.temperature);
-
-        sleep_ms(500); // Delay for 1 second
         if (timerCallbackData.shouldNavigate) {
             // Call the navigate function in the interrupt handler
             navigator->navigate();
