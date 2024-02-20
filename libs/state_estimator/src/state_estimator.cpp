@@ -1,6 +1,7 @@
 //
 // Created by robbe on 03/12/2023.
 //
+#include <chrono>
 #include <cstdio>
 #include "state_estimator.h"
 #include "drivetrain_config.h"
@@ -71,11 +72,18 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::showValuesViaCSV() const {
-        printf("%.3f, %.3f, %.3f, %.1f\n", 
+        using namespace std::chrono;
+        auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+
+        printf("%lld, %.3f, %.3f, %.3f, %.0f, %.0f, %.0f, %.0f\n", 
+           now,
            estimatedState.odometry.x,
            estimatedState.odometry.y,
            estimatedState.odometry.heading,
-           estimatedState.tofDistances.front);
+           estimatedState.tofDistances.front,
+           estimatedState.tofDistances.right,
+           estimatedState.tofDistances.rear,
+           estimatedState.tofDistances.left);
     }
 
     void StateEstimator::publishState() const {
