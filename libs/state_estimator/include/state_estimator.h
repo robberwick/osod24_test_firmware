@@ -70,7 +70,7 @@ namespace STATE_ESTIMATOR {
         i2c_inst_t* i2c_port;
         float heading_offset;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
-        const uint32_t timerInterval = 50;  // Interval in milliseconds
+        const uint32_t timerInterval = 10;  // Interval in milliseconds
         State estimatedState;
         State previousState;
         DriveTrainState currentDriveTrainState;
