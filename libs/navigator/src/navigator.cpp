@@ -4,6 +4,7 @@
 #include "state_estimator.h"
 #include "types.h"
 #include "drivetrain_config.h"
+#include "waypoint_navigation.h"
 
 Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* stateManager) {
     this->receiver = receiver;
@@ -31,8 +32,9 @@ void Navigator::navigate() {
             requestedState.velocity.angular_velocity = values.AIL * CONFIG::MAX_ANGULAR_VELOCITY;
             break;
         case COMMON::WAYPOINT:
-            requestedState.velocity.velocity = 0;
-            requestedState.velocity.angular_velocity = 0;
+            waypointNavigator.navigate(current_state);
+            requestedState.velocity.velocity = waypointNavigator.desiredV;
+            requestedState.velocity.angular_velocity = waypointNavigator.desiredW;
             break;
         default:
             requestedState.velocity.velocity = values.ELE * CONFIG::MAX_VELOCITY;
