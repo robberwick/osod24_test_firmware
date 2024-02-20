@@ -6,11 +6,11 @@
 #include "drivetrain_config.h"
 #include "encoder.hpp"
 #include "bno080.h"
-
+#include "tf_luna.h"
 namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
 
-    StateEstimator::StateEstimator(BNO08x* IMUinstance) : encoders{
+    StateEstimator::StateEstimator(BNO08x* IMUinstance, i2c_inst_t* port) : encoders{
             [MOTOR_POSITION::FRONT_LEFT] =new Encoder(pio0, 0, motor2040::ENCODER_A, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             [MOTOR_POSITION::FRONT_RIGHT] =new Encoder(pio0, 1, motor2040::ENCODER_B, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             [MOTOR_POSITION::REAR_LEFT] = new Encoder(pio0, 2, motor2040::ENCODER_C, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
@@ -20,7 +20,7 @@ namespace STATE_ESTIMATOR {
         encoders[MOTOR_POSITION::FRONT_RIGHT]->init();
         encoders[MOTOR_POSITION::REAR_LEFT]->init();
         encoders[MOTOR_POSITION::REAR_RIGHT]->init();
-
+        i2c_port = port;
         // Initialize the State struct member variables
         estimatedState.odometry.x = 0.0f;
         estimatedState.velocity.x_dot = 0.0f;
@@ -35,7 +35,10 @@ namespace STATE_ESTIMATOR {
         estimatedState.driveTrainState.speeds[MOTOR_POSITION::REAR_RIGHT] = 0.0f;
         estimatedState.driveTrainState.angles.left = 0.0f;
         estimatedState.driveTrainState.angles.right = 0.0f;
-        
+        estimatedState.tofDistances.front = getLidarData(tf_luna_front, i2c_port).distance;
+        estimatedState.tofDistances.right = getLidarData(tf_luna_right, i2c_port).distance;
+        estimatedState.tofDistances.rear = getLidarData(tf_luna_rear, i2c_port).distance;
+        estimatedState.tofDistances.left = getLidarData(tf_luna_left, i2c_port).distance;
         IMU = IMUinstance;
         
         instancePtr = this;
@@ -55,16 +58,25 @@ namespace STATE_ESTIMATOR {
         //printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
         //printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
         //printf("\n");
-        printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
+        printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f, front ToF: %f\n", 
            estimatedState.odometry.x,
            estimatedState.odometry.y,
            estimatedState.velocity.velocity,
            estimatedState.odometry.heading,
-           estimatedState.velocity.angular_velocity);
+           estimatedState.velocity.angular_velocity,
+           estimatedState.tofDistances.front);
+    }
+
+    void StateEstimator::showValuesViaCSV() const {
+        printf("%.3f, %.3f, %.3f, %.1f\n", 
+           estimatedState.odometry.x,
+           estimatedState.odometry.y,
+           estimatedState.odometry.heading,
+           estimatedState.tofDistances.front);
     }
 
     void StateEstimator::publishState() const {
-        showValues();
+        showValuesViaCSV();
     }
 
     void StateEstimator::addObserver(Observer* observer) {
@@ -187,6 +199,12 @@ namespace STATE_ESTIMATOR {
 
         //calc all velocities
         tmpState.velocity = calculate_velocities(tmpState.odometry.heading, previousState.odometry.heading, left_speed, right_speed);
+
+        // get ToF data
+        tmpState.tofDistances.front = getLidarData(tf_luna_front, i2c_port).distance;
+        tmpState.tofDistances.right = getLidarData(tf_luna_right, i2c_port).distance;
+        tmpState.tofDistances.rear = getLidarData(tf_luna_rear, i2c_port).distance;
+        tmpState.tofDistances.left = getLidarData(tf_luna_left, i2c_port).distance;
 
         // update the estimated states
         previousState = estimatedState;

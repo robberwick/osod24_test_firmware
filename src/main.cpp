@@ -10,7 +10,6 @@
 #include "ackermann_strategy.h"
 #include "drivetrain_config.h"
 #include "utils.h"
-#include "tf_luna.h"
 #include "bno080.h"
 
 Navigator *navigator;
@@ -23,9 +22,6 @@ extern "C" void timer_callback(repeating_timer_t *t) {
 
 int main() {
     stdio_init_all();
-    i2c_inst_t* i2c_port0;
-    initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
-
     i2c_inst_t* i2c_port0;
     initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
 
@@ -44,7 +40,7 @@ int main() {
     }
 
     // set up the state estimator
-    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU);
+    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, i2c_port0);
 
     // set up the state manager
     using namespace STATEMANAGER;
@@ -72,20 +68,7 @@ int main() {
 
     while (true) {
         // Do nothing in the main loop
-        LidarData frontLidarData = getLidarData(tf_luna_front, i2c_port0); // Get and process radar data
-        printf("front: distance = %5dcm, strength = %5d, temperature = %5d°C\n",
-               frontLidarData.distance, frontLidarData.strength, frontLidarData.temperature);
-        LidarData rightLidarData = getLidarData(tf_luna_right, i2c_port0); // Get and process radar data
-        printf("right: distance = %5dcm, strength = %5d, temperature = %5d°C\n",
-               rightLidarData.distance, rightLidarData.strength, rightLidarData.temperature);
-        LidarData rearLidarData = getLidarData(tf_luna_rear, i2c_port0); // Get and process radar data
-        printf("rear: distance = %5dcm, strength = %5d, temperature = %5d°C\n",
-               rearLidarData.distance, rearLidarData.strength, rearLidarData.temperature);
-        LidarData leftLidarData = getLidarData(tf_luna_left, i2c_port0); // Get and process radar data
-        printf("left: distance = %5dcm, strength = %5d, temperature = %5d°C\n",
-               leftLidarData.distance, leftLidarData.strength, leftLidarData.temperature);
 
-        sleep_ms(500); // Delay for 1 second
         if (shouldNavigate) {
             // Call the navigate function in the interrupt handler
             navigator->navigate();
