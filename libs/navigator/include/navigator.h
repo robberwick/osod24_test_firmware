@@ -20,5 +20,5 @@ private:
     State current_state;
     float waypointSignalThreshold = 0.5; //if signal above this, we're move into waypoint mode
     COMMON::NavigationMode determineMode(float signal);
-    WaypointNavigation waypointNavigator;
+    WAYPOINTS::WaypointNavigation waypointNavigator;
 };

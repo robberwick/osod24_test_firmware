@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT_NAME}
         stoker
         config
         common
+        waypoint_navigation
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
