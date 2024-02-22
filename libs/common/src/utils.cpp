@@ -12,3 +12,10 @@ void initI2C(i2c_inst_t* &i2c_port, uint baudrate, uint sda_pin, uint scl_pin) {
     gpio_pull_up(sda_pin);
     gpio_pull_up(scl_pin);
 }
+
+float wrap_pi(const float heading) {
+    //constrain heading to +/-pi
+
+    const double wrapped = heading > M_PI ? heading - M_TWOPI : heading < -M_TWOPI ? heading + M_TWOPI : heading;
+    return static_cast<float>(wrapped);
+}
