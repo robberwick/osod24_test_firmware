@@ -30,6 +30,7 @@ target_link_libraries(${PROJECT_NAME}
         common
         balance_port
         bno080
+        waypoint_navigation
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

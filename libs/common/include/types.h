@@ -43,6 +43,13 @@ namespace COMMON {
         float heading;
     };
 
+    struct Waypoint {
+        float x;
+        float y;
+        float heading;
+        float speed;
+    };
+
     enum NavigationMode {
         REMOTE_CONTROL,
         WAYPOINT,
