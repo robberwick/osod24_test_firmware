@@ -5,6 +5,8 @@ add_library(waypoint_navigation STATIC
 target_link_libraries(waypoint_navigation PUBLIC
         common
         config
+        motor
+        pid
 )
 
 target_include_directories(waypoint_navigation PUBLIC
