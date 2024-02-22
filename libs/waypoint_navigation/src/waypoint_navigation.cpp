@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <math.h>
+#include <algorithm>
 #include "types.h"
 #include "drivetrain_config.h"
 #include "waypoint_navigation.h"
@@ -16,14 +17,14 @@ WaypointNavigation::WaypointNavigation(){
     }
 
     // Initialize remaining waypoints in the buffer to NaN
-    Waypoint nanWaypoint = {NAN, NAN, NAN, NAN}; // Create a NaN waypoint
+   
     for (; i < waypointBufferSize; i++) {
         waypointBuffer[i] = nanWaypoint;
     }
 }
 
 
-void WaypointNavigation::navigate(const State currentState) {
+void WaypointNavigation::navigate(const State& currentState) {
     // updates desiredV and desiredW (speed and turn velocity)
     // based on the current position and the list of waypoints.
     // the velocity comes from the speed associated with the closest waypoint
@@ -31,24 +32,35 @@ void WaypointNavigation::navigate(const State currentState) {
     printf("navigating to waypoint");
 
     // find nearest waypoint and use it to set the speed
-    nearestWaypointIndex = nearestWaypoint(currentState);
-    desiredV = waypointBuffer[nearestWaypointIndex].speed;
+    nearestWaypointIndex = nearestWaypoint(currentState); //TODO: check if UINT8_MAX?
+    Waypoint nearestWaytpoint = waypointBuffer[nearestWaypointIndex];
+    if (isWaypointEmpty(nearestWaytpoint)){
+        // if the nearest waypoint is empty or doesn't have a speed assigned, stop
+        desiredV = 0;
+    } else {
+        desiredV = nearestWaytpoint.speed;
+    }
 
     // find target waypoint and use it to set the angular velocity
     targetWaypointIndex = nextWaypoint(targetWaypointIndex, currentState);
     targetWaypoint = waypointBuffer[targetWaypointIndex];
-    float bearingToNextWaypoint = bearingToWaypoint(targetWaypoint, currentState);
+    if (isWaypointEmpty(targetWaypoint)){
+        // if (somehow!?) the target waypoint is empty, stop
+        desiredW = 0;
+        desiredV = 0;
+    } else {
+        float bearingToNextWaypoint = bearingToWaypoint(targetWaypoint, currentState);
 
-    // reframe current heading to be described in a way that's closest to target heading 
-    // (.i.e within +/-pi or target)
-    float currentHeading = unwrapHeading(bearingToNextWaypoint, currentState.odometry.heading);
+        // reframe current heading to be described in a way that's closest to target heading 
+        // (.i.e within +/-pi or target)
+        float currentHeading = unwrapHeading(bearingToNextWaypoint, currentState.odometry.heading);
 
-    headingPID.setpoint = bearingToNextWaypoint;
-    desiredW = headingPID.calculate(currentHeading);
-    
+        headingPID.setpoint = bearingToNextWaypoint;
+        desiredW = std::clamp(headingPID.calculate(currentHeading), -maxTurnVelocity, maxTurnVelocity);
+    }
 }
 
-void WaypointNavigation::addWaypoint(const Waypoint newWaypoint){
+void WaypointNavigation::addWaypoint(const Waypoint& newWaypoint){
  // add a waypoint to the buffer in the last slot thats not NaN
     for (size_t i = 0; i < waypointBufferSize; i++) {
         if (isWaypointEmpty(waypointBuffer[i])) {
@@ -69,7 +81,7 @@ bool WaypointNavigation::isWaypointEmpty(const Waypoint& waypoint) {
            std::isnan(waypoint.heading) || std::isnan(waypoint.speed);
 }
 
-uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, const State currentState){
+uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, const State& currentState){
     // find the next waypoint to navigate to. starts from the current (target) waypoint
     // and looks forward to find the closest one thats outside of the lookahead distance.
     // returns a waypoint index. Only looks forwards.
@@ -86,10 +98,10 @@ uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, con
     return nextWaypointIndex;
 }
 
-uint8_t WaypointNavigation::nearestWaypoint(const State currentState){
+uint8_t WaypointNavigation::nearestWaypoint(const State& currentState){
     // returns the index of the waypoint nearest to the current position
     // searches through the full waypoint buffer, checking the distance of each
-    uint8_t closestWaypointIndex = -1; //TODO check if it stays as -1
+    uint8_t closestWaypointIndex = UINT8_MAX; //TODO check if it stays as UINT8_MAX
     float distanceToClosestWaypoint = std::numeric_limits<float>::max(); //initialise to max possible value
 
     for (uint8_t index = 0; index < waypointBufferSize; index++) { 
@@ -103,9 +115,16 @@ uint8_t WaypointNavigation::nearestWaypoint(const State currentState){
     return closestWaypointIndex;
 }
 
-void WaypointNavigation::clearWaypointBuffer(){} // clear all waypoints from buffer
+void WaypointNavigation::clearWaypointBuffer(){ // clear all waypoints from buffer
+    size_t i;
 
-float WaypointNavigation::headingToWaypoint(const Waypoint target, const State currentState){
+    // Initialize all waypoints in the buffer to NaN
+    for (i=0; i < waypointBufferSize; i++) {
+        waypointBuffer[i] = nanWaypoint;
+    }
+}
+
+float WaypointNavigation::headingToWaypoint(const Waypoint& target, const State& currentState){
   // heading to a waypoint, relative to the current heading. i.e. a heading error
   // result is in radians
     float headingToWaypoint;
@@ -114,7 +133,7 @@ float WaypointNavigation::headingToWaypoint(const Waypoint target, const State c
     return headingToWaypoint;
 }
 
-float WaypointNavigation::bearingToWaypoint(const Waypoint target, const State currentState){
+float WaypointNavigation::bearingToWaypoint(const Waypoint& target, const State& currentState){
  // bearing (heading) to a waypoint, relative to the "North" (Y axis) 
  // result is in radians
     float dx, dy, bearingToWaypoint;
@@ -135,7 +154,7 @@ float WaypointNavigation::bearingToWaypoint(const Waypoint target, const State c
     return bearingToWaypoint;
 }
 
-float WaypointNavigation::distanceToWaypoint(const Waypoint target, const State currentState){
+float WaypointNavigation::distanceToWaypoint(const Waypoint& target, const State& currentState){
     // distance to a waypoint. assumes Waypoint and State both use the same units
     // returns the as-the-crow-flies distance between them
 
