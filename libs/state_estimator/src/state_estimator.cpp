@@ -6,6 +6,7 @@
 #include "drivetrain_config.h"
 #include "encoder.hpp"
 #include "bno080.h"
+#include "utils.h"
 
 namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
@@ -86,13 +87,6 @@ namespace STATE_ESTIMATOR {
         for(int i = 0; i < MOTOR_POSITION::MOTOR_POSITION_COUNT; i++) {
             encoderCaptures[i] = encoders[i]->capture();
         }
-    }
-
-    float StateEstimator::wrap_pi(const float heading) {
-        //constrain heading to +/-pi
-
-        const double wrapped = heading > M_PI ? heading - M_TWOPI : heading < -M_PI ? heading + M_TWOPI : heading;
-        return static_cast<float>(wrapped);
     }
 
     void StateEstimator::calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, const SteeringAngles steering_angles, float& left_speed, float& right_speed) {
