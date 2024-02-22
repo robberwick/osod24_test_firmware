@@ -45,8 +45,6 @@ namespace STATE_ESTIMATOR {
 
         void updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles);
 
-        static float wrap_pi(float heading);
-
         void calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
 
