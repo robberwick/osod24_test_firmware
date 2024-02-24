@@ -23,7 +23,7 @@ target_include_directories(receiver PUBLIC
     FetchContent_Declare(
             pico_cppm
             GIT_REPOSITORY "https://github.com/cadouthat/pico-cppm"
-            GIT_TAG "main"
+            GIT_TAG "cf1222eb773ba61cc27c9d7d2c3aa3aa855cf74c"
     )
 
     FetchContent_GetProperties(pico-cppm)
