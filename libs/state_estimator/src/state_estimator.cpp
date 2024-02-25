@@ -41,11 +41,11 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::showValues() const {
-        printf("FRONT_LEFT: %ld ", encoders[MOTOR_POSITION::FRONT_LEFT]->count());
-        printf("FRONT_RIGHT: %ld ", encoders[MOTOR_POSITION::FRONT_RIGHT]->count());
-        printf("REAR_LEFT: %ld ", encoders[MOTOR_POSITION::REAR_LEFT]->count());
-        printf("REAR_RIGHT: %ld ", encoders[MOTOR_POSITION::REAR_RIGHT]->count());
-        printf("\n");
+        //printf("FRONT_LEFT: %ld ", encoders[MOTOR_POSITION::FRONT_LEFT]->count());
+        //printf("FRONT_RIGHT: %ld ", encoders[MOTOR_POSITION::FRONT_RIGHT]->count());
+        //printf("REAR_LEFT: %ld ", encoders[MOTOR_POSITION::REAR_LEFT]->count());
+        //printf("REAR_RIGHT: %ld ", encoders[MOTOR_POSITION::REAR_RIGHT]->count());
+        //printf("\n");
         printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
            estimatedState.odometry.x,
            estimatedState.odometry.y,
