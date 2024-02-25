@@ -42,7 +42,7 @@ namespace STATE_ESTIMATOR {
 
         void addObserver(Observer* observer) override;
 
-        void notifyObservers(State newState) override;
+        void notifyObservers(VehicleState newState) override;
 
         void updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles);
 
@@ -60,8 +60,8 @@ namespace STATE_ESTIMATOR {
         float heading_offset;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
-        State estimatedState;
-        State previousState;
+        VehicleState estimatedState;
+        VehicleState previousState;
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
 
@@ -78,7 +78,11 @@ namespace STATE_ESTIMATOR {
 
         bool initialise_heading_offset();
 
+<<<<<<< HEAD
         void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
+=======
+        void calculate_new_position_orientation(VehicleState& tmpState, float distance_travelled, float heading_change);
+>>>>>>> f7ec357... tidied up variable structure, created concept of (x,y) points and renamed State to VehicleState
 
         void calculate_new_position(State& tmpState, float distance_travelled, float heading);
 

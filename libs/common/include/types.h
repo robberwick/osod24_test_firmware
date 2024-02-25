@@ -43,9 +43,13 @@ namespace COMMON {
         float heading;
     };
 
-    struct Waypoint {
+    struct Point {
         float x;
         float y;
+    };
+
+    struct Waypoint {
+        Point position;
         float heading;
         float speed;
     };
@@ -61,7 +65,7 @@ namespace COMMON {
         float velocity;
         float angular_velocity;
     };
-    struct State {
+    struct VehicleState {
         Velocity velocity;
         Odometry odometry;
         DriveTrainState driveTrainState;
