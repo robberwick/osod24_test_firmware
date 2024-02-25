@@ -87,6 +87,7 @@ int main() {
 
     // set up the navigator
     navigator = new Navigator(pReceiver, pStateManager);
+    pStateEstimator->addObserver(navigator);
 
     // Initialize a hardware timer
     repeating_timer_t navigationTimer;
