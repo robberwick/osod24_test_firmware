@@ -20,7 +20,10 @@ private:
     const Receiver *receiver{};
     STATEMANAGER::StateManager *pStateManager;
     VehicleState current_state;
-    float waypointSignalThreshold = 0.5; //if signal above this, we're move into waypoint mode
+    float waypointModeThreshold = 0; //if signal above this, we're move into waypoint mode
+    float waypointIndexThreshold = 0.5; //if signal above this, reset the waypoint index
+    
     NAVIGATION_MODE::Mode determineMode(float signal);
+    bool shouldResetWaypointIndex(float signal);
     WAYPOINTS::WaypointNavigation waypointNavigator;
 };
