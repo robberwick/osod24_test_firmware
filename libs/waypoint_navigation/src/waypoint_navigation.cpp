@@ -8,8 +8,11 @@
 namespace WAYPOINTS {
 
 WaypointNavigation::WaypointNavigation(){
-
-    Waypoint lavaWaypoints[1] = {{0.0, 0.0, 0.0, 0.0}}; // example single waypoint list for testing
+    Waypoint lavaWaypoints[3] = {   ///exmple waypoint list for testing
+        {0.0, 0.0, 0.0, 0.25},
+        {0.0, 1.0, 0.0, 0.25}, 
+        {0.0, 1.25, 0.0, 0.0} 
+    };
     size_t i;
     size_t numWaypoints = sizeof(lavaWaypoints) / sizeof(lavaWaypoints[0]);
     for (i = 0; i < numWaypoints && i < waypointBufferSize; i++) {
@@ -29,7 +32,6 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
     // based on the current position and the list of waypoints.
     // the velocity comes from the speed associated with the closest waypoint
     // the turn velocity comes from PID feedback on the heading to the next waypoint
-    printf("navigating to waypoint");
 
     // find nearest waypoint and use it to set the speed
     nearestWaypointIndex = nearestWaypoint(currentState); //TODO: check if UINT8_MAX?
@@ -48,6 +50,7 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
         // if (somehow!?) the target waypoint is empty, stop
         desiredW = 0;
         desiredV = 0;
+        printf("stopped, on last waypoint");
     } else {
         float bearingToNextWaypoint = bearingToWaypoint(targetWaypoint, currentState);
 
@@ -57,6 +60,8 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
 
         headingPID.setpoint = bearingToNextWaypoint;
         desiredW = std::clamp(headingPID.calculate(currentHeading), -maxTurnVelocity, maxTurnVelocity);
+        float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
+        printf("Distance To Go: %f, Nearest Waypoint: %d, Heading To Waypoint: %f\n", distanceToGo, nearestWaypointIndex, bearingToNextWaypoint);
     }
 }
 

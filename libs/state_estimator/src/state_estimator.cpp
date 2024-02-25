@@ -115,7 +115,7 @@ namespace STATE_ESTIMATOR {
     }
 
     
-    void StateEstimator::calculate_new_position_orientation(VehicleState& tmpState, const float distance_travelled, const float heading_change) {
+    void StateEstimator::calculate_new_position(VehicleState& tmpState, const float distance_travelled, const float heading) {
         //use the latest heading and distance travleled to update the estiamted position
         tmpState.odometry.x -= driveDirection * distance_travelled * sin(heading);
         tmpState.odometry.y += driveDirection * distance_travelled * cos(heading);
