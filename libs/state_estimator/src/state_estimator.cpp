@@ -64,7 +64,7 @@ namespace STATE_ESTIMATOR {
         }
     }
 
-    void StateEstimator::notifyObservers(const State newState) {
+    void StateEstimator::notifyObservers(const VehicleState newState) {
         for (int i = 0; i < observerCount; i++) {
             observers[i]->update(newState);
         }
@@ -107,7 +107,7 @@ namespace STATE_ESTIMATOR {
         heading_change = (left_travel + right_travel) / CONFIG::WHEEL_TRACK;
     }
 
-    void StateEstimator::calculate_new_position_orientation(State& tmpState, const float distance_travelled, const float heading_change) {
+    void StateEstimator::calculate_new_position_orientation(VehicleState& tmpState, const float distance_travelled, const float heading_change) {
         //calc a temp heading halfway between old heading and new
         //assumed to be representative of heading during distance_travelled
         const float tempHeading = tmpState.odometry.heading + heading_change / 2;
@@ -148,7 +148,7 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::estimateState() {
         // instantiate a copy of the current state
-        State tmpState = estimatedState;
+        VehicleState tmpState = estimatedState;
         
         //get current encoder state
         Encoder::Capture encoderCaptures[MOTOR_POSITION::MOTOR_POSITION_COUNT];

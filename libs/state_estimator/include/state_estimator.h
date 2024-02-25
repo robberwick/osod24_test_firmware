@@ -41,7 +41,7 @@ namespace STATE_ESTIMATOR {
 
         void addObserver(Observer* observer) override;
 
-        void notifyObservers(State newState) override;
+        void notifyObservers(VehicleState newState) override;
 
         void updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles);
 
@@ -52,8 +52,8 @@ namespace STATE_ESTIMATOR {
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         static StateEstimator* instancePtr;
         repeating_timer_t* timer;
-        State estimatedState;
-        State previousState;
+        VehicleState estimatedState;
+        VehicleState previousState;
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
 
@@ -69,7 +69,7 @@ namespace STATE_ESTIMATOR {
         void get_position_deltas(Encoder::Capture encoderCaptures[4], float& distance_travelled,
                                                  float& heading_change) const;
 
-        void calculate_new_position_orientation(State& tmpState, float distance_travelled, float heading_change);
+        void calculate_new_position_orientation(VehicleState& tmpState, float distance_travelled, float heading_change);
 
         Velocity calculate_velocities(float heading, float left_speed, float right_speed);
 

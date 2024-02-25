@@ -24,7 +24,7 @@ WaypointNavigation::WaypointNavigation(){
 }
 
 
-void WaypointNavigation::navigate(const State& currentState) {
+void WaypointNavigation::navigate(const VehicleState& currentState) {
     // updates desiredV and desiredW (speed and turn velocity)
     // based on the current position and the list of waypoints.
     // the velocity comes from the speed associated with the closest waypoint
@@ -77,11 +77,11 @@ void WaypointNavigation::addWaypoint(const Waypoint& newWaypoint){
 // Function to check if a waypoint slot is considered empty (not populated)
 bool WaypointNavigation::isWaypointEmpty(const Waypoint& waypoint) {
     // Check if any of the waypoint's properties are NaN
-    return std::isnan(waypoint.x) || std::isnan(waypoint.y) ||
+    return std::isnan(waypoint.position.x) || std::isnan(waypoint.position.y) ||
            std::isnan(waypoint.heading) || std::isnan(waypoint.speed);
 }
 
-uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, const State& currentState){
+uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, const VehicleState& currentState){
     // find the next waypoint to navigate to. starts from the current (target) waypoint
     // and looks forward to find the closest one thats outside of the lookahead distance.
     // returns a waypoint index. Only looks forwards.
@@ -98,7 +98,7 @@ uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, con
     return nextWaypointIndex;
 }
 
-uint8_t WaypointNavigation::nearestWaypoint(const State& currentState){
+uint8_t WaypointNavigation::nearestWaypoint(const VehicleState& currentState){
     // returns the index of the waypoint nearest to the current position
     // searches through the full waypoint buffer, checking the distance of each
     uint8_t closestWaypointIndex = UINT8_MAX; //TODO check if it stays as UINT8_MAX
@@ -124,7 +124,7 @@ void WaypointNavigation::clearWaypointBuffer(){ // clear all waypoints from buff
     }
 }
 
-float WaypointNavigation::headingToWaypoint(const Waypoint& target, const State& currentState){
+float WaypointNavigation::headingToWaypoint(const Waypoint& target, const VehicleState& currentState){
   // heading to a waypoint, relative to the current heading. i.e. a heading error
   // result is in radians
     float headingToWaypoint;
@@ -133,13 +133,13 @@ float WaypointNavigation::headingToWaypoint(const Waypoint& target, const State&
     return headingToWaypoint;
 }
 
-float WaypointNavigation::bearingToWaypoint(const Waypoint& target, const State& currentState){
+float WaypointNavigation::bearingToWaypoint(const Waypoint& target, const VehicleState& currentState){
  // bearing (heading) to a waypoint, relative to the "North" (Y axis) 
  // result is in radians
     float dx, dy, bearingToWaypoint;
     // bearing to waypoint is the compass heading from current location to the target waypoint
-    dx = target.x - currentState.odometry.x;
-    dy = target.y - currentState.odometry.y;
+    dx = target.position.x - currentState.odometry.x;
+    dy = target.position.y - currentState.odometry.y;
     if (dy != 0) {
         //x and Y flipped around in atan2 as we want angle from Yaxis,
         // not angle from X axis as the convention in maths
@@ -154,14 +154,14 @@ float WaypointNavigation::bearingToWaypoint(const Waypoint& target, const State&
     return bearingToWaypoint;
 }
 
-float WaypointNavigation::distanceToWaypoint(const Waypoint& target, const State& currentState){
+float WaypointNavigation::distanceToWaypoint(const Waypoint& target, const VehicleState& currentState){
     // distance to a waypoint. assumes Waypoint and State both use the same units
     // returns the as-the-crow-flies distance between them
 
     float distance;
         //hypotenuse of dx, dy triangle gives distance, using h^2=x^2+y^2
-    distance = sqrt(powf((target.x - currentState.odometry.x), 2)
-                 + powf((target.y - currentState.odometry.y), 2));
+    distance = sqrt(powf((target.position.x - currentState.odometry.x), 2)
+                 + powf((target.position.y - currentState.odometry.y), 2));
     return distance;
 }
 
