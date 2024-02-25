@@ -53,12 +53,13 @@ namespace COMMON {
         float heading;
         float speed;
     };
-
-    enum NavigationMode {
-        REMOTE_CONTROL,
-        WAYPOINT,
-        PI_CONTROL
-    };
+    namespace NAVIGATION_MODE {
+        enum Mode {
+            REMOTE_CONTROL,
+            WAYPOINT,
+            PI_CONTROL
+        };
+    }
     struct Velocity {
         float x_dot;
         float y_dot;

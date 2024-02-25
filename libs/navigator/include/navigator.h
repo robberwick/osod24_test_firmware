@@ -13,7 +13,7 @@ public:
     ~Navigator();
     void navigate();
     CONFIG::SteeringStyle driveDirection; //factor to change requested motor speed direction based on what we currently consider the front
-    COMMON::NavigationMode navigationMode;
+    NAVIGATION_MODE::Mode navigationMode;
     void update(VehicleState newState) override;
 
 private:
@@ -21,6 +21,6 @@ private:
     STATEMANAGER::StateManager *pStateManager;
     VehicleState current_state;
     float waypointSignalThreshold = 0.5; //if signal above this, we're move into waypoint mode
-    COMMON::NavigationMode determineMode(float signal);
+    NAVIGATION_MODE::Mode determineMode(float signal);
     WAYPOINTS::WaypointNavigation waypointNavigator;
 };
