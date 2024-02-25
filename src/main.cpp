@@ -34,11 +34,7 @@ int main() {
             sleep_ms(1000);
         }
     }
-    if (IMU.enableRotationVector() == true) {
-        printf("Rotation vector enabled\n");
-    } else {
-        printf("Could not enable rotation vector\n");
-    }
+    IMU.enableRotationVector();
 
     // set up the state estimator
     auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU);
