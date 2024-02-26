@@ -89,16 +89,13 @@ bool WaypointNavigation::isWaypointEmpty(const Waypoint& waypoint) {
 uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, const VehicleState& currentState){
     // find the next waypoint to navigate to. starts from the current (target) waypoint
     // and looks forward to find the closest one thats outside of the lookahead distance.
-    // returns a waypoint index. Only looks forwards.
-    uint8_t nextWaypointIndex;
-    nextWaypointIndex = currentWaypointIndex;
+    // returns a waypoint index. Only looks/progresses forwards.
+    uint8_t nextWaypointIndex = currentWaypointIndex;
     Waypoint targetWaypoint = waypointBuffer[currentWaypointIndex];
-    float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
-    while (distanceToGo < lookAhead ) { 
+    while (distanceToWaypoint(targetWaypoint, currentState) < lookAhead ) { 
         // we don't enter/increment if the current target waypoint is already outside the lookahead
         nextWaypointIndex += 1;
         targetWaypoint = waypointBuffer[nextWaypointIndex];
-        distanceToGo = distanceToWaypoint(targetWaypoint, currentState);
     } 
     return nextWaypointIndex;
 }
@@ -131,11 +128,9 @@ void WaypointNavigation::clearWaypointBuffer(){ // clear all waypoints from buff
 
 float WaypointNavigation::headingToWaypoint(const Waypoint& target, const VehicleState& currentState){
   // heading to a waypoint, relative to the current heading. i.e. a heading error
-  // result is in radians
-    float headingToWaypoint;
-    headingToWaypoint = wrap_pi(bearingToWaypoint(target, currentState) - currentState.odometry.heading);
+  // result is in radians, +/-pi
 
-    return headingToWaypoint;
+    return wrap_pi(bearingToWaypoint(target, currentState) - currentState.odometry.heading);
 }
 
 float WaypointNavigation::bearingToWaypoint(const Waypoint& target, const VehicleState& currentState){
@@ -163,11 +158,9 @@ float WaypointNavigation::distanceToWaypoint(const Waypoint& target, const Vehic
     // distance to a waypoint. assumes Waypoint and State both use the same units
     // returns the as-the-crow-flies distance between them
 
-    float distance;
-        //hypotenuse of dx, dy triangle gives distance, using h^2=x^2+y^2
-    distance = sqrt(powf((target.position.x - currentState.odometry.x), 2)
-                 + powf((target.position.y - currentState.odometry.y), 2));
-    return distance;
+    //hypotenuse of dx, dy triangle gives distance, using h^2=x^2+y^2
+    return sqrt(powf((target.position.x - currentState.odometry.x), 2)
+                 + powf((target.position.y - currentState.odometry.y), 2));;
 }
 
 float WaypointNavigation::unwrapHeading(const float targetHeading, const float currentHeading){
