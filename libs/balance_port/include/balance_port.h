@@ -3,7 +3,7 @@
 #include <string>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
-#include "ads1x15.h"
+#include "ads1x15/ads1x15.hpp"
 #include "drivetrain_config.h"
 
 // ADC address
