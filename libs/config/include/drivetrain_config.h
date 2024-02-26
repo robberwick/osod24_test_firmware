@@ -3,6 +3,7 @@
 #define DRIVETRAIN_CONFIG_H
 #include <cmath>
 #include <cstdint>
+#include "motor2040.hpp"
 
 namespace CONFIG {
     #define LAVA_PALAVA 0
@@ -15,10 +16,9 @@ namespace CONFIG {
 
     #define CURRENT_CHALLENGE ESCAPE_ROUTE
 
-    constexpr int I2C_SDA_PIN = 20;
-    constexpr int I2C_SCL_PIN = 21;
+    constexpr int I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
+    constexpr int I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
     constexpr uint8_t BNO08X_ADDR = 0x4A;
-
     enum Handedness {
         LEFT,
         RIGHT
