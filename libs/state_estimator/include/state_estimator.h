@@ -48,6 +48,8 @@ namespace STATE_ESTIMATOR {
 
         void calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
+                                        
+        bool set_heading_offset();
 
         CONFIG::SteeringStyle driveDirection; //factor to change odometry direction based on what we currently consider the front
 
@@ -75,8 +77,6 @@ namespace STATE_ESTIMATOR {
         void capture_encoders(Encoder::Capture* encoderCaptures) const;
         
         void get_latest_heading(float& heading);
-
-        bool initialise_heading_offset();
 
         void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
 
