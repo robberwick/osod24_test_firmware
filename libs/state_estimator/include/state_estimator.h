@@ -53,17 +53,12 @@ namespace STATE_ESTIMATOR {
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         static StateEstimator* instancePtr;
         repeating_timer_t* timer;
-<<<<<<< HEAD
         VehicleState estimatedState;
         VehicleState previousState;
-=======
         BNO08x* IMU;
         float heading_offset;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
-        State estimatedState;
-        State previousState;
->>>>>>> heading_from_IMU_take2
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
 
@@ -80,11 +75,8 @@ namespace STATE_ESTIMATOR {
 
         bool initialise_heading_offset();
 
-<<<<<<< HEAD
         void calculate_new_position_orientation(VehicleState& tmpState, float distance_travelled, float heading_change);
-=======
         void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
->>>>>>> heading_from_IMU_take2
 
         void calculate_new_position(State& tmpState, float distance_travelled, float heading);
 
