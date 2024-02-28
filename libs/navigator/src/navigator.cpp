@@ -6,9 +6,13 @@
 #include "drivetrain_config.h"
 #include "waypoint_navigation.h"
 
-Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* stateManager) {
+Navigator::Navigator(const Receiver* receiver,
+                     STATEMANAGER::StateManager* stateManager,
+                     STATE_ESTIMATOR::StateEstimator* stateEstimator) {
     this->receiver = receiver;
     this->pStateManager = stateManager;
+    this->pStateEstimator = stateEstimator;
+    setHeadingOffsetMethod = &STATE_ESTIMATOR::StateEstimator::set_heading_offset;
     navigationMode = NAVIGATION_MODE::REMOTE_CONTROL;
 }
 
@@ -32,11 +36,16 @@ void Navigator::navigate() {
             printf("changing mode to mode %d, where 1=RC, 2=waypoint, 3=Pi\n", newMode);
             navigationMode = newMode;
         }
-        STATE_ESTIMATOR::VehicleState requestedState{};
         if (shouldResetWaypointIndex(values.THR)){
             printf("resetting waypoint index to 0.\n");
             waypointNavigator.targetWaypointIndex = 0;
         }
+        if (shouldSetHeading(values.THR)){
+            printf("setting current heading to 0.\n");
+            setHeading();
+            //bool result = pStateEstimator->set_heading_offset();
+        }
+        STATE_ESTIMATOR::VehicleState requestedState{};
         switch (navigationMode) {
         case NAVIGATION_MODE::WAYPOINT:
             waypointNavigator.navigate(current_state);
@@ -68,6 +77,14 @@ NAVIGATION_MODE::Mode Navigator::determineMode(float signal){
 
 bool Navigator::shouldResetWaypointIndex(float signal){
     return (signal > waypointIndexThreshold);
+}
+
+bool Navigator::shouldSetHeading(float signal){
+    return (signal < setHeadingThreshold);
+}
+
+void Navigator::setHeading(){
+    pStateEstimator->set_heading_offset();
 }
 
 void Navigator::update(const VehicleState newState) {

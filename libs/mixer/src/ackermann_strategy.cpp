@@ -34,7 +34,7 @@ namespace MIXER {
         // and outputs individual wheel speeds in m/s and turn angle of steerable wheels in radians
 
         if (std::fabs(angularVelocity) > 0) {
-            turnRadius = velocity / angularVelocity;
+            turnRadius = -velocity / angularVelocity;
         } else {
             // Handle the case when yaw rate is close to zero to avoid division by zero
             turnRadius = std::numeric_limits<float>::infinity();
@@ -138,7 +138,7 @@ namespace MIXER {
 
     float AckermannMixer::getFrontWheelSpeed(float angularVelocity, const float wheelTurnRadius, const float slipAngle,
                                              CONFIG::Handedness side) const {
-        float tmpSpeed = angularVelocity * std::sqrt(wheelTurnRadius * wheelTurnRadius + wheelBase * wheelBase);
+        float tmpSpeed = -angularVelocity * std::sqrt(wheelTurnRadius * wheelTurnRadius + wheelBase * wheelBase);
         tmpSpeed = tmpSpeed * sign(wheelTurnRadius);
         if (side == CONFIG::Handedness::RIGHT) {
             tmpSpeed = -tmpSpeed;

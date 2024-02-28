@@ -9,11 +9,11 @@ namespace WAYPOINTS {
 
 WaypointNavigation::WaypointNavigation(){
     Waypoint lavaWaypoints[5] = {   ///exmple waypoint list for testing
-        {0.0, 0.0, 0.0, 0.25},
-        {0.0, 1.0, 0.0, 0.25}, 
+        {0.0, 0.0, 0.0, 0.05},
+        {0.0, 1.0, 0.0, 0.1}, 
         {1.0, 1.0, 0.0, 0.25},
-        {1.0, 0.0, 0.0, 0.25},
-        {0.0, 0.0, 0.0, 0.25}
+        {1.0, 0.0, 0.0, 0.05},
+        {0.0, 0.0, 0.0, 0.05}
     };
     size_t i;
     size_t numWaypoints = sizeof(lavaWaypoints) / sizeof(lavaWaypoints[0]);
@@ -62,8 +62,13 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
 
         headingPID.setpoint = bearingToNextWaypoint;
         desiredW = std::clamp(headingPID.calculate(currentHeading), -maxTurnVelocity, maxTurnVelocity);
+        printf("currentState.odometry.heading: %f, currentHeading: %f, headingPID.setpoint: %f, headingPID.calculate(currentHeading): %f \n", 
+           currentState.odometry.heading,
+           currentHeading,
+           headingPID.setpoint,
+           headingPID.calculate(currentHeading));
         float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
-        printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredV: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV);
+        printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredw: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredW);
         printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
            currentState.odometry.x,
            currentState.odometry.y,
@@ -151,7 +156,8 @@ float WaypointNavigation::bearingToWaypoint(const Waypoint& target, const Vehicl
     if (dy != 0) {
         //x and Y flipped around in atan2 as we want angle from Yaxis,
         // not angle from X axis as the convention in maths
-        bearingToWaypoint = (float)atan2(dx, dy); 
+        //dx has a minus sign as we want clockwise positive, not anticlockwise as the convention for maths
+        bearingToWaypoint = (float)atan2(-dx, dy); 
     } else {
         if (dx > 0) {
             bearingToWaypoint = M_PI / 2;
@@ -183,7 +189,7 @@ float WaypointNavigation::unwrapHeading(const float targetHeading, const float c
     float nearestHeading;
     float minHeadingError;
     minHeadingError = wrap_pi(targetHeading-currentHeading);
-    nearestHeading = targetHeading+ minHeadingError;
+    nearestHeading = targetHeading - minHeadingError;
     return nearestHeading;
 } 
 

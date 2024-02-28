@@ -41,12 +41,8 @@ namespace STATE_ESTIMATOR {
         
         instancePtr = this;
 
-        if (set_heading_offset() == false) {
-            while (1){
-                printf("failed to set initial heading offset\n");
-                sleep_ms(1000);
-            }
-        }
+        set_heading_offset();
+ 
         setupTimer();
     }
 
@@ -56,12 +52,12 @@ namespace STATE_ESTIMATOR {
         //printf("REAR_LEFT: %ld ", encoders[MOTOR_POSITION::REAR_LEFT]->count());
         //printf("REAR_RIGHT: %ld ", encoders[MOTOR_POSITION::REAR_RIGHT]->count());
         //printf("\n");
-        //printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
-        //   estimatedState.odometry.x,
-        //   estimatedState.odometry.y,
-        //   estimatedState.velocity.velocity,
-        //   estimatedState.odometry.heading,
-        //   estimatedState.velocity.angular_velocity);
+        printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
+           estimatedState.odometry.x,
+           estimatedState.odometry.y,
+           estimatedState.velocity.velocity,
+           estimatedState.odometry.heading,
+           estimatedState.velocity.angular_velocity);
     }
 
     void StateEstimator::publishState() const {
@@ -198,7 +194,7 @@ namespace STATE_ESTIMATOR {
       //if possible, update the heading with the latest from the IMU
         if (IMU->getSensorEvent() == true) {
             if (IMU->getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-                heading = IMU->getYaw() - heading_offset;
+                heading = -IMU->getYaw() - heading_offset; //minus sign at front because IMU considers anticlockwise as positive, we want clockwise positive
             }
         }
     }
@@ -225,23 +221,9 @@ namespace STATE_ESTIMATOR {
         currentSteeringAngles = newSteeringAngles;
     }
 
-    bool StateEstimator::set_heading_offset() {
+    void StateEstimator::set_heading_offset() {
         // function sets the heading_offset to the current heading
-        // returns true if the offset is set, false if timed out (no heading updates available)
-        long timeoutDuration = 500;
-        long startTime = millis();
-        bool isUpdated = false; // Flag to indicate if heading_offset is updated
-
-        while (millis() - startTime < timeoutDuration && !isUpdated) {
-            if (IMU->getSensorEvent() == true) {
-                if (IMU->getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-                    heading_offset = IMU->getYaw();
-                    isUpdated = true;
-                }
-            }
-        }
-        //if the timer expired before the heading was set, return false
-        return isUpdated;
+        heading_offset = wrap_pi(heading_offset + estimatedState.odometry.heading);
     }
 
     StateEstimator::~StateEstimator() {

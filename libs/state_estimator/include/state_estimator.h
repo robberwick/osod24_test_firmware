@@ -48,8 +48,8 @@ namespace STATE_ESTIMATOR {
 
         void calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
-                                        
-        bool set_heading_offset();
+
+        void set_heading_offset(); 
 
     private:
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
@@ -58,7 +58,7 @@ namespace STATE_ESTIMATOR {
         VehicleState estimatedState;
         VehicleState previousState;
         BNO08x* IMU;
-        float heading_offset;
+        float heading_offset = 0;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
         DriveTrainState currentDriveTrainState;

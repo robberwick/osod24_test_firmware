@@ -8,7 +8,9 @@
 using namespace COMMON;
 class Navigator: public Observer {
 public:
-    explicit Navigator(const Receiver* receiver, STATEMANAGER::StateManager *stateManager);
+    explicit Navigator(const Receiver* receiver, 
+                        STATEMANAGER::StateManager *stateManager,
+                        STATE_ESTIMATOR::StateEstimator* estimator);
     ~Navigator();
     void navigate();
     NAVIGATION_MODE::Mode navigationMode;
@@ -17,11 +19,17 @@ public:
 private:
     const Receiver *receiver{};
     STATEMANAGER::StateManager *pStateManager;
+    STATE_ESTIMATOR::StateEstimator* pStateEstimator;
+    void (STATE_ESTIMATOR::StateEstimator::*setHeadingOffsetMethod)();
     VehicleState current_state;
     float waypointModeThreshold = 0; //if signal above this, we're move into waypoint mode
     float waypointIndexThreshold = 0.5; //if signal above this, reset the waypoint index
-    
+    float setHeadingThreshold = -0.5; //if signal above this, set the heading
+
     NAVIGATION_MODE::Mode determineMode(float signal);
     bool shouldResetWaypointIndex(float signal);
+    bool shouldSetHeading(float signal);
     WAYPOINTS::WaypointNavigation waypointNavigator;
+    void setHeading(); //local method that's linked to the stateEstimator set_Heading_Offset method
+
 };
