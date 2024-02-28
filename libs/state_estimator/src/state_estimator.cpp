@@ -59,12 +59,12 @@ namespace STATE_ESTIMATOR {
         //printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
         //printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
         //printf("\n");
-        printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
-           estimatedState.odometry.x,
-           estimatedState.odometry.y,
-           estimatedState.velocity.velocity,
-           estimatedState.odometry.heading,
-           estimatedState.velocity.angular_velocity);
+        //printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
+        //   estimatedState.odometry.x,
+        //   estimatedState.odometry.y,
+        //   estimatedState.velocity.velocity,
+        //   estimatedState.odometry.heading,
+        //   estimatedState.velocity.angular_velocity);
     }
 
     void StateEstimator::publishState() const {
