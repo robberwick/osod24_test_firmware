@@ -29,6 +29,7 @@ target_link_libraries(${PROJECT_NAME}
         config
         common
         waypoint_navigation
+        bno080
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE

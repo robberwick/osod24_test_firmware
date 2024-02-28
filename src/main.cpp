@@ -9,6 +9,8 @@
 #include "tank_steer_strategy.h"
 #include "ackermann_strategy.h"
 #include "drivetrain_config.h"
+#include "utils.h"
+#include "bno080.h"
 
 Navigator *navigator;
 bool shouldNavigate = false;
@@ -21,8 +23,21 @@ extern "C" void timer_callback(repeating_timer_t *t) {
 int main() {
     stdio_init_all();
 
+    i2c_inst_t* i2c_port0;
+    initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
+
+    //set up IMU
+    BNO08x IMU;
+    if (IMU.begin(CONFIG::BNO08X_ADDR, i2c_port0)==false) {
+        while (1){
+            printf("BNO08x not detected at default I2C address. Check wiring. Freezing\n");
+            sleep_ms(1000);
+        }
+    }
+    IMU.enableRotationVector();
+
     // set up the state estimator
-    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator();
+    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU);
 
     // set up the state manager
     using namespace STATEMANAGER;

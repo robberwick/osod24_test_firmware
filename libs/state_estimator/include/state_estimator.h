@@ -11,6 +11,7 @@
 #include "drivetrain_config.h"
 #include "interfaces.h"
 #include "types.h"
+#include "bno080.h"
 
 using namespace motor;
 using namespace encoder;
@@ -28,7 +29,7 @@ namespace STATE_ESTIMATOR {
     // define a State struct containing the state parameters that can be requested or tracked
     class StateEstimator : public Subject {
     public:
-        explicit StateEstimator();
+        explicit StateEstimator(BNO08x* IMUinstance);
 
     protected:
         ~StateEstimator(); // Destructor to cancel the timer
@@ -52,8 +53,17 @@ namespace STATE_ESTIMATOR {
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         static StateEstimator* instancePtr;
         repeating_timer_t* timer;
+<<<<<<< HEAD
         VehicleState estimatedState;
         VehicleState previousState;
+=======
+        BNO08x* IMU;
+        float heading_offset;
+        //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
+        const uint32_t timerInterval = 50;  // Interval in milliseconds
+        State estimatedState;
+        State previousState;
+>>>>>>> heading_from_IMU_take2
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
 
@@ -65,13 +75,20 @@ namespace STATE_ESTIMATOR {
         int observerCount = 0;
 
         void capture_encoders(Encoder::Capture* encoderCaptures) const;
+        
+        void get_latest_heading(float& heading);
 
-        void get_position_deltas(Encoder::Capture encoderCaptures[4], float& distance_travelled,
-                                                 float& heading_change) const;
+        bool initialise_heading_offset();
 
+<<<<<<< HEAD
         void calculate_new_position_orientation(VehicleState& tmpState, float distance_travelled, float heading_change);
+=======
+        void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
+>>>>>>> heading_from_IMU_take2
 
-        Velocity calculate_velocities(float heading, float left_speed, float right_speed);
+        void calculate_new_position(State& tmpState, float distance_travelled, float heading);
+
+        Velocity calculate_velocities(float new_heading, float previous_heading, float left_speed, float right_speed);
 
         static MotorSpeeds get_wheel_speeds(const Encoder::Capture* encoderCaptures);
 
