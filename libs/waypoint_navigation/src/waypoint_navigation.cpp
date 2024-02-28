@@ -8,10 +8,11 @@
 namespace WAYPOINTS {
 
 WaypointNavigation::WaypointNavigation(){
-    Waypoint lavaWaypoints[3] = {   ///exmple waypoint list for testing
+    Waypoint lavaWaypoints[4] = {   ///exmple waypoint list for testing
         {0.0, 0.0, 0.0, 0.25},
         {0.0, 1.0, 0.0, 0.25}, 
-        {0.0, 1.25, 0.0, 0.0} 
+        {0.0, 1.25, 0.0, 0.0},
+        {0.0, 1.5, 0.0, 0.0}
     };
     size_t i;
     size_t numWaypoints = sizeof(lavaWaypoints) / sizeof(lavaWaypoints[0]);
@@ -35,12 +36,12 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
 
     // find nearest waypoint and use it to set the speed
     nearestWaypointIndex = nearestWaypoint(currentState); //TODO: check if UINT8_MAX?
-    Waypoint nearestWaytpoint = waypointBuffer[nearestWaypointIndex];
-    if (isWaypointEmpty(nearestWaytpoint)){
+    Waypoint nearestWaypoint = waypointBuffer[nearestWaypointIndex];
+    if (isWaypointEmpty(nearestWaypoint)){
         // if the nearest waypoint is empty or doesn't have a speed assigned, stop
         desiredV = 0;
     } else {
-        desiredV = nearestWaytpoint.speed;
+        desiredV = nearestWaypoint.speed;
     }
 
     // find target waypoint and use it to set the angular velocity
@@ -61,7 +62,13 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
         headingPID.setpoint = bearingToNextWaypoint;
         desiredW = std::clamp(headingPID.calculate(currentHeading), -maxTurnVelocity, maxTurnVelocity);
         float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
-        printf("Distance To Go: %f, Nearest Waypoint: %d, Heading To Waypoint: %f\n", distanceToGo, nearestWaypointIndex, bearingToNextWaypoint);
+        printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredV: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV);
+        printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
+           currentState.odometry.x,
+           currentState.odometry.y,
+           currentState.velocity.velocity,
+           currentState.odometry.heading,
+           currentState.velocity.angular_velocity);
     }
 }
 
