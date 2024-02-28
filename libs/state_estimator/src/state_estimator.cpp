@@ -5,11 +5,8 @@
 #include "state_estimator.h"
 #include "drivetrain_config.h"
 #include "encoder.hpp"
-<<<<<<< HEAD
 #include "utils.h"
-=======
 #include "bno080.h"
->>>>>>> heading_from_IMU_take2
 
 namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
@@ -54,7 +51,6 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::showValues() const {
-<<<<<<< HEAD
         //printf("FRONT_LEFT: %ld ", encoders[MOTOR_POSITION::FRONT_LEFT]->count());
         //printf("FRONT_RIGHT: %ld ", encoders[MOTOR_POSITION::FRONT_RIGHT]->count());
         //printf("REAR_LEFT: %ld ", encoders[MOTOR_POSITION::REAR_LEFT]->count());
@@ -66,19 +62,6 @@ namespace STATE_ESTIMATOR {
         //   estimatedState.velocity.velocity,
         //   estimatedState.odometry.heading,
         //   estimatedState.velocity.angular_velocity);
-=======
-        //printf("FRONT_LEFT: %ld ", encoders.FRONT_LEFT->count());
-        //printf("FRONT_RIGHT: %ld ", encoders.FRONT_RIGHT->count());
-        //printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
-        //printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
-        //printf("\n");
-        printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
-           estimatedState.odometry.x,
-           estimatedState.odometry.y,
-           estimatedState.velocity.velocity,
-           estimatedState.odometry.heading,
-           estimatedState.velocity.angular_velocity);
->>>>>>> heading_from_IMU_take2
     }
 
     void StateEstimator::publishState() const {
@@ -128,19 +111,10 @@ namespace STATE_ESTIMATOR {
         distance_travelled = ((left_travel - right_travel) / 2) * CONFIG::WHEEL_DIAMETER / 2;
     }
 
-<<<<<<< HEAD
-    void StateEstimator::calculate_new_position_orientation(VehicleState& tmpState, const float distance_travelled, const float heading_change) {
-        //calc a temp heading halfway between old heading and new
-        //assumed to be representative of heading during distance_travelled
-        const float tempHeading = tmpState.odometry.heading + heading_change / 2;
-        tmpState.odometry.x += distance_travelled * sin(tempHeading);
-        tmpState.odometry.y += distance_travelled * cos(tempHeading);
-=======
-    void StateEstimator::calculate_new_position(State& tmpState, const float distance_travelled, const float heading) {
+    void StateEstimator::calculate_new_position(VehicleState& tmpState, const float distance_travelled, const float heading) {
         //use the latest heading and distance travleled to update the estiamted position
         tmpState.odometry.x -= distance_travelled * sin(heading);
         tmpState.odometry.y += distance_travelled * cos(heading);
->>>>>>> heading_from_IMU_take2
 
         //now actually update odometry's heading
         tmpState.odometry.heading = heading;

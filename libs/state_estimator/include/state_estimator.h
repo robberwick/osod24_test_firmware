@@ -75,10 +75,9 @@ namespace STATE_ESTIMATOR {
 
         bool initialise_heading_offset();
 
-        void calculate_new_position_orientation(VehicleState& tmpState, float distance_travelled, float heading_change);
         void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
 
-        void calculate_new_position(State& tmpState, float distance_travelled, float heading);
+        void calculate_new_position(VehicleState& tmpState, float distance_travelled, float heading);
 
         Velocity calculate_velocities(float new_heading, float previous_heading, float left_speed, float right_speed);
 
