@@ -41,7 +41,7 @@ namespace STATE_ESTIMATOR {
         
         instancePtr = this;
 
-        if (initialise_heading_offset() == false) {
+        if (set_heading_offset() == false) {
             while (1){
                 printf("failed to set initial heading offset\n");
                 sleep_ms(1000);
@@ -225,10 +225,10 @@ namespace STATE_ESTIMATOR {
         currentSteeringAngles = newSteeringAngles;
     }
 
-    bool StateEstimator::initialise_heading_offset() {
+    bool StateEstimator::set_heading_offset() {
         // function sets the heading_offset to the current heading
         // returns true if the offset is set, false if timed out (no heading updates available)
-        long timeoutDuration = 5000;
+        long timeoutDuration = 500;
         long startTime = millis();
         bool isUpdated = false; // Flag to indicate if heading_offset is updated
 
