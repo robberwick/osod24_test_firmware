@@ -9,11 +9,11 @@ namespace WAYPOINTS {
 
 WaypointNavigation::WaypointNavigation(){
     Waypoint lavaWaypoints[5] = {   ///exmple waypoint list for testing
-        {0.0, 0.0, 0.0, 0.05},
+        {0.0, 0.0, 0.0, 0.08},
         {0.0, 1.0, 0.0, 0.1}, 
-        {1.0, 1.0, 0.0, 0.25},
-        {1.0, 0.0, 0.0, 0.05},
-        {0.0, 0.0, 0.0, 0.05}
+        {1.0, 1.0, 0.0, 0.15},
+        {1.0, 0.0, 0.0, 0.1},
+        {0.0, 0.0, 0.0, 0.08}
     };
     size_t i;
     size_t numWaypoints = sizeof(lavaWaypoints) / sizeof(lavaWaypoints[0]);
