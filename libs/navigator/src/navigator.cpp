@@ -30,21 +30,7 @@ void Navigator::navigate() {
         //printf("NC: %f ", values.NC);
         //printf("\n");
 
-        NAVIGATION_MODE::Mode newMode;
-        newMode = determineMode(values.AUX);
-        if (newMode != navigationMode){
-            printf("changing mode to mode %d, where 1=RC, 2=waypoint, 3=Pi\n", newMode);
-            navigationMode = newMode;
-        }
-        if (shouldResetWaypointIndex(values.THR)){
-            printf("resetting waypoint index to 0.\n");
-            waypointNavigator.targetWaypointIndex = 0;
-        }
-        if (shouldSetHeading(values.THR)){
-            printf("setting current heading to 0.\n");
-            setHeading();
-            //bool result = pStateEstimator->set_heading_offset();
-        }
+        parseTxSignals(values);
         STATE_ESTIMATOR::VehicleState requestedState{};
         switch (navigationMode) {
         case NAVIGATION_MODE::WAYPOINT:
@@ -83,12 +69,41 @@ bool Navigator::shouldSetHeading(float signal){
     return (signal < setHeadingThreshold);
 }
 
+bool Navigator::shouldSetOdometryOrigin(float signal){
+    return (signal > setOriginThreshold);
+}
+
 void Navigator::setHeading(){
     pStateEstimator->set_heading_offset();
 }
 
+void Navigator::setOrigin(){
+    pStateEstimator->apply_odometry_offset(current_state.odometry.x, current_state.odometry.y);
+}
+
 void Navigator::update(const VehicleState newState) {
     current_state = newState;
+}
+
+void Navigator::parseTxSignals(ReceiverChannelValues signals){
+        NAVIGATION_MODE::Mode newMode;
+        newMode = determineMode(signals.AUX);
+        if (newMode != navigationMode){
+            printf("changing mode to mode %d, where 1=RC, 2=waypoint, 3=Pi\n", newMode);
+            navigationMode = newMode;
+        }
+        if (shouldResetWaypointIndex(signals.THR)){
+            printf("resetting waypoint index to 0.\n");
+            waypointNavigator.targetWaypointIndex = 0;
+        }
+        if (shouldSetHeading(signals.THR)){
+            printf("setting current heading to 0.\n");
+            setHeading();
+        }
+        if (shouldSetOdometryOrigin(signals.RUD)){
+            printf("setting current position as zero for odometry.\n");
+            setOrigin();
+        }
 }
 
 Navigator::~Navigator() = default;

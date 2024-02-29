@@ -24,12 +24,16 @@ private:
     VehicleState current_state;
     float waypointModeThreshold = 0; //if signal above this, we're move into waypoint mode
     float waypointIndexThreshold = 0.5; //if signal above this, reset the waypoint index
-    float setHeadingThreshold = -0.5; //if signal above this, set the heading
+    float setHeadingThreshold = -0.5; //if signal below this, set the heading
+    float setOriginThreshold = 0.5; //if signal above this, set the odometry origin
 
     NAVIGATION_MODE::Mode determineMode(float signal);
     bool shouldResetWaypointIndex(float signal);
     bool shouldSetHeading(float signal);
+    bool shouldSetOdometryOrigin(float signal);
     WAYPOINTS::WaypointNavigation waypointNavigator;
     void setHeading(); //local method that's linked to the stateEstimator set_Heading_Offset method
+    void setOrigin(); //local method that's linked to the stateEstimator set_Odometry_Offset method
+    void parseTxSignals(ReceiverChannelValues signals); //function to use "spare" transmitter channels to as auxiliary inputs
 
 };
