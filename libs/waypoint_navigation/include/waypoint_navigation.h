@@ -35,9 +35,9 @@ namespace WAYPOINTS {
         float unwrapHeading(const float targetHeading, float currentHeading); //find "nearest" description of current heading to target
 
     private:
-        float headingPGain = 1;
+        float headingPGain = 1.5;
         float headingIGain = 0;
-        float headingDGain = 0;
+        float headingDGain = 1.0;
         float UPDATE_RATE = 0.02; //seconds
         Waypoint nanWaypoint = {NAN, NAN, NAN, NAN}; // Create a NaN waypoint
 
