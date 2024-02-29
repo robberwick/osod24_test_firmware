@@ -96,13 +96,15 @@ void Navigator::parseTxSignals(ReceiverChannelValues signals){
             printf("resetting waypoint index to 0.\n");
             waypointNavigator.targetWaypointIndex = 0;
         }
-        if (shouldSetHeading(signals.THR)){
+        if (shouldSetHeading(signals.RUD)){
             printf("setting current heading to 0.\n");
             setHeading();
+            sleep_ms(100);
         }
         if (shouldSetOdometryOrigin(signals.RUD)){
             printf("setting current position as zero for odometry.\n");
             setOrigin();
+            sleep_ms(100);
         }
 }
 
