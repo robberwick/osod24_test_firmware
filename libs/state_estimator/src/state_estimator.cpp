@@ -226,6 +226,11 @@ namespace STATE_ESTIMATOR {
         heading_offset = wrap_pi(heading_offset + estimatedState.odometry.heading);
     }
 
+    void StateEstimator::apply_odometry_offset(float xOffset, float yOffset){
+        estimatedState.odometry.x = estimatedState.odometry.x - xOffset;
+        estimatedState.odometry.y = estimatedState.odometry.y - yOffset;
+    }
+
     StateEstimator::~StateEstimator() {
         delete encoders[MOTOR_POSITION::FRONT_LEFT];
         delete encoders[MOTOR_POSITION::FRONT_RIGHT];
