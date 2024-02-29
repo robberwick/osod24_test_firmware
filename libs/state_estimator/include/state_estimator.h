@@ -51,6 +51,8 @@ namespace STATE_ESTIMATOR {
 
         void set_heading_offset(); 
 
+        void apply_odometry_offset(float xOffset, float yOffset);
+
     private:
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         static StateEstimator* instancePtr;
