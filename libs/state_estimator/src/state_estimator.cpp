@@ -40,9 +40,7 @@ namespace STATE_ESTIMATOR {
         IMU = IMUinstance;
         
         instancePtr = this;
-
         set_heading_offset();
- 
         setupTimer();
     }
 

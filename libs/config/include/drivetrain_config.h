@@ -13,7 +13,7 @@ namespace CONFIG {
     #define PI_NOON 5
     #define TEMPLE_OF_DOOM 6
 
-    #define CURRENT_CHALLENGE ESCAPE_ROUTE
+    #define CURRENT_CHALLENGE LAVA_PALAVA
 
     constexpr int I2C_SDA_PIN = 20;
     constexpr int I2C_SCL_PIN = 21;

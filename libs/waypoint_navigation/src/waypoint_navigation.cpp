@@ -8,12 +8,46 @@
 namespace WAYPOINTS {
 
 WaypointNavigation::WaypointNavigation(){
-    Waypoint lavaWaypoints[5] = {   ///exmple waypoint list for testing
-        {0.0, 0.0, 0.0, 0.08},
-        {0.0, 1.0, 0.0, 0.1}, 
-        {1.0, 1.0, 0.0, 0.15},
-        {1.0, 0.0, 0.0, 0.1},
-        {0.0, 0.0, 0.0, 0.08}
+    Waypoint lavaWaypoints[39] = {   ///exmple waypoint list for testing
+        {0.000, 0.135,  0.000, 0.1},
+        {0.000, 0.335,  0.000, 0.1},
+        {0.000, 0.535,  0.000, 0.1},
+        {0.000, 0.735,  0.000, 0.1},
+        {0.000, 0.935,  0.000, 0.1},
+        {0.000, 1.135,  0.000, 0.1},
+        {0.000, 1.335,  0.000, 0.1},
+        {0.000, 1.535,  -0.017, 0.1},
+        {-0.003, 1.735,  -0.157, 0.1},
+        {-0.035, 1.933,  -0.305, 0.1},
+        {-0.095, 2.124,  -0.485, 0.1},
+        {-0.188, 2.301,  -0.628, 0.1},
+        {-0.306, 2.462,  -0.555, 0.1},
+        {-0.411, 2.632,  -0.396, 0.1},
+        {-0.488, 2.817,  -0.237, 0.1},
+        {-0.535, 3.011,  -0.075, 0.1},
+        {-0.550, 3.211,  0.091, 0.1},
+        {-0.532, 3.410,  0.257, 0.1},
+        {-0.481, 3.603,  0.419, 0.1},
+        {-0.400, 3.786,  0.583, 0.1},
+        {-0.290, 3.953,  0.593, 0.1},
+        {-0.178, 4.119,  0.471, 0.1},
+        {-0.087, 4.297,  0.297, 0.1},
+        {-0.029, 4.488,  0.157, 0.1},
+        {0.002, 4.686,  0.000, 0.1},
+        {0.002, 4.886,  0.000, 0.1},
+        {0.002, 5.086,  0.000, 0.1},
+        {0.002, 5.286,  0.000, 0.1},
+        {0.002, 5.486,  0.000, 0.1},
+        {0.002, 5.686,  0.000, 0.1},
+        {0.002, 5.886,  0.000, 0.1},
+        {0.002, 6.086,  0.000, 0.1},
+        {0.002, 6.286,  0.000, 0.1},
+        {0.002, 6.486,  0.000, 0.1},
+        {0.002, 6.686,  0.000, 0.1},
+        {0.002, 6.886,  0.000, 0.1},
+        {0.002, 7.007,  0.000, 0},
+        {0.002, 7.15,  0.000, 0},
+        {0.002, 7.30,  0.000, 0}
     };
     size_t i;
     size_t numWaypoints = sizeof(lavaWaypoints) / sizeof(lavaWaypoints[0]);
@@ -62,6 +96,9 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
 
         headingPID.setpoint = bearingToNextWaypoint;
         desiredW = std::clamp(headingPID.calculate(currentHeading), -maxTurnVelocity, maxTurnVelocity);
+        if (desiredV == 0.0){
+            desiredW = 0;
+        }
         printf("currentState.odometry.heading: %f, currentHeading: %f, headingPID.setpoint: %f, headingPID.calculate(currentHeading): %f \n", 
            currentState.odometry.heading,
            currentHeading,

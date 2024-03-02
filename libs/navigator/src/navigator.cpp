@@ -58,6 +58,7 @@ NAVIGATION_MODE::Mode Navigator::determineMode(float signal){
     } else {
         mode = NAVIGATION_MODE::REMOTE_CONTROL;
     }
+    mode = NAVIGATION_MODE::WAYPOINT;
     return mode;
 }
 

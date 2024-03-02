@@ -54,7 +54,10 @@ int main() {
     // set up the navigator
     navigator = new Navigator(pReceiver, pStateManager, pStateEstimator);
     pStateEstimator->addObserver(navigator);
- 
+    sleep_ms(1000);
+    pStateEstimator->set_heading_offset();
+    sleep_ms(100);
+    
     // Initialize a hardware timer
     repeating_timer_t navigationTimer;
     add_repeating_timer_ms(

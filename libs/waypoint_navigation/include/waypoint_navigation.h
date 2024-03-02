@@ -17,7 +17,7 @@ namespace WAYPOINTS {
         void navigate(const VehicleState& currentState); //update the desired movement to get to the next waypoint
         float desiredV;  // desired velocity to get to next waypoint
         float desiredW;  // desired angular velocity to get to next waypoint
-        const static uint8_t waypointBufferSize = 40;
+        const static uint8_t waypointBufferSize = 45;
         Waypoint waypointBuffer[waypointBufferSize]; // waypoint buffer
         void addWaypoint(const Waypoint& newWaypoint); // add a waypoint to the buffer
         bool isWaypointEmpty(const Waypoint& waypoint); // check if a waypoint slot in the buffer is empty
@@ -31,13 +31,13 @@ namespace WAYPOINTS {
         float bearingToWaypoint(const Waypoint& target, const VehicleState& currentState); // Compass bearing to a waypoint
         float distanceToWaypoint(const Waypoint& target, const VehicleState& currentState); // distance to a waypoint
         float lookAhead = 0.2; //lookahead distance in metres
-        float maxTurnVelocity = 1; //max turn velocity in radians per second
+        float maxTurnVelocity = 2; //max turn velocity in radians per second
         float unwrapHeading(const float targetHeading, float currentHeading); //find "nearest" description of current heading to target
 
     private:
-        float headingPGain = 1.5;
+        float headingPGain = 0.6;
         float headingIGain = 0;
-        float headingDGain = 1.0;
+        float headingDGain = 0.1;
         float UPDATE_RATE = 0.02; //seconds
         Waypoint nanWaypoint = {NAN, NAN, NAN, NAN}; // Create a NaN waypoint
 
