@@ -69,14 +69,7 @@ bool adcPresent;
 
     while (true) {
         if (adcPresent){
-            CellStatus cellStatus = balancePort.getCellStatus();
-            if (!cellStatus.allOk) {
-                printf("input voltage error! %s Voltages: ",
-                      cellStatus.fault.c_str());
-                printf("cell 1: %fV, cell 2: %fV, cell 3: %fV, PSU: %fV\n",
-                       cellStatus.voltages.cell1, cellStatus.voltages.cell2,
-                       cellStatus.voltages.cell3, cellStatus.voltages.psu);
-            }
+            balancePort.raiseCellStatus();
         }
         sleep_ms(100); // Delay for 0.5 second
         // Do nothing in the main loop
