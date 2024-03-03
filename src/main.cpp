@@ -15,11 +15,23 @@
 
 
 Navigator *navigator;
+int32_t navigationPeriodMs = 20;
 bool shouldNavigate = false;
+bool shouldReadCellStatus = false;
+int32_t navigateCount = 0;
+
+// calcluate the period to read the cell status - divide the time in ms by the navigation period, and floor the result
+int32_t shouldReadCellCount = 2000 / navigationPeriodMs;
+
 
 extern "C" void timer_callback(repeating_timer_t *t) {
     // Call the navigate function in the interrupt handler
     shouldNavigate = true;
+    navigateCount++;
+    if (navigateCount % shouldReadCellCount == 0) {
+        navigateCount = 0;
+        shouldReadCellStatus = true;
+    }
 }
 
 int main() {
@@ -61,22 +73,21 @@ bool adcPresent;
     // Initialize a hardware timer
     repeating_timer_t navigationTimer;
     add_repeating_timer_ms(
-            20,
+            navigationPeriodMs,
             reinterpret_cast<repeating_timer_callback_t>(timer_callback),
             nullptr,
             &navigationTimer
     );
 
     while (true) {
-        if (adcPresent){
-            balancePort.raiseCellStatus();
-        }
-        sleep_ms(100); // Delay for 0.5 second
-        // Do nothing in the main loop
         if (shouldNavigate) {
-            // Call the navigate function in the interrupt handler
+            // Call the navigate function
             navigator->navigate();
             shouldNavigate = false;
+        }
+
+        if (adcPresent && shouldReadCellStatus){
+            balancePort.raiseCellStatus();
         }
     }
 }
