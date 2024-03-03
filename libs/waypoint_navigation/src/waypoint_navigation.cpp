@@ -61,12 +61,9 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
         float currentHeading = unwrapHeading(bearingToNextWaypoint, currentState.odometry.heading);
 
         headingPID.setpoint = bearingToNextWaypoint;
-        desiredW = std::clamp(headingPID.calculate(currentHeading), -maxTurnVelocity, maxTurnVelocity);
-        printf("currentState.odometry.heading: %f, currentHeading: %f, headingPID.setpoint: %f, headingPID.calculate(currentHeading): %f \n", 
-           currentState.odometry.heading,
-           currentHeading,
-           headingPID.setpoint,
-           headingPID.calculate(currentHeading));
+        //scale the response by the speed, so that the steering correction angle is consistent as run speeds varies
+        desiredW = std::clamp(desiredV * headingPID.calculate(currentHeading),
+                                    -maxTurnVelocity, maxTurnVelocity);
         float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
         printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredw: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredW);
         printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
