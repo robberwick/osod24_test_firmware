@@ -70,13 +70,19 @@ CellStatus BalancePort::checkVoltages(adcVoltages measuredVoltages) {
 }
 
 void BalancePort::raiseCellStatus() {
+    printf(" RUNNING raiseCellStatus\n");
     const adcVoltages voltages = getCellVoltages(); // Assume this method exists and fetches voltages
     const CellStatus status = checkVoltages(voltages);
     if (!status.allOk) {
-        printf("input voltage error! %s Voltages: ",
-              status.fault.c_str());
-        printf("cell 1: %fV, cell 2: %fV, cell 3: %fV, PSU: %fV\n",
-               status.voltages.cell1, status.voltages.cell2,
-               status.voltages.cell3, status.voltages.psu);
+        // Increment failCount if the cell status is not okay for 10 consecutive times
+        failCount++;
+        if (failCount > failCountThreshold) {
+            printf("input voltage error! %s Voltages: ", status.fault.c_str());
+            printf("cell 1: %fV, cell 2: %fV, cell 3: %fV, PSU: %fV\n",
+                   status.voltages.cell1, status.voltages.cell2,
+                   status.voltages.cell3, status.voltages.psu);
+        }
+    } else {
+        failCount = 0;
     }
 }

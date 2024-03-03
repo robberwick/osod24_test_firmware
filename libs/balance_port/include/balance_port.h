@@ -37,6 +37,9 @@ public:
     float balanceThreshold = 0.2;
     float minPSU = 11;
     float PSUConnectedThreshold = 5;
+    int failCountThreshold = 5;
+
 private:
     PICO_ADS1015 inputVoltagesADC; // ADS1015 object
+    int failCount = 0;
 };

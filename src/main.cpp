@@ -16,32 +16,49 @@
 
 Navigator *navigator;
 int32_t navigationPeriodMs = 20;
-bool shouldNavigate = false;
-bool shouldReadCellStatus = false;
-int32_t navigateCount = 0;
 
-// calcluate the period to read the cell status - divide the time in ms by the navigation period, and floor the result
+// calculate the period to read the cell status - divide the time in ms by the navigation period, and floor the result
 int32_t shouldReadCellCount = 2000 / navigationPeriodMs;
 
+// create struct to pass to the timer callback function
+// containing:
+// shouldNavigate - bool to indicate if the navigate function should be called
+// shouldReadCellStatus - bool to indicate if the cell status should be read
+// shouldReadCellCount - the number of times the cell status should be read
+// navigateCount - a counter to keep track of the number of times the navigate function has been called
+struct TimerCallbackData {
+    bool shouldNavigate;
+    bool shouldReadCellStatus;
+    int32_t shouldReadCellCount;
+    int32_t navigateCount;
+};
+
+TimerCallbackData timerCallbackData = {
+        .shouldNavigate = false,
+        .shouldReadCellStatus = false,
+        .shouldReadCellCount = shouldReadCellCount,
+        .navigateCount = 0,
+};
 
 extern "C" void timer_callback(repeating_timer_t *t) {
-    // Call the navigate function in the interrupt handler
-    shouldNavigate = true;
-    navigateCount++;
-    if (navigateCount % shouldReadCellCount == 0) {
-        navigateCount = 0;
-        shouldReadCellStatus = true;
+    // cast t->user_data to TimerCallbackData
+    auto *user_data = reinterpret_cast<TimerCallbackData *>(t->user_data);
+    user_data->shouldNavigate = true;
+    if (user_data->navigateCount > user_data->shouldReadCellCount) {
+        user_data->shouldReadCellStatus = true;
+        user_data->navigateCount = 0;
+    } else {
+        user_data->navigateCount++;
     }
 }
 
 int main() {
     stdio_init_all();
-    i2c_inst_t* i2c_port0;
+    i2c_inst_t *i2c_port0;
     initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
-bool adcPresent;
+    bool adcPresent;
     BalancePort balancePort;
     adcPresent = balancePort.initADC(i2c_port0); // Initialize ADC
-
     //set up IMU
     BNO08x IMU;
     if (IMU.begin(CONFIG::BNO08X_ADDR, i2c_port0)==false) {
@@ -75,19 +92,21 @@ bool adcPresent;
     add_repeating_timer_ms(
             navigationPeriodMs,
             reinterpret_cast<repeating_timer_callback_t>(timer_callback),
-            nullptr,
+            &timerCallbackData,
             &navigationTimer
     );
 
     while (true) {
-        if (shouldNavigate) {
+        if (timerCallbackData.shouldNavigate) {
             // Call the navigate function
             navigator->navigate();
-            shouldNavigate = false;
+            timerCallbackData.shouldNavigate = false;
         }
 
-        if (adcPresent && shouldReadCellStatus){
+        if (adcPresent && timerCallbackData.shouldReadCellStatus) {
+            printf("Reading cell status\n");
             balancePort.raiseCellStatus();
+            timerCallbackData.shouldReadCellStatus = false;
         }
     }
 }
