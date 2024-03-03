@@ -86,9 +86,9 @@ namespace CONFIG {
     constexpr float SPEED_SCALE = 495.0f;
 
     //dynamics
-    constexpr float MAX_VELOCITY = 1.28; // m/s
+    constexpr float MAX_VELOCITY = 0.2; //was1.28 m/s, 0.2m/s good for low speed
     constexpr float MAX_ACCELERATION = 8; // m/s^2
-    constexpr float MAX_ANGULAR_VELOCITY = 17; // rad/s
+    constexpr float MAX_ANGULAR_VELOCITY = 1; //was 17 rad/s (full speed) 1rad/s good for low speed
     constexpr float MAX_ANGULAR_ACCELERATION = 20; // rad/s^2
 
 
