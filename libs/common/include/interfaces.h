@@ -14,7 +14,7 @@ namespace COMMON {
         ~Observer() = default;
 
     public:
-        virtual void update(DriveTrainState newState) = 0;
+        virtual void update(VehicleState newState) = 0;
     };
 
 
@@ -25,7 +25,7 @@ namespace COMMON {
 
     public:
         virtual void addObserver(Observer* observer) = 0;
-        virtual void notifyObservers(DriveTrainState newState) = 0;
+        virtual void notifyObservers(VehicleState newState) = 0;
     };
 
 } // COMMON

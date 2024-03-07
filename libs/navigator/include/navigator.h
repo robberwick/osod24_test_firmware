@@ -12,11 +12,11 @@ public:
                         STATE_ESTIMATOR::StateEstimator* estimator);
     ~Navigator();
     void navigate();
-    void update(const DriveTrainState newState) override;
+    void update(const VehicleState newState) override;
 
 private:
     const Receiver *receiver{};
     STATEMANAGER::StateManager *pStateManager;
     STATE_ESTIMATOR::StateEstimator* pStateEstimator;
-    DriveTrainState current_state;
+    VehicleState current_state;
 };

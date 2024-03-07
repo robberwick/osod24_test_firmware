@@ -69,7 +69,7 @@ namespace STATE_ESTIMATOR {
         }
     }
 
-    void StateEstimator::notifyObservers(const DriveTrainState newState) {
+    void StateEstimator::notifyObservers(const VehicleState newState) {
         for (int i = 0; i < observerCount; i++) {
             observers[i]->update(newState);
         }
@@ -113,7 +113,7 @@ namespace STATE_ESTIMATOR {
         distance_travelled = ((left_travel - right_travel) / 2) * CONFIG::WHEEL_DIAMETER / 2;
     }
 
-    void StateEstimator::calculate_new_position(State& tmpState, const float distance_travelled, const float heading) {
+    void StateEstimator::calculate_new_position(VehicleState& tmpState, const float distance_travelled, const float heading) {
         //use the latest heading and distance travleled to update the estiamted position
         tmpState.odometry.x -= distance_travelled * sin(heading);
         tmpState.odometry.y += distance_travelled * cos(heading);
@@ -150,7 +150,7 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::estimateState() {
         // instantiate a copy of the current state
-        State tmpState = estimatedState;
+        VehicleState tmpState = estimatedState;
         
         //get current encoder state
         Encoder::Capture encoderCaptures[MOTOR_POSITION::MOTOR_POSITION_COUNT];
@@ -189,7 +189,7 @@ namespace STATE_ESTIMATOR {
         estimatedState = tmpState;
 
         // notify observers of the new state
-        notifyObservers(estimatedState.driveTrainState);
+        notifyObservers(estimatedState);
 
     }
 
@@ -236,7 +236,7 @@ namespace STATE_ESTIMATOR {
         estimatedState.odometry.x = estimatedState.odometry.x - xOffset;
         estimatedState.odometry.y = estimatedState.odometry.y - yOffset;
     }
-    
+
     StateEstimator::~StateEstimator() {
         delete encoders[MOTOR_POSITION::FRONT_LEFT];
         delete encoders[MOTOR_POSITION::FRONT_RIGHT];

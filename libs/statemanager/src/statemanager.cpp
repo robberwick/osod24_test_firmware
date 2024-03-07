@@ -34,7 +34,7 @@ namespace STATEMANAGER {
         initialiseServo(steering_servos.right, motor2040::TX_TRIG, 1221, 1670, 2200);
     }
 
-    void StateManager::requestState(const STATE_ESTIMATOR::State& requestedState) {
+    void StateManager::requestState(const COMMON::VehicleState& requestedState) {
         //printf("Requested state...\n");
         //printf("Velocity: %f ", requestedState.velocity);
         //printf("Angular velocity: %f ", requestedState.angularVelocity);
