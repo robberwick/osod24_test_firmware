@@ -13,7 +13,7 @@ namespace CONFIG {
     #define PI_NOON 5
     #define TEMPLE_OF_DOOM 6
 
-    #define CURRENT_CHALLENGE ESCAPE_ROUTE
+    #define CURRENT_CHALLENGE ECO_DISASTER
 
     constexpr int I2C_SDA_PIN = 20;
     constexpr int I2C_SCL_PIN = 21;
@@ -63,8 +63,8 @@ namespace CONFIG {
 
     // Define WHEEL_DIAMETER and GEAR_RATIO based on CURRENT_CHALLENGE
     #if (CURRENT_CHALLENGE == ECO_DISASTER)
-        constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-        constexpr float GEAR_RATIO = 42.0 / 18.0 * GEARMOTOR_RATIO;
+        constexpr float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER; //LARGE_WHEEL_DIAMETER;
+        constexpr float GEAR_RATIO = GEARMOTOR_RATIO; //42.0 / 18.0 * GEARMOTOR_RATIO;
         constexpr DrivingDirection DRIVING_DIRECTION = SteerableWheelsAtRear;
     #elif (CURRENT_CHALLENGE == ESCAPE_ROUTE || CURRENT_CHALLENGE == MINESWEEPER || CURRENT_CHALLENGE == ZOMBIE_APOCALYPSE)
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
