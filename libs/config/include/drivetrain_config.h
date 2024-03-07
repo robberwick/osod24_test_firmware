@@ -24,6 +24,12 @@ namespace CONFIG {
         RIGHT
     };
 
+
+    enum DrivingDirection {
+        SteerableWheelsAtFront,
+        SteerableWheelsAtRear
+    };
+
     // chassis geometry
     constexpr float WHEEL_BASE = 0.18f; // metres
     constexpr float WHEEL_TRACK = 0.15f; // metres
@@ -59,19 +65,24 @@ namespace CONFIG {
     #if (CURRENT_CHALLENGE == ECO_DISASTER)
         constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
         constexpr float GEAR_RATIO = 42.0 / 18.0 * GEARMOTOR_RATIO;
+        constexpr DrivingDirection DRIVING_DIRECTION = SteerableWheelsAtRear;
     #elif (CURRENT_CHALLENGE == ESCAPE_ROUTE || CURRENT_CHALLENGE == MINESWEEPER || CURRENT_CHALLENGE == ZOMBIE_APOCALYPSE)
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
+        constexpr DrivingDirection DRIVING_DIRECTION = SteerableWheelsAtFront;
     #elif (CURRENT_CHALLENGE == PI_NOON)
         const float WHEEL_DIAMETER = MECANUM_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
+        constexpr DrivingDirection DRIVING_DIRECTION = SteerableWheelsAtFront;
     #elif  (CURRENT_CHALLENGE == LAVA_PALAVA || CURRENT_CHALLENGE == TEMPLE_OF_DOOM)
         const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
+        constexpr DrivingDirection DRIVING_DIRECTION = SteerableWheelsAtFront;
     #else
         // Default case
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
+        constexpr DrivingDirection DRIVING_DIRECTION = SteerableWheelsAtFront;
     #endif
 
 
