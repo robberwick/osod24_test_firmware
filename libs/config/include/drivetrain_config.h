@@ -49,8 +49,8 @@ namespace CONFIG {
 
 
     //wheels and gearing
-    constexpr float LARGE_WHEEL_DIAMETER = 0.0816f; // metres valid for Lego 2902 "81.6" tyres
-    constexpr float SMALL_WHEEL_DIAMETER = 0.052f; // metres valid for Lego 15413 tyres
+    constexpr float LARGE_WHEEL_DIAMETER = 0.0816f; // 0.0816metres valid for Lego 2902 "81.6" tyres
+    constexpr float SMALL_WHEEL_DIAMETER = 0.052f; //should be 0.052? metres valid for Lego 15413 tyres
     constexpr float MECANUM_DIAMETER = 0.048f; // metres, valid for "48mm" mecanums
     constexpr float GEARMOTOR_RATIO = 19.22f; // -to-1
 
@@ -88,7 +88,7 @@ namespace CONFIG {
     //dynamics
     constexpr float MAX_VELOCITY = 0.2; //was1.28 m/s, 0.2m/s good for low speed
     constexpr float MAX_ACCELERATION = 8; // m/s^2
-    constexpr float MAX_ANGULAR_VELOCITY = 1; //was 17 rad/s (full speed) 1rad/s good for low speed
+    constexpr float MAX_ANGULAR_VELOCITY = 2; //was 17 rad/s (full speed) 1rad/s good for low speed
     constexpr float MAX_ANGULAR_ACCELERATION = 20; // rad/s^2
 
 
