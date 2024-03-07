@@ -2,13 +2,15 @@
 #include "navigator.h"
 #include "statemanager.h"
 #include "state_estimator.h"
-
+#include "types.h"
 #include "drivetrain_config.h"
 
-Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* stateManager) {
+Navigator::Navigator(const Receiver* receiver,
+                     STATEMANAGER::StateManager* stateManager,
+                     STATE_ESTIMATOR::StateEstimator* stateEstimator) {
     this->receiver = receiver;
     this->pStateManager = stateManager;
-
+    this->pStateEstimator = stateEstimator;
 }
 
 void Navigator::navigate() {
@@ -33,6 +35,10 @@ void Navigator::navigate() {
     } else {
         printf("No receiver data available\n");
     }
+}
+
+void Navigator::update(const COMMON::DriveTrainState newState) {
+    current_state = newState;
 }
 
 Navigator::~Navigator() = default;
