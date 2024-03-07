@@ -229,6 +229,7 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::set_heading_offset() {
         // function sets the heading_offset to the current heading
+        //#TODO: add a timeout blocker to prevent this function being called twice in quick succession?
         heading_offset = wrap_pi(heading_offset + estimatedState.odometry.heading);
     }
 
