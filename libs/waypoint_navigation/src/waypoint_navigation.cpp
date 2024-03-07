@@ -8,12 +8,80 @@
 namespace WAYPOINTS {
 
 WaypointNavigation::WaypointNavigation(){
-    Waypoint lavaWaypoints[5] = {   ///exmple waypoint list for testing
-        {0.0, 0.0, 0.0, 0.08},
-        {0.0, 1.0, 0.0, 0.1}, 
-        {1.0, 1.0, 0.0, 0.15},
-        {1.0, 0.0, 0.0, 0.1},
-        {0.0, 0.0, 0.0, 0.08}
+    Waypoint lavaWaypoints[73] = {   ///example waypoint list for testing
+        {0.000, 0.000,  0.000, 0.05},
+        {0.000, 0.200,  0.000, 0.05},
+        {0.000, 0.400,  0.000, 0.05},
+        {0.000, 0.600,  0.000, 0.05},
+        {0.000, 0.800,  0.000, 0.05},
+        {0.000, 1.000,  0.000, 0.05},
+        {0.000, 1.200,  0.000, 0.05},
+        {0.000, 1.300,  0.000, 0.05},
+        {0.133, 1.477,  0.000, 0.05},
+        {0.407, 1.498,  0.000, 0.05},
+        {0.637, 1.393,  0.000, 0.05},
+        {0.778, 1.185,  0.000, 0.05},
+        {0.742, 0.913,  0.000, 0.05},
+        {0.675, 0.800,  0.000, 0.05},
+        {0.675, 0.600,  0.000, 0.05},
+        {0.675, 0.400,  0.000, 0.05},
+        {0.675, 0.200,  0.000, 0.05},
+        {0.675, 0.100,  0.000, 0.05},
+        {0.542, -0.077,  0.000, 0.05},
+        {0.268, -0.098,  0.000, 0.05},
+        {0.068, 0.000,  0.000, 0.05},
+        {-0.187, 0.000,  0.000, 0.05},
+        {-0.328, 0.215,  0.000, 0.05},
+        {-0.292, 0.487,  0.000, 0.05},
+        {-0.225, 0.600,  0.000, 0.05},
+        {-0.225, 0.800,  0.000, 0.05},
+        {-0.225, 1.000,  0.000, 0.05},
+        {-0.225, 1.200,  0.000, 0.05},
+        {-0.225, 1.300,  0.000, 0.05},
+        {-0.092, 1.477,  0.000, 0.05},
+        {0.182, 1.498,  0.000, 0.05},
+        {0.412, 1.393,  0.000, 0.05},
+        {0.553, 1.185,  0.000, 0.05},
+        {0.517, 0.913,  0.000, 0.05},
+        {0.450, 0.800,  0.000, 0.05},
+        {0.450, 0.600,  0.000, 0.05},
+        {0.450, 0.400,  0.000, 0.05},
+        {0.450, 0.200,  0.000, 0.05},
+        {0.450, 0.100,  0.000, 0.05},
+        {0.317, -0.077,  0.000, 0.05},
+        {0.043, -0.098,  0.000, 0.05},
+        {-0.157, 0.000,  0.000, 0.05},
+        {-0.412, 0.000,  0.000, 0.05},
+        {-0.553, 0.215,  0.000, 0.05},
+        {-0.517, 0.487,  0.000, 0.05},
+        {-0.450, 0.600,  0.000, 0.05},
+        {-0.450, 0.800,  0.000, 0.05},
+        {-0.450, 1.000,  0.000, 0.05},
+        {-0.450, 1.200,  0.000, 0.05},
+        {-0.450, 1.300,  0.000, 0.05},
+        {-0.317, 1.477,  0.000, 0.05},
+        {-0.043, 1.498,  0.000, 0.05},
+        {0.187, 1.393,  0.000, 0.05},
+        {0.328, 1.185,  0.000, 0.05},
+        {0.292, 0.913,  0.000, 0.05},
+        {0.225, 0.800,  0.000, 0.05},
+        {0.225, 0.600,  0.000, 0.05},
+        {0.225, 0.400,  0.000, 0.05},
+        {0.225, 0.200,  0.000, 0.05},
+        {0.225, 0.100,  0.000, 0.05},
+        {0.092, -0.077,  0.000, 0.05},
+        {-0.182, -0.098,  0.000, 0.05},
+        {-0.382, 0.000,  0.000, 0.05},
+        {-0.637, 0.000,  0.000, 0.05},
+        {-0.778, 0.215,  0.000, 0.05},
+        {-0.742, 0.487,  0.000, 0.05},
+        {-0.675, 0.600,  0.000, 0.05},
+        {-0.675, 0.800,  0.000, 0.05},
+        {-0.675, 1.000,  0.000, 0.05},
+        {-0.675, 1.200,  0.000, 0.05},
+        {-0.675, 1.400,  0.000, 0.05},
+        {-0.537, 1.600,  0.000, 0.0},
+        {-0.400, 1.800,  0.000, 0.0}
     };
     size_t i;
     size_t numWaypoints = sizeof(lavaWaypoints) / sizeof(lavaWaypoints[0]);
@@ -48,6 +116,7 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
     // find target waypoint and use it to set the angular velocity
     targetWaypointIndex = nextWaypoint(targetWaypointIndex, currentState);
     targetWaypoint = waypointBuffer[targetWaypointIndex];
+
     if (isWaypointEmpty(targetWaypoint)){
         // if (somehow!?) the target waypoint is empty, stop
         desiredW = 0;
@@ -65,7 +134,7 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
         desiredW = std::clamp(desiredV * headingPID.calculate(currentHeading),
                                     -maxTurnVelocity, maxTurnVelocity);
         float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
-        printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredw: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredW);
+        printf(", Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredw: %f, ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredW);
         printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
            currentState.odometry.x,
            currentState.odometry.y,
@@ -112,11 +181,12 @@ uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, con
 
 uint8_t WaypointNavigation::nearestWaypoint(const VehicleState& currentState){
     // returns the index of the waypoint nearest to the current position
-    // searches through the full waypoint buffer, checking the distance of each
-    uint8_t closestWaypointIndex = UINT8_MAX; //TODO check if it stays as UINT8_MAX
+    // searches only through the waypoint buffer from the current(previous)
+    // closest waypoint up to the target waypoint, checking the distance of each
+    uint8_t closestWaypointIndex = nearestWaypointIndex; 
     float distanceToClosestWaypoint = std::numeric_limits<float>::max(); //initialise to max possible value
 
-    for (uint8_t index = 0; index < waypointBufferSize; index++) { 
+    for (uint8_t index = nearestWaypointIndex; index <= targetWaypointIndex; index++) { 
         Waypoint waypoint = waypointBuffer[index];
         float distance = distanceToWaypoint(waypoint, currentState);
         if (distance < distanceToClosestWaypoint){
