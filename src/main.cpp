@@ -86,7 +86,8 @@ int main() {
     Receiver *pReceiver = getReceiver(motor::motor2040::RX_ECHO);
 
     // set up the navigator
-    navigator = new Navigator(pReceiver, pStateManager, CONFIG::DRIVING_STYLE);
+    navigator = new Navigator(pReceiver, pStateManager, pStateEstimator, CONFIG::DRIVING_STYLE);
+    pStateEstimator->addObserver(navigator);
 
     // Initialize a hardware timer
     repeating_timer_t navigationTimer;

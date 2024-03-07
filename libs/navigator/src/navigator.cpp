@@ -3,11 +3,15 @@
 #include "statemanager.h"
 #include "state_estimator.h"
 #include "drivetrain_config.h"
+#include "types.h"
 
-Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* stateManager, CONFIG::SteeringStyle direction) {
+Navigator::Navigator(const Receiver* receiver,
+                     STATEMANAGER::StateManager* stateManager,
+                     STATE_ESTIMATOR::StateEstimator* stateEstimator,
+                     CONFIG::SteeringStyle direction) {
     this->receiver = receiver;
     this->pStateManager = stateManager;
-
+    this->pStateEstimator = stateEstimator;
     driveDirection = direction;
 }
 
@@ -33,6 +37,10 @@ void Navigator::navigate() {
     } else {
         printf("No receiver data available\n");
     }
+}
+
+void Navigator::update(const COMMON::DriveTrainState newState) {
+    current_state = newState;
 }
 
 Navigator::~Navigator() = default;
