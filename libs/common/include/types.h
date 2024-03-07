@@ -49,6 +49,11 @@ namespace COMMON {
         float velocity;
         float angular_velocity;
     };
+    struct VehicleState {
+        Velocity velocity;
+        Odometry odometry;
+        DriveTrainState driveTrainState;
+    };
 }
 
 #endif //OSOD_MOTOR_2040_TYPES_H

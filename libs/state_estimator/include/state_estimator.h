@@ -27,11 +27,6 @@ namespace STATE_ESTIMATOR {
     using namespace COMMON;
 
     // define a State struct containing the state parameters that can be requested or tracked
-    struct State {
-        Velocity velocity;
-        Odometry odometry;
-        DriveTrainState driveTrainState;
-    };
 
     class StateEstimator : public Subject {
     public:
@@ -48,7 +43,7 @@ namespace STATE_ESTIMATOR {
 
         void addObserver(Observer* observer) override;
 
-        void notifyObservers(DriveTrainState newState) override;
+        void notifyObservers(VehicleState newState) override;
 
         void updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles);
 
@@ -71,8 +66,8 @@ namespace STATE_ESTIMATOR {
         float heading_offset;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
-        State estimatedState;
-        State previousState;
+        VehicleState estimatedState;
+        VehicleState previousState;
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
 
@@ -89,7 +84,7 @@ namespace STATE_ESTIMATOR {
 
         void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
 
-        void calculate_new_position(State& tmpState, float distance_travelled, float heading);
+        void calculate_new_position(VehicleState& tmpState, float distance_travelled, float heading);
 
         Velocity calculate_velocities(float new_heading, float previous_heading, float left_speed, float right_speed);
 

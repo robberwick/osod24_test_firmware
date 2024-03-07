@@ -30,7 +30,7 @@ void Navigator::navigate() {
 
         // send the receiver data to the state manager
         // TODO: use a queue to send the receiver data to the state manager
-        STATE_ESTIMATOR::State requestedState{};
+        VehicleState requestedState{};
         requestedState.velocity.velocity = driveDirection * values.ELE * CONFIG::MAX_VELOCITY;
         requestedState.velocity.angular_velocity = values.AIL * CONFIG::MAX_ANGULAR_VELOCITY;
         pStateManager->requestState(requestedState);
@@ -39,7 +39,8 @@ void Navigator::navigate() {
     }
 }
 
-void Navigator::update(const COMMON::DriveTrainState newState) {
+
+void Navigator::update(const COMMON::VehicleState newState) {
     current_state = newState;
 }
 

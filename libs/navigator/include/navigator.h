@@ -14,11 +14,11 @@ public:
     ~Navigator();
     void navigate();
     CONFIG::SteeringStyle driveDirection; //factor to change requested motor speed direction based on what we currently consider the front
-    void update(const DriveTrainState newState) override;
+    void update(const VehicleState newState) override;
 
 private:
     const Receiver *receiver{};
     STATEMANAGER::StateManager *pStateManager;
     STATE_ESTIMATOR::StateEstimator* pStateEstimator;
-    DriveTrainState current_state;
+    VehicleState current_state;
 };

@@ -15,8 +15,8 @@ namespace STOKER {
         motor.speed(speed + accel);
     }
 
-    void Stoker::update(const DriveTrainState newState) {
-        current_motor_speed = newState.speeds[motor_position_];
+    void Stoker::update(const VehicleState newState) {
+        current_motor_speed = newState.driveTrainState.speeds[motor_position_];
     }
 
 } // STOKER
