@@ -57,6 +57,10 @@ namespace STATE_ESTIMATOR {
         void calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
 
+        void set_heading_offset(); 
+
+        void apply_odometry_offset(float xOffset, float yOffset);
+
     private:
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         static StateEstimator* instancePtr;
@@ -80,8 +84,6 @@ namespace STATE_ESTIMATOR {
         void capture_encoders(Encoder::Capture* encoderCaptures) const;
         
         void get_latest_heading(float& heading);
-
-        bool initialise_heading_offset();
 
         void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
 
