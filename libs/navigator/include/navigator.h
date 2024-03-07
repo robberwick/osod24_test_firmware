@@ -21,4 +21,11 @@ private:
     STATEMANAGER::StateManager *pStateManager;
     STATE_ESTIMATOR::StateEstimator* pStateEstimator;
     VehicleState current_state;
+    float setHeadingThreshold = -0.5; //if signal below this, set the heading
+    float setOriginThreshold = 0.5; //if signal above this, set the odometry origin
+    bool shouldSetHeading(float signal);
+    bool shouldSetOdometryOrigin(float signal);
+    void setHeading(); //local method that's linked to the stateEstimator set_Heading_Offset method
+    void setOrigin(); //local method that's linked to the stateEstimator set_Odometry_Offset method
+    void parseTxSignals(ReceiverChannelValues signals); //function to use "spare" transmitter channels as auxiliary inputs
 };
