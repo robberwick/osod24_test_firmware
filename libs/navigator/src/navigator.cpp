@@ -27,7 +27,6 @@ void Navigator::navigate() {
         //printf("NC: %f ", values.NC);
         //printf("\n");
 
-        printf("DriveDirectionFactor: %d\n", driveDirectionFactor);
         // send the receiver data to the state manager
         // TODO: use a queue to send the receiver data to the state manager
         STATE_ESTIMATOR::State requestedState{};
