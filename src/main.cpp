@@ -99,7 +99,8 @@ int main() {
     );
 
     while (true) {
-        LidarData lidarData = getLidarData(address); // Get and process radar data
+        // Do nothing in the main loop
+        LidarData lidarData = getLidarData(tf_luna_default_address); // Get and process radar data
         printf("distance = %5dcm, strength = %5d, temperature = %5d°C\n",
                lidarData.distance, lidarData.strength, lidarData.temperature);
                
