@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "balance_port.h"
 #include "bno080.h"
+#include "tf_luna.h"
 
 
 Navigator *navigator;
@@ -98,8 +99,13 @@ int main() {
     );
 
     while (true) {
+        LidarData lidarData = getLidarData(address); // Get and process radar data
+        printf("distance = %5dcm, strength = %5d, temperature = %5d°C\n",
+               lidarData.distance, lidarData.strength, lidarData.temperature);
+               
+        sleep_ms(1000); // Delay for 1 second
         if (timerCallbackData.shouldNavigate) {
-            // Call the navigate function
+            // Call the navigate function in the interrupt handler
             navigator->navigate();
             timerCallbackData.shouldNavigate = false;
         }
