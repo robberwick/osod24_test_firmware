@@ -58,7 +58,7 @@ namespace STATEMANAGER {
             speed = driveTrainState.speeds[MOTOR_POSITION::FRONT_RIGHT];
         }
 
-        if (std::fabs(speed) > 0.1) {
+        if (std::fabs(speed) > 0.05) {
             if (not(servo->is_enabled())){
                 servo->enable();
             }
