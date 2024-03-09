@@ -40,3 +40,4 @@ debug/
 *_Release/
 *_Debug/
 cmake-build*/
+.vscode/

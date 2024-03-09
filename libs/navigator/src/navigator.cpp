@@ -8,12 +8,18 @@
 
 Navigator::Navigator(const Receiver* receiver,
                      STATEMANAGER::StateManager* stateManager,
-                     STATE_ESTIMATOR::StateEstimator* stateEstimator) {
+                     STATE_ESTIMATOR::StateEstimator* stateEstimator, CONFIG::DrivingDirection direction) {
     this->receiver = receiver;
     this->pStateManager = stateManager;
     this->pStateEstimator = stateEstimator;
     setHeadingOffsetMethod = &STATE_ESTIMATOR::StateEstimator::set_heading_offset;
     navigationMode = NAVIGATION_MODE::REMOTE_CONTROL;
+    
+    if (direction == CONFIG::DrivingDirection::SteerableWheelsAtFront){
+        driveDirectionFactor = 1;
+    } else {
+        driveDirectionFactor = -1;
+    }
 }
 
 void Navigator::navigate() {
@@ -31,7 +37,7 @@ void Navigator::navigate() {
         //printf("\n");
 
         parseTxSignals(values);
-        STATE_ESTIMATOR::VehicleState requestedState{};
+        VehicleState requestedState{};
         switch (navigationMode) {
         case NAVIGATION_MODE::WAYPOINT:
             waypointNavigator.navigate(current_state);
@@ -39,7 +45,7 @@ void Navigator::navigate() {
             requestedState.velocity.angular_velocity = waypointNavigator.desiredW;
             break;
         default: //includes REMOTE_CONTROL, which is the default
-            requestedState.velocity.velocity = values.ELE * CONFIG::MAX_VELOCITY;
+            requestedState.velocity.velocity = driveDirectionFactor * values.ELE * CONFIG::MAX_VELOCITY;
             requestedState.velocity.angular_velocity = values.AIL * CONFIG::MAX_ANGULAR_VELOCITY;
             break;
         }

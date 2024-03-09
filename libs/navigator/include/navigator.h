@@ -10,11 +10,13 @@ class Navigator: public Observer {
 public:
     explicit Navigator(const Receiver* receiver, 
                         STATEMANAGER::StateManager *stateManager,
-                        STATE_ESTIMATOR::StateEstimator* estimator);
+                        STATE_ESTIMATOR::StateEstimator* estimator,
+                        CONFIG::DrivingDirection direction);
     ~Navigator();
     void navigate();
     NAVIGATION_MODE::Mode navigationMode;
     void update(VehicleState newState) override;
+    int driveDirectionFactor; //factor to change requested motor speed direction based on what we currently consider the front
 
 private:
     const Receiver *receiver{};
