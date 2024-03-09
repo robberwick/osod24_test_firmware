@@ -194,7 +194,7 @@ namespace STATE_ESTIMATOR {
       //if possible, update the heading with the latest from the IMU
         if (IMU->getSensorEvent() == true) {
             if (IMU->getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-                heading = -IMU->getYaw() - heading_offset; //minus sign at front because IMU considers anticlockwise as positive, we want clockwise positive
+                heading = IMU->getYaw() - heading_offset; 
             }
         }
     }
