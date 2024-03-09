@@ -32,7 +32,7 @@ namespace STATEMANAGER {
         initialiseServo(steering_servos.left, motor2040::ADC2, 1221, 1750, 2200);
         // right - TX_TRIG / PWM 0 - Pin 16
         initialiseServo(steering_servos.right, motor2040::TX_TRIG, 2000, 1400, 830);
-    }
+    };
 
     void StateManager::requestState(const STATE_ESTIMATOR::VehicleState& requestedState) {
         //printf("Requested state...\n");
