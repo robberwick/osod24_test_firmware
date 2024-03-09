@@ -100,8 +100,17 @@ int main() {
 
     while (true) {
         // Do nothing in the main loop
+<<<<<<< HEAD
 
         if (timerCallbackData.shouldNavigate) {
+=======
+        LidarData lidarData = getLidarData(address); // Get and process radar data
+        printf("distance = %5dcm, strength = %5d, temperature = %5d°C\n",
+               lidarData.distance, lidarData.strength, lidarData.temperature);
+               
+        sleep_ms(1000); // Delay for 1 second
+        if (shouldNavigate) {
+>>>>>>> f579c07... rebase fix tof include
             // Call the navigate function in the interrupt handler
             navigator->navigate();
             timerCallbackData.shouldNavigate = false;
