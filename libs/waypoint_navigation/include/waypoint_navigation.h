@@ -17,7 +17,7 @@ namespace WAYPOINTS {
         void navigate(const VehicleState& currentState); //update the desired movement to get to the next waypoint
         float desiredV;  // desired velocity to get to next waypoint
         float desiredW;  // desired angular velocity to get to next waypoint
-        const static uint8_t waypointBufferSize = 81;
+        const static uint8_t waypointBufferSize = 100;
         Waypoint waypointBuffer[waypointBufferSize]; // waypoint buffer
         void addWaypoint(const Waypoint& newWaypoint); // add a waypoint to the buffer
         bool isWaypointEmpty(const Waypoint& waypoint); // check if a waypoint slot in the buffer is empty
