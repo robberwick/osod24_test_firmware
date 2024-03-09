@@ -41,7 +41,7 @@ void Navigator::navigate() {
         switch (navigationMode) {
         case NAVIGATION_MODE::WAYPOINT:
             waypointNavigator.navigate(current_state);
-            requestedState.velocity.velocity = waypointNavigator.desiredV;
+            requestedState.velocity.velocity = driveDirectionFactor * waypointNavigator.desiredV;
             requestedState.velocity.angular_velocity = waypointNavigator.desiredW;
             break;
         default: //includes REMOTE_CONTROL, which is the default
