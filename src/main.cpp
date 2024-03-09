@@ -37,7 +37,7 @@ int main() {
     IMU.enableRotationVector();
 
     // set up the state estimator
-    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU);
+    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, CONFIG::DRIVING_DIRECTION);
 
     // set up the state manager
     using namespace STATEMANAGER;

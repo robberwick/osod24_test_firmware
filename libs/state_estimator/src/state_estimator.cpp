@@ -11,7 +11,7 @@
 namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
 
-    StateEstimator::StateEstimator(BNO08x* IMUinstance) : encoders{
+    StateEstimator::StateEstimator(BNO08x* IMUinstance, CONFIG::DrivingDirection direction) : encoders{
             [MOTOR_POSITION::FRONT_LEFT] =new Encoder(pio0, 0, motor2040::ENCODER_A, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             [MOTOR_POSITION::FRONT_RIGHT] =new Encoder(pio0, 1, motor2040::ENCODER_B, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             [MOTOR_POSITION::REAR_LEFT] = new Encoder(pio0, 2, motor2040::ENCODER_C, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
@@ -43,6 +43,11 @@ namespace STATE_ESTIMATOR {
 
         set_heading_offset();
  
+        if (direction == CONFIG::DrivingDirection::SteerableWheelsAtFront){
+            driveDirectionFactor = 1;
+        } else {
+            driveDirectionFactor = -1;
+        }
         setupTimer();
     }
 
@@ -109,8 +114,8 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::calculate_new_position(VehicleState& tmpState, const float distance_travelled, const float heading) {
         //use the latest heading and distance travleled to update the estiamted position
-        tmpState.odometry.x -= distance_travelled * sin(heading);
-        tmpState.odometry.y += distance_travelled * cos(heading);
+        tmpState.odometry.x -= driveDirectionFactor * distance_travelled * sin(heading);
+        tmpState.odometry.y += driveDirectionFactor * distance_travelled * cos(heading);
 
         //now actually update odometry's heading
         tmpState.odometry.heading = heading;
@@ -123,8 +128,8 @@ namespace STATE_ESTIMATOR {
         // TODO return a velocities struct instead of setting individual values
         Velocity tmpVelocity{};
         tmpVelocity.velocity = (left_speed - right_speed) / 2;
-        tmpVelocity.x_dot = tmpVelocity.velocity * sin(new_heading);
-        tmpVelocity.y_dot = tmpVelocity.velocity * cos(new_heading);
+        tmpVelocity.x_dot = -driveDirectionFactor * tmpVelocity.velocity * sin(new_heading);
+        tmpVelocity.y_dot = driveDirectionFactor * tmpVelocity.velocity * cos(new_heading);
        
         tmpVelocity.angular_velocity = 1000 * (wrap_pi(new_heading - previous_heading)) / timerInterval;
         return tmpVelocity;

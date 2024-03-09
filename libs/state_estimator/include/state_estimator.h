@@ -29,7 +29,7 @@ namespace STATE_ESTIMATOR {
     // define a State struct containing the state parameters that can be requested or tracked
     class StateEstimator : public Subject {
     public:
-        explicit StateEstimator(BNO08x* IMUinstance);
+        explicit StateEstimator(BNO08x* IMUinstance, CONFIG::DrivingDirection direction);
 
     protected:
         ~StateEstimator(); // Destructor to cancel the timer
@@ -52,6 +52,8 @@ namespace STATE_ESTIMATOR {
         void set_heading_offset(); 
 
         void apply_odometry_offset(float xOffset, float yOffset);
+        int driveDirectionFactor; //factor to change odometry direction based on what we currently consider the front
+
 
     private:
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
