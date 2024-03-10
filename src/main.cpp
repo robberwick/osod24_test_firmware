@@ -11,14 +11,45 @@
 #include "drivetrain_config.h"
 #include "utils.h"
 #include "balance_port.h"
+#include "bno080.h"
 
 
 Navigator *navigator;
-bool shouldNavigate = false;
+int32_t navigationPeriodMs = 20;
+
+// calculate the period to read the cell status - divide the time in ms by the navigation period, and floor the result
+int32_t shouldReadCellCount = 2000 / navigationPeriodMs;
+
+// create struct to pass to the timer callback function
+// containing:
+// shouldNavigate - bool to indicate if the navigate function should be called
+// shouldReadCellStatus - bool to indicate if the cell status should be read
+// shouldReadCellCount - the number of times the cell status should be read
+// navigateCount - a counter to keep track of the number of times the navigate function has been called
+struct TimerCallbackData {
+    bool shouldNavigate;
+    bool shouldReadCellStatus;
+    int32_t shouldReadCellCount;
+    int32_t navigateCount;
+};
+
+TimerCallbackData timerCallbackData = {
+        .shouldNavigate = false,
+        .shouldReadCellStatus = false,
+        .shouldReadCellCount = shouldReadCellCount,
+        .navigateCount = 0,
+};
 
 extern "C" void timer_callback(repeating_timer_t *t) {
-    // Call the navigate function in the interrupt handler
-    shouldNavigate = true;
+    // cast t->user_data to TimerCallbackData
+    auto *user_data = reinterpret_cast<TimerCallbackData *>(t->user_data);
+    user_data->shouldNavigate = true;
+    if (user_data->navigateCount > user_data->shouldReadCellCount) {
+        user_data->shouldReadCellStatus = true;
+        user_data->navigateCount = 0;
+    } else {
+        user_data->navigateCount++;
+    }
 }
 
 int main() {
@@ -29,9 +60,18 @@ int main() {
     BalancePort balancePort;
     adcPresent = balancePort.initADC(i2c_port0); // Initialize ADC
    
+    //set up IMU
+    BNO08x IMU;
+    if (IMU.begin(CONFIG::BNO08X_ADDR, i2c_port0)==false) {
+        while (1){
+            printf("BNO08x not detected at default I2C address. Check wiring. Freezing\n");
+            sleep_ms(1000);
+        }
+    }
+    IMU.enableRotationVector();
 
     // set up the state estimator
-    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator();
+    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU);
 
     // set up the state manager
     using namespace STATEMANAGER;
@@ -51,29 +91,22 @@ int main() {
     // Initialize a hardware timer
     repeating_timer_t navigationTimer;
     add_repeating_timer_ms(
-            20,
+            navigationPeriodMs,
             reinterpret_cast<repeating_timer_callback_t>(timer_callback),
-            nullptr,
+            &timerCallbackData,
             &navigationTimer
     );
 
     while (true) {
-        if (adcPresent){
-            CellStatus cellStatus = balancePort.getCellStatus();
-            if (!cellStatus.allOk) {
-                printf("input voltage error! %s Voltages: ",
-                      cellStatus.fault.c_str());
-                printf("cell 1: %fV, cell 2: %fV, cell 3: %fV, PSU: %fV\n",
-                       cellStatus.voltages.cell1, cellStatus.voltages.cell2,
-                       cellStatus.voltages.cell3, cellStatus.voltages.psu);
-            }
-        }
-        sleep_ms(100); // Delay for 0.5 second
-        // Do nothing in the main loop
-        if (shouldNavigate) {
-            // Call the navigate function in the interrupt handler
+        if (timerCallbackData.shouldNavigate) {
+            // Call the navigate function
             navigator->navigate();
-            shouldNavigate = false;
+            timerCallbackData.shouldNavigate = false;
+        }
+
+        if (adcPresent && timerCallbackData.shouldReadCellStatus) {
+            balancePort.raiseCellStatus();
+            timerCallbackData.shouldReadCellStatus = false;
         }
     }
 }

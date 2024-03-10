@@ -11,6 +11,7 @@
 #include "drivetrain_config.h"
 #include "interfaces.h"
 #include "types.h"
+#include "bno080.h"
 
 using namespace motor;
 using namespace encoder;
@@ -34,7 +35,7 @@ namespace STATE_ESTIMATOR {
 
     class StateEstimator : public Subject {
     public:
-        explicit StateEstimator();
+        explicit StateEstimator(BNO08x* IMUinstance);
 
     protected:
         ~StateEstimator(); // Destructor to cancel the timer
@@ -60,6 +61,10 @@ namespace STATE_ESTIMATOR {
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         static StateEstimator* instancePtr;
         repeating_timer_t* timer;
+        BNO08x* IMU;
+        float heading_offset;
+        //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
+        const uint32_t timerInterval = 50;  // Interval in milliseconds
         State estimatedState;
         State previousState;
         DriveTrainState currentDriveTrainState;
@@ -73,13 +78,16 @@ namespace STATE_ESTIMATOR {
         int observerCount = 0;
 
         void capture_encoders(Encoder::Capture* encoderCaptures) const;
+        
+        void get_latest_heading(float& heading);
 
-        void get_position_deltas(Encoder::Capture encoderCaptures[4], float& distance_travelled,
-                                                 float& heading_change) const;
+        bool initialise_heading_offset();
 
-        void calculate_new_position_orientation(State& tmpState, float distance_travelled, float heading_change);
+        void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
 
-        Velocity calculate_velocities(float heading, float left_speed, float right_speed);
+        void calculate_new_position(State& tmpState, float distance_travelled, float heading);
+
+        Velocity calculate_velocities(float new_heading, float previous_heading, float left_speed, float right_speed);
 
         static MotorSpeeds get_wheel_speeds(const Encoder::Capture* encoderCaptures);
 

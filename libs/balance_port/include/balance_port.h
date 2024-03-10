@@ -31,12 +31,15 @@ public:
     bool initADC(i2c_inst_t* i2c_port); // Method to initialize ADC settings
     CellStatus checkVoltages(adcVoltages measuredVoltages);
     adcVoltages getCellVoltages(); // Method to read and return cell voltages
-    CellStatus getCellStatus();
+    void raiseCellStatus();
     float minCellVoltage = 3.5;
     float maxCellVoltage = 4.2;
     float balanceThreshold = 0.2;
     float minPSU = 11;
     float PSUConnectedThreshold = 5;
+    int failCountThreshold = 5;
+
 private:
     PICO_ADS1015 inputVoltagesADC; // ADS1015 object
+    int failCount = 0;
 };
