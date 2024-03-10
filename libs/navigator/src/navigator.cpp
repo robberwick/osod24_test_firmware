@@ -12,7 +12,7 @@ Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* state
 }
 
 void Navigator::navigate() {
-    //printf("Navigating...\n");
+    printf("Navigating...\n");
     if (receiver->get_receiver_data()) {
         //printf("Receiver data available\n");
         ReceiverChannelValues values = receiver->get_channel_values();
