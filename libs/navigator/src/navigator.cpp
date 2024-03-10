@@ -28,6 +28,9 @@ void Navigator::navigate() {
         //printf("NC: %f ", values.NC);
         //printf("\n");
 
+        //check if the extra Tx channels should trigger anything
+        parseTxSignals(values);
+
         // send the receiver data to the state manager
         // TODO: use a queue to send the receiver data to the state manager
         VehicleState requestedState{};
@@ -48,14 +51,11 @@ bool Navigator::shouldSetOdometryOrigin(float signal){
 }
 
 void Navigator::setHeading(){
-    //#TODO: add a timeout blocker to prevent this function being called twice in quick succession?
-    pStateEstimator->set_heading_offset();
+    pStateEstimator->zero_heading();
 }
 
 void Navigator::setOrigin(){
-    //As above: #TODO: add a timeout blocker to prevent this function being called twice in quick succession
-    // as that undos the original reset, if its called before the values have propogated through
-    pStateEstimator->apply_odometry_offset(current_state.odometry.x, current_state.odometry.y);
+    pStateEstimator->request_odometry_offset(current_state.odometry.x, current_state.odometry.y, 0);
 }
 
 void Navigator::update(const COMMON::VehicleState newState) {
@@ -68,14 +68,10 @@ void Navigator::parseTxSignals(ReceiverChannelValues signals){
         if (shouldSetHeading(signals.RUD)){
             printf("setting current heading to 0.\n");
             setHeading();
-            //a time delay seems to be needed after setting the heading to allow
-            //the signals to propogate through before this function can be called again.
-            sleep_ms(100);
         }
         if (shouldSetOdometryOrigin(signals.RUD)){
             printf("setting current position as zero for odometry.\n");
             setOrigin();
-            sleep_ms(100);
         }
 }
 
