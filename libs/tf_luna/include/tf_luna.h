@@ -3,6 +3,7 @@
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 
+#pragma once
 
 // Radar module communication address
 const uint8_t tf_luna_default_address = 0x10;
@@ -20,5 +21,13 @@ struct LidarData {
     int temperature;
 };
 
+struct FourTofDistances {
+    int front;
+    int right;
+    int rear;
+    int left;
+};
+
 // Function to get Lidar data
 LidarData getLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port);
+FourTofDistances getAllLidarDistances(i2c_inst_t* i2c_port);

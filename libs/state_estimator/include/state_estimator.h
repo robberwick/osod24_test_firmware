@@ -12,6 +12,7 @@
 #include "interfaces.h"
 #include "types.h"
 #include "bno080.h"
+#include "tf_luna.h"
 
 using namespace motor;
 using namespace encoder;
@@ -31,7 +32,7 @@ namespace STATE_ESTIMATOR {
         Velocity velocity;
         Odometry odometry;
         DriveTrainState driveTrainState;
-        ToFDistances tofDistances;
+        FourTofDistances tofDistances;
     };
 
     class StateEstimator : public Subject {

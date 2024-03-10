@@ -6,7 +6,6 @@
 #include "drivetrain_config.h"
 #include "encoder.hpp"
 #include "bno080.h"
-#include "tf_luna.h"
 namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
 
@@ -35,10 +34,7 @@ namespace STATE_ESTIMATOR {
         estimatedState.driveTrainState.speeds[MOTOR_POSITION::REAR_RIGHT] = 0.0f;
         estimatedState.driveTrainState.angles.left = 0.0f;
         estimatedState.driveTrainState.angles.right = 0.0f;
-        estimatedState.tofDistances.front = getLidarData(tf_luna_front, i2c_port).distance;
-        estimatedState.tofDistances.right = getLidarData(tf_luna_right, i2c_port).distance;
-        estimatedState.tofDistances.rear = getLidarData(tf_luna_rear, i2c_port).distance;
-        estimatedState.tofDistances.left = getLidarData(tf_luna_left, i2c_port).distance;
+        estimatedState.tofDistances = getAllLidarDistances(i2c_port);
         IMU = IMUinstance;
         
         instancePtr = this;

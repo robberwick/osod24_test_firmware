@@ -22,3 +22,14 @@ LidarData getLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port) {
     return data;
 }
 
+FourTofDistances getAllLidarDistances(i2c_inst_t* i2c_port) {
+    // function to get the distances of four ToF sensors
+    // Get distance from each sensor
+    int frontDistance = getLidarData(tf_luna_front, i2c_port).distance;
+    int rightDistance = getLidarData(tf_luna_right, i2c_port).distance;
+    int rearDistance = getLidarData(tf_luna_rear, i2c_port).distance;
+    int leftDistance = getLidarData(tf_luna_left, i2c_port).distance;
+
+    // Return the struct populated with the distances
+    return {frontDistance, rightDistance, rearDistance, leftDistance};
+}
