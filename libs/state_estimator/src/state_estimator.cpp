@@ -68,7 +68,7 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::showValuesViaCSV() const {
 
-        printf("%i, %.3f, %.3f, %.3f, %.0f, %.0f, %.0f, %.0f\n", 
+        printf("%i, %.3f, %.3f, %.3f, %i, %i, %i, %i\n", 
            millis(),
            estimatedState.odometry.x,
            estimatedState.odometry.y,
