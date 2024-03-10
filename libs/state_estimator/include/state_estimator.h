@@ -52,16 +52,18 @@ namespace STATE_ESTIMATOR {
         void calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
 
-        void set_heading_offset(); 
+        void zero_heading(); 
 
-        void apply_odometry_offset(float xOffset, float yOffset);
+        void request_odometry_offset(float xOffset, float yOffset, float extraHeadingOffset);
+
+        Odometry odometryOffsetRequest;
 
     private:
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         static StateEstimator* instancePtr;
         repeating_timer_t* timer;
         BNO08x* IMU;
-        float heading_offset;
+        float IMUHeadingOffset;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
         VehicleState estimatedState;
@@ -89,6 +91,7 @@ namespace STATE_ESTIMATOR {
         static MotorSpeeds get_wheel_speeds(const Encoder::Capture* encoderCaptures);
 
         [[nodiscard]] SteeringAngles estimate_steering_angles() const;
+        void process_odometry_offsets();
     };
 } // STATE_ESTIMATOR
 
