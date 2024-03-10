@@ -35,6 +35,7 @@ namespace STATE_ESTIMATOR {
         estimatedState.driveTrainState.speeds[MOTOR_POSITION::REAR_RIGHT] = 0.0f;
         estimatedState.driveTrainState.angles.left = 0.0f;
         estimatedState.driveTrainState.angles.right = 0.0f;
+        odometryOffsetRequest.x = odometryOffsetRequest.y = odometryOffsetRequest.heading = 0;
         
         IMU = IMUinstance;
         
@@ -42,7 +43,7 @@ namespace STATE_ESTIMATOR {
        
         driveDirection = direction;
         
-        set_heading_offset();
+        zero_heading();
 
         setupTimer();
     }
@@ -151,6 +152,10 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::estimateState() {
+
+        //update odometry offsets based on external requests
+        process_odometry_offsets();
+
         // instantiate a copy of the current state
         VehicleState tmpState = estimatedState;
         
@@ -192,7 +197,6 @@ namespace STATE_ESTIMATOR {
 
         // notify observers of the new state
         notifyObservers(estimatedState);
-
     }
 
     void StateEstimator::get_latest_heading(float& heading) {
@@ -202,7 +206,7 @@ namespace STATE_ESTIMATOR {
       //if possible, update the heading with the latest from the IMU
         if (IMU->getSensorEvent() == true) {
             if (IMU->getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-                heading = IMU->getYaw() - heading_offset;
+                heading = IMU->getYaw() - IMUHeadingOffset;
             }
         }
     }
@@ -229,15 +233,24 @@ namespace STATE_ESTIMATOR {
         currentSteeringAngles = newSteeringAngles;
     }
 
-    void StateEstimator::set_heading_offset() {
-        // function sets the heading_offset to the current heading
-        //#TODO: add a timeout blocker to prevent this function being called twice in quick succession?
-        heading_offset = wrap_pi(heading_offset + estimatedState.odometry.heading);
+    void StateEstimator::zero_heading() {
+        // function sets a heading_offset request such that the (new) heading will be zero
+        odometryOffsetRequest.heading = estimatedState.odometry.heading;
     }
 
-    void StateEstimator::apply_odometry_offset(float xOffset, float yOffset){
-        estimatedState.odometry.x = estimatedState.odometry.x - xOffset;
-        estimatedState.odometry.y = estimatedState.odometry.y - yOffset;
+    void StateEstimator::request_odometry_offset(float xOffset, float yOffset, float extraHeadingOffset){
+        odometryOffsetRequest.x = xOffset;
+        odometryOffsetRequest.y = yOffset;
+        odometryOffsetRequest.heading = extraHeadingOffset;
+    }
+
+    void StateEstimator::process_odometry_offsets(){
+        estimatedState.odometry.x = estimatedState.odometry.x - odometryOffsetRequest.x;
+        estimatedState.odometry.y = estimatedState.odometry.y - odometryOffsetRequest.y;
+        IMUHeadingOffset = IMUHeadingOffset + odometryOffsetRequest.heading;
+
+        // since we've applied the requested offsets, set them back to zero
+        odometryOffsetRequest.x = odometryOffsetRequest.y = odometryOffsetRequest.heading = 0;
     }
 
     StateEstimator::~StateEstimator() {
