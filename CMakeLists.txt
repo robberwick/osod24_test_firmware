@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT_NAME}
         stoker
         config
         common
+        balance_port
         bno080
 )
 
