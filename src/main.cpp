@@ -71,7 +71,7 @@ int main() {
     IMU.enableRotationVector();
 
     // set up the state estimator
-    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, CONFIG::DRIVING_DIRECTION);
+    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, CONFIG::DRIVING_STYLE);
 
     // set up the state manager
     using namespace STATEMANAGER;
@@ -86,7 +86,7 @@ int main() {
     Receiver *pReceiver = getReceiver(motor::motor2040::RX_ECHO);
 
     // set up the navigator
-    navigator = new Navigator(pReceiver, pStateManager, CONFIG::DRIVING_DIRECTION);
+    navigator = new Navigator(pReceiver, pStateManager, CONFIG::DRIVING_STYLE);
 
     // Initialize a hardware timer
     repeating_timer_t navigationTimer;
