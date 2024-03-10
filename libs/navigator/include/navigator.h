@@ -7,7 +7,7 @@ public:
     explicit Navigator(const Receiver* receiver, STATEMANAGER::StateManager *stateManager, CONFIG::DrivingDirection direction);
     ~Navigator();
     void navigate();
-    int driveDirectionFactor; //factor to change requested motor speed direction based on what we currently consider the front
+    CONFIG::DrivingDirection driveDirectionFactor; //factor to change requested motor speed direction based on what we currently consider the front
 
 private:
     const Receiver *receiver{};

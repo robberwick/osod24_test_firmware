@@ -7,11 +7,8 @@
 Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* stateManager, CONFIG::DrivingDirection direction) {
     this->receiver = receiver;
     this->pStateManager = stateManager;
-    if (direction == CONFIG::DrivingDirection::SteerableWheelsAtFront){
-        driveDirectionFactor = 1;
-    } else {
-        driveDirectionFactor = -1;
-    }
+
+    driveDirectionFactor = direction;
 }
 
 void Navigator::navigate() {

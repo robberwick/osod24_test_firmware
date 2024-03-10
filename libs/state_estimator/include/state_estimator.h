@@ -57,7 +57,7 @@ namespace STATE_ESTIMATOR {
         void calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
 
-        int driveDirectionFactor; //factor to change odometry direction based on what we currently consider the front
+        CONFIG::DrivingDirection driveDirection; //factor to change odometry direction based on what we currently consider the front
 
 
     private:

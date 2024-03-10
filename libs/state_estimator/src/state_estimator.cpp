@@ -46,11 +46,9 @@ namespace STATE_ESTIMATOR {
                 sleep_ms(1000);
             }
         }
-        if (direction == CONFIG::DrivingDirection::SteerableWheelsAtFront){
-            driveDirectionFactor = 1;
-        } else {
-            driveDirectionFactor = -1;
-        }
+        
+        driveDirection = direction;
+        
         setupTimer();
     }
 
@@ -124,8 +122,8 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::calculate_new_position(State& tmpState, const float distance_travelled, const float heading) {
         //use the latest heading and distance travleled to update the estiamted position
-        tmpState.odometry.x -= driveDirectionFactor * distance_travelled * sin(heading);
-        tmpState.odometry.y += driveDirectionFactor * distance_travelled * cos(heading);
+        tmpState.odometry.x -= driveDirection * distance_travelled * sin(heading);
+        tmpState.odometry.y += driveDirection * distance_travelled * cos(heading);
 
         //now actually update odometry's heading
         tmpState.odometry.heading = heading;
@@ -138,8 +136,8 @@ namespace STATE_ESTIMATOR {
         // TODO return a velocities struct instead of setting individual values
         Velocity tmpVelocity{};
         tmpVelocity.velocity = (left_speed - right_speed) / 2;
-        tmpVelocity.x_dot = -driveDirectionFactor * tmpVelocity.velocity * sin(new_heading);
-        tmpVelocity.y_dot = driveDirectionFactor * tmpVelocity.velocity * cos(new_heading);
+        tmpVelocity.x_dot = -driveDirection * tmpVelocity.velocity * sin(new_heading);
+        tmpVelocity.y_dot = driveDirection * tmpVelocity.velocity * cos(new_heading);
        
         tmpVelocity.angular_velocity = 1000 * (wrap_pi(new_heading - previous_heading)) / timerInterval;
         return tmpVelocity;
