@@ -35,7 +35,7 @@ namespace STATE_ESTIMATOR {
 
     class StateEstimator : public Subject {
     public:
-        explicit StateEstimator(BNO08x* IMUinstance, CONFIG::DrivingDirection direction);
+        explicit StateEstimator(BNO08x* IMUinstance, CONFIG::SteeringStyle direction);
 
     protected:
         ~StateEstimator(); // Destructor to cancel the timer
@@ -57,7 +57,7 @@ namespace STATE_ESTIMATOR {
         void calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
 
-        CONFIG::DrivingDirection driveDirection; //factor to change odometry direction based on what we currently consider the front
+        CONFIG::SteeringStyle driveDirection; //factor to change odometry direction based on what we currently consider the front
 
 
     private:
