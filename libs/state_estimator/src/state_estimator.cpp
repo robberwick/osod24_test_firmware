@@ -205,10 +205,7 @@ namespace STATE_ESTIMATOR {
         tmpState.velocity = calculate_velocities(tmpState.odometry.heading, previousState.odometry.heading, left_speed, right_speed);
 
         // get ToF data
-        tmpState.tofDistances.front = getLidarData(tf_luna_front, i2c_port).distance;
-        tmpState.tofDistances.right = getLidarData(tf_luna_right, i2c_port).distance;
-        tmpState.tofDistances.rear = getLidarData(tf_luna_rear, i2c_port).distance;
-        tmpState.tofDistances.left = getLidarData(tf_luna_left, i2c_port).distance;
+        tmpState.tofDistances = getAllLidarDistances(i2c_port);
 
         // update the estimated states
         previousState = estimatedState;
