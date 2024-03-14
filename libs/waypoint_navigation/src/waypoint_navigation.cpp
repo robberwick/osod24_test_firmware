@@ -112,11 +112,12 @@ uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, con
 
 uint8_t WaypointNavigation::nearestWaypoint(const VehicleState& currentState){
     // returns the index of the waypoint nearest to the current position
-    // searches through the full waypoint buffer, checking the distance of each
-    uint8_t closestWaypointIndex = UINT8_MAX; //TODO check if it stays as UINT8_MAX
+    // searches only through the waypoint buffer from the current(previous)
+    // closest waypoint up to the target waypoint, checking the distance of each
+    uint8_t closestWaypointIndex = nearestWaypointIndex; 
     float distanceToClosestWaypoint = std::numeric_limits<float>::max(); //initialise to max possible value
 
-    for (uint8_t index = 0; index < waypointBufferSize; index++) { 
+    for (uint8_t index = nearestWaypointIndex; index <= targetWaypointIndex; index++) {
         Waypoint waypoint = waypointBuffer[index];
         float distance = distanceToWaypoint(waypoint, currentState);
         if (distance < distanceToClosestWaypoint){
