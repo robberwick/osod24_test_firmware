@@ -2,6 +2,7 @@
 // Created by robbe on 03/12/2023.
 //
 #include <cstdio>
+#include <bitset>
 #include "state_estimator.h"
 #include "drivetrain_config.h"
 #include "encoder.hpp"
@@ -41,7 +42,7 @@ namespace STATE_ESTIMATOR {
         instancePtr = this;
         // check if we're going to use the ToF sensors for arena localisation 
         // (a naN arena size means we're not going to use the arena for localisation):
-        arenaLocalisation = !std::isnan(arenaDimension);
+        arenaLocalisation = !isnan(arenaDimension);
         if (arenaLocalisation) {
             arenaSize = arenaDimension;
         }
@@ -213,7 +214,10 @@ namespace STATE_ESTIMATOR {
 
         // get ToF data
         tmpState.tofDistances = getAllLidarDistances(i2c_port);
+        
+        localisationEstimate = localisation(tmpState.odometry.heading, tmpState.tofDistances);
 
+        tmpState.odometry = filter_positions(tmpState.odometry, localisationEstimate);
 
         // update the estimated states
         previousState = estimatedState;
@@ -277,18 +281,28 @@ namespace STATE_ESTIMATOR {
         return isUpdated;
     }
 
-    std::pair<float, float> StateEstimator::possiblePositions(float angle, float distance, float arenaWidth) {
+    pair<float, float> StateEstimator::possiblePositions(float angle, float distance) {
+        /**
+         * Calculates the potential X, Y positions of the robot based on a single distance measurement
+         * and the robot's heading. This method assumes the robot is facing a square arena and uses trigonometry
+         * to infer its position relative to the nearest wall.
+         *
+         * @param angle The current heading of the robot in radians.
+         * @param distance The distance measurement from a ToF sensor to the nearest wall.
+         * @return A pair of floats representing the estimated X or Y positions in the arena.
+         */
+
         float x_pos = 0.0f, y_pos = 0.0f;
         const float pi = M_PI;
 
         if (angle < pi) {
-            x_pos = arenaWidth - distance * cos(angle - pi / 2);
+            x_pos = arenaSize - distance * cos(angle - pi / 2);
         } else {
             x_pos = distance * cos(angle - 1.5f * pi);
         }
 
         if ((angle < (0.5f * pi)) || (angle > (1.5f * pi))) {
-            y_pos = arenaWidth - distance * cos(angle);
+            y_pos = arenaSize - distance * cos(angle);
         } else {
             y_pos = distance * cos(angle - pi);
         }
@@ -296,49 +310,119 @@ namespace STATE_ESTIMATOR {
         return {x_pos, y_pos};
     }
 
-    std::pair<float, float> StateEstimator::localisation(float heading, ToFDistances tof_distances) {
-
-
-        float arena_size = 120.0f; // Define the arena size (cm)
+    Pose StateEstimator::localisation(float heading, FourTofDistances tof_distances) {
+        /**
+         * Estimates the robot's position within the arena by aggregating distance measurements from all ToF sensors.
+         * It calculates potential positions for each sensor based on the robot's current heading and the sensor readings,
+         * then combines these estimates to produce a more accurate localization within the arena.
+         *
+         * @param heading The current heading of the robot in radians.
+         * @param tof_distances A struct containing distance measurements from all ToF sensors.
+         * @return A Pose struct representing the estimated position (X, Y) of the robot.
+         */
 
         // Calculate possible positions for each sensor
-        auto [Fx, Fy] = possiblePositions(heading, tof_distances.front, arena_size);
-        auto [Rx, Ry] = possiblePositions(heading + M_PI_2, tof_distances.right, arena_size);
-        auto [Bx, By] = possiblePositions(heading + M_PI, tof_distances.rear, arena_size);
-        auto [Lx, Ly] = possiblePositions(heading + 3 * M_PI_2, tof_distances.left, arena_size);
+        // these are inferred possible positions, depending on which arena wall each sensor 
+        // is measuring, the sensor could be used to infer an x position or y position
+        auto [Fx, Fy] = possiblePositions(heading, tof_distances.front);
+        auto [Rx, Ry] = possiblePositions(heading + M_PI_2, tof_distances.right);
+        auto [Bx, By] = possiblePositions(heading + M_PI, tof_distances.rear);
+        auto [Lx, Ly] = possiblePositions(heading + 3 * M_PI_2, tof_distances.left);
 
-        // Combine the calculated positions into vectors for easier manipulation
-        std::vector<float> x_positions = {Fx, Rx, Bx, Lx};
-        std::vector<float> y_positions = {Fy, Ry, By, Ly};
+        // Combine the calculated positions into lists for easier manipulation
+        vector<float> x_positions = {Fx, Rx, Bx, Lx};
+        vector<float> y_positions = {Fy, Ry, By, Ly};
 
-        // Assuming you have a method to calculate the variance and mean
-        // auto [variance, x_mean, y_mean] = calculateVarianceAndMean(x_positions, y_positions);
+        float lowestVariance = numeric_limits<float>::max();
+        Pose bestEstimate;
         
-        // For demonstration, we'll simply calculate the mean here
-        float x_mean = std::accumulate(x_positions.begin(), x_positions.end(), 0.0) / x_positions.size();
-        float y_mean = std::accumulate(y_positions.begin(), y_positions.end(), 0.0) / y_positions.size();
-
-        // Update the estimated state with the calculated position
-        return {x_mean, y_mean};
-
-        // You may want to include variance calculations to refine the estimated position further.
+        for (int permutation = 1; permutation < 16; ++permutation) {
+            // create 16 permutations (all the possible combinations of the two lists of possible
+            // positions), then iterate through them to check which is most self-consistent (lowest
+            // variance), assume that permutation is the most likely, best estimate of our position
+            auto [xList, yList] = createPermutation(permutation, x_positions, y_positions);
+            auto [totalVariance, xMean, yMean] = coordinateVariance(xList, yList);
+            
+            if (totalVariance < lowestVariance) {
+                lowestVariance = totalVariance;
+                bestEstimate.x = xMean;
+                bestEstimate.y = yMean;
+                bestEstimate.heading = heading;
+            }
+        }
+        
+        return bestEstimate;;
     }
 
-    std::tuple<float, float, float> StateEstimator::coordinateVariance(const std::vector<float>& xList, const std::vector<float>& yList) {
-        float xMean = std::accumulate(xList.begin(), xList.end(), 0.0f) / xList.size();
-        float yMean = std::accumulate(yList.begin(), yList.end(), 0.0f) / yList.size();
+    tuple<float, float, float> StateEstimator::coordinateVariance(const vector<float>& xList, const vector<float>& yList) {
+        /**
+         * Calculates the variance and mean of potential robot positions based on X and Y coordinates.
+         * This method helps in understanding the spread of potential positions, indicating the likelihood 
+         * of this cobination representing the robot's positio within the arena.
+         *
+         * @param xList A vector of floats representing potential X positions.
+         * @param yList A vector of floats representing potential Y positions.
+         * @return A tuple containing the total variance, mean X, and mean Y values.
+         */
 
-        float xVariance = std::accumulate(xList.begin(), xList.end(), 0.0f, [xMean](float acc, float x) {
-            return acc + std::pow(x - xMean, 2);
+        float xMean = accumulate(xList.begin(), xList.end(), 0.0f) / xList.size();
+        float yMean = accumulate(yList.begin(), yList.end(), 0.0f) / yList.size();
+
+        float xVariance = accumulate(xList.begin(), xList.end(), 0.0f, [xMean](float acc, float x) {
+            return acc + pow(x - xMean, 2);
         }) / xList.size();
 
-        float yVariance = std::accumulate(yList.begin(), yList.end(), 0.0f, [yMean](float acc, float y) {
-            return acc + std::pow(y - yMean, 2);
+        float yVariance = accumulate(yList.begin(), yList.end(), 0.0f, [yMean](float acc, float y) {
+            return acc + pow(y - yMean, 2);
         }) / yList.size();
 
         float totalVariance = xVariance + yVariance;
 
         return {totalVariance, xMean, yMean};
+    }
+
+    Pose StateEstimator::filter_positions(Pose odometryEstimate, Pose localisationEstimate){
+        /**
+         * Combines the odometry and localization estimates to produce a filtered position estimate.
+         * This method uses a weighted average approach to merge the estimates, potentially improving
+         * the accuracy of the robot's perceived position within the arena.
+         *
+         * @param odometryEstimate A Pose struct representing the position estimate based on odometry.
+         * @param localisationEstimate A Pose struct representing the position estimate based on localization.
+         * @return A Pose struct representing the filtered position and heading of the robot.
+         */
+
+        Pose filteredPosition;
+        filteredPosition.x = (1 - localisation_weighting) * odometryEstimate.x + localisation_weighting * localisationEstimate.x;
+        filteredPosition.y = (1 - localisation_weighting) * odometryEstimate.y + localisation_weighting * localisationEstimate.y;
+        filteredPosition.heading = odometryEstimate.heading;
+        return filteredPosition;
+    }
+
+    pair<vector<float>, vector<float>> StateEstimator::createPermutation(int permutation,
+                                                                        const vector<float>& xPositions,
+                                                                        const vector<float>& yPositions) {
+        /**
+         * Generates a specific permutation of X and Y position estimates based on the given permutation number.
+         * This function interprets the permutation number as a binary representation, where each bit indicates
+         * whether to use a corresponding position from the xPositions or yPositions array. A '1' bit implies
+         * the use of a yPosition for that index, and a '0' bit implies the use of an xPosition.
+         *
+         * @param permutation An integer representing the permutation pattern as a binary number.
+         * @param xPositions A vector of floats representing potential X positions inferred from sensor readings.
+         * @param yPositions A vector of floats representing potential Y positions inferred from sensor readings.
+         * @return A pair of vectors, the first containing selected X positions and the second containing selected Y positions.
+         */
+        vector<float> xList, yList;
+        bitset<4> binary(permutation);
+        for (size_t i = 0; i < 4; ++i) {
+            if (binary[i]) {
+                yList.push_back(yPositions[i]);
+            } else {
+                xList.push_back(xPositions[i]);
+            }
+        }
+        return {xList, yList};
     }
 
     StateEstimator::~StateEstimator() {

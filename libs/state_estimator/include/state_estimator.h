@@ -29,11 +29,12 @@ struct Encoders {
 
 namespace STATE_ESTIMATOR {
     using namespace COMMON;
+    using namespace std;
 
     // define a State struct containing the state parameters that can be requested or tracked
     struct State {
         Velocity velocity;
-        Odometry odometry;
+        Pose odometry;
         DriveTrainState driveTrainState;
         FourTofDistances tofDistances;
     };
@@ -65,7 +66,7 @@ namespace STATE_ESTIMATOR {
 
         CONFIG::SteeringStyle driveDirection; //factor to change odometry direction based on what we currently consider the front
 
-        std::pair<float, float> localisation(float heading, ToFDistances tof_distances);
+        Pose localisation(float heading, FourTofDistances tof_distances);
 
         std::pair<float, float> possiblePositions(float heading, float distance, float arena_size);
 
@@ -88,6 +89,7 @@ namespace STATE_ESTIMATOR {
         SteeringAngles currentSteeringAngles;
         float arenaSize;
         float localisation_weighting = 0.01;
+        Pose localisationEstimate;
 
         static void timerCallback(repeating_timer_t* timer);
 
@@ -111,6 +113,17 @@ namespace STATE_ESTIMATOR {
         static MotorSpeeds get_wheel_speeds(const Encoder::Capture* encoderCaptures);
 
         [[nodiscard]] SteeringAngles estimate_steering_angles() const;
+        
+        pair<float, float> possiblePositions(float heading, float distance);
+
+        tuple<float, float, float> coordinateVariance(const vector<float>& xList, const vector<float>& yList);
+
+        Pose filter_positions(Pose odometryEstimate, Pose localisationEstimate);
+
+        pair<vector<float>, vector<float>> createPermutation(int permutation,
+                                                                    const vector<float>& xPositions,
+                                                                    const vector<float>& yPositions);
+
     };
 } // STATE_ESTIMATOR
 
