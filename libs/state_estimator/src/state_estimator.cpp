@@ -10,7 +10,7 @@
 namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
 
-    StateEstimator::StateEstimator(BNO08x* IMUinstance, i2c_inst_t* port, CONFIG::SteeringStyle direction) : encoders{
+    StateEstimator::StateEstimator(BNO08x* IMUinstance, i2c_inst_t* port, CONFIG::SteeringStyle direction, float arenaDimension) : encoders{
             [MOTOR_POSITION::FRONT_LEFT] =new Encoder(pio0, 0, motor2040::ENCODER_A, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             [MOTOR_POSITION::FRONT_RIGHT] =new Encoder(pio0, 1, motor2040::ENCODER_B, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
             [MOTOR_POSITION::REAR_LEFT] = new Encoder(pio0, 2, motor2040::ENCODER_C, PIN_UNUSED, Direction::NORMAL_DIR, CONFIG::COUNTS_PER_REV),
@@ -39,6 +39,12 @@ namespace STATE_ESTIMATOR {
         IMU = IMUinstance;
         
         instancePtr = this;
+        // check if we're going to use the ToF sensors for arena localisation 
+        // (a naN arena size means we're not going to use the arena for localisation):
+        arenaLocalisation = !std::isnan(arenaDimension);
+        if (arenaLocalisation) {
+            arenaSize = arenaDimension;
+        }
 
         if (initialise_heading_offset() == false) {
             while (1){
@@ -208,6 +214,7 @@ namespace STATE_ESTIMATOR {
         // get ToF data
         tmpState.tofDistances = getAllLidarDistances(i2c_port);
 
+
         // update the estimated states
         previousState = estimatedState;
         estimatedState = tmpState;
@@ -268,6 +275,70 @@ namespace STATE_ESTIMATOR {
         }
         //if the timer expired before the heading was set, return false
         return isUpdated;
+    }
+
+    std::pair<float, float> StateEstimator::possiblePositions(float angle, float distance, float arenaWidth) {
+        float x_pos = 0.0f, y_pos = 0.0f;
+        const float pi = M_PI;
+
+        if (angle < pi) {
+            x_pos = arenaWidth - distance * cos(angle - pi / 2);
+        } else {
+            x_pos = distance * cos(angle - 1.5f * pi);
+        }
+
+        if ((angle < (0.5f * pi)) || (angle > (1.5f * pi))) {
+            y_pos = arenaWidth - distance * cos(angle);
+        } else {
+            y_pos = distance * cos(angle - pi);
+        }
+
+        return {x_pos, y_pos};
+    }
+
+    std::pair<float, float> StateEstimator::localisation(float heading, ToFDistances tof_distances) {
+
+
+        float arena_size = 120.0f; // Define the arena size (cm)
+
+        // Calculate possible positions for each sensor
+        auto [Fx, Fy] = possiblePositions(heading, tof_distances.front, arena_size);
+        auto [Rx, Ry] = possiblePositions(heading + M_PI_2, tof_distances.right, arena_size);
+        auto [Bx, By] = possiblePositions(heading + M_PI, tof_distances.rear, arena_size);
+        auto [Lx, Ly] = possiblePositions(heading + 3 * M_PI_2, tof_distances.left, arena_size);
+
+        // Combine the calculated positions into vectors for easier manipulation
+        std::vector<float> x_positions = {Fx, Rx, Bx, Lx};
+        std::vector<float> y_positions = {Fy, Ry, By, Ly};
+
+        // Assuming you have a method to calculate the variance and mean
+        // auto [variance, x_mean, y_mean] = calculateVarianceAndMean(x_positions, y_positions);
+        
+        // For demonstration, we'll simply calculate the mean here
+        float x_mean = std::accumulate(x_positions.begin(), x_positions.end(), 0.0) / x_positions.size();
+        float y_mean = std::accumulate(y_positions.begin(), y_positions.end(), 0.0) / y_positions.size();
+
+        // Update the estimated state with the calculated position
+        return {x_mean, y_mean};
+
+        // You may want to include variance calculations to refine the estimated position further.
+    }
+
+    std::tuple<float, float, float> StateEstimator::coordinateVariance(const std::vector<float>& xList, const std::vector<float>& yList) {
+        float xMean = std::accumulate(xList.begin(), xList.end(), 0.0f) / xList.size();
+        float yMean = std::accumulate(yList.begin(), yList.end(), 0.0f) / yList.size();
+
+        float xVariance = std::accumulate(xList.begin(), xList.end(), 0.0f, [xMean](float acc, float x) {
+            return acc + std::pow(x - xMean, 2);
+        }) / xList.size();
+
+        float yVariance = std::accumulate(yList.begin(), yList.end(), 0.0f, [yMean](float acc, float y) {
+            return acc + std::pow(y - yMean, 2);
+        }) / yList.size();
+
+        float totalVariance = xVariance + yVariance;
+
+        return {totalVariance, xMean, yMean};
     }
 
     StateEstimator::~StateEstimator() {

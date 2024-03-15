@@ -4,7 +4,10 @@
 
 #ifndef OSOD_MOTOR_2040_STATE_ESTIMATOR_H
 #define OSOD_MOTOR_2040_STATE_ESTIMATOR_H
-
+#include <vector>
+#include <numeric>
+#include <cmath>
+#include <tuple>
 #include "pico/stdlib.h"
 #include "hardware/timer.h"
 #include "motor2040.hpp"
@@ -37,7 +40,7 @@ namespace STATE_ESTIMATOR {
 
     class StateEstimator : public Subject {
     public:
-        explicit StateEstimator(BNO08x* IMUinstance, i2c_inst_t* port, CONFIG::SteeringStyle direction);
+        explicit StateEstimator(BNO08x* IMUinstance, i2c_inst_t* port, CONFIG::SteeringStyle direction, float arenaDimension);
 
     protected:
         ~StateEstimator(); // Destructor to cancel the timer
@@ -62,6 +65,13 @@ namespace STATE_ESTIMATOR {
 
         CONFIG::SteeringStyle driveDirection; //factor to change odometry direction based on what we currently consider the front
 
+        std::pair<float, float> localisation(float heading, ToFDistances tof_distances);
+
+        std::pair<float, float> possiblePositions(float heading, float distance, float arena_size);
+
+        std::tuple<float, float, float> coordinateVariance(const std::vector<float>& xList, const std::vector<float>& yList);
+
+        bool arenaLocalisation;
 
     private:
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
@@ -76,6 +86,8 @@ namespace STATE_ESTIMATOR {
         State previousState;
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
+        float arenaSize;
+        float localisation_weighting = 0.01;
 
         static void timerCallback(repeating_timer_t* timer);
 
