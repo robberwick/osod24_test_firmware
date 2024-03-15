@@ -59,7 +59,6 @@ namespace CONFIG {
     constexpr float MECANUM_DIAMETER = 0.048f; // metres, valid for "48mm" mecanums
     constexpr float GEARMOTOR_RATIO = 19.22f; // -to-1
 
-
     // Define WHEEL_DIAMETER and GEAR_RATIO based on CURRENT_CHALLENGE
     #if (CURRENT_CHALLENGE == ECO_DISASTER)
         constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
@@ -70,6 +69,7 @@ namespace CONFIG {
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
         constexpr SteeringStyle DRIVING_STYLE = Car;
+        constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #elif (CURRENT_CHALLENGE == MINESWEEPER)
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
@@ -84,11 +84,13 @@ namespace CONFIG {
         const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
         constexpr SteeringStyle DRIVING_STYLE = Car;
+        constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #else
         // Default case
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
         constexpr SteeringStyle DRIVING_DIRECTION = CarSteering;
+        constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #endif
 
 
