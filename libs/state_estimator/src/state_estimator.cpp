@@ -76,7 +76,7 @@ namespace STATE_ESTIMATOR {
 
     void StateEstimator::showValuesViaCSV() const {
 
-        printf("%i, %.3f, %.3f, %.3f, %i, %i, %i, %i\n", 
+        printf("%i, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f\n", 
            millis(),
            estimatedState.odometry.x,
            estimatedState.odometry.y,
@@ -291,20 +291,20 @@ namespace STATE_ESTIMATOR {
          * @param distance The distance measurement from a ToF sensor to the nearest wall.
          * @return A pair of floats representing the estimated X or Y positions in the arena.
          */
+        angle = wrap_pi(angle); //constrain(wrap) to our usual +/-pi range
 
         float x_pos = 0.0f, y_pos = 0.0f;
-        const float pi = M_PI;
 
-        if (angle < pi) {
-            x_pos = arenaSize - distance * cos(angle - pi / 2);
+        if (angle > 0) {
+            x_pos = arenaSize - distance * cos(angle - M_PI / 2);
         } else {
-            x_pos = distance * cos(angle - 1.5f * pi);
+            x_pos = distance * cos(angle - 1.5f * M_PI);
         }
 
-        if ((angle < (0.5f * pi)) || (angle > (1.5f * pi))) {
+        if ((angle < (0.5f * M_PI)) && (angle > (-0.5f * M_PI))) {
             y_pos = arenaSize - distance * cos(angle);
         } else {
-            y_pos = distance * cos(angle - pi);
+            y_pos = distance * cos(angle - M_PI);
         }
 
         return {x_pos, y_pos};
