@@ -43,7 +43,7 @@ namespace COMMON {
         float rear;
         float left;
     };
-    struct Odometry {
+    struct Pose {
         float x;
         float y;
         float heading;
