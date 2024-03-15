@@ -295,16 +295,16 @@ namespace STATE_ESTIMATOR {
 
         float x_pos = 0.0f, y_pos = 0.0f;
 
-        if (angle > 0) {
-            x_pos = arenaSize - distance * cos(angle - M_PI / 2);
+        if (angle < 0) {
+            x_pos = arenaSize - distance * cos(angle + M_PI / 2);
         } else {
-            x_pos = distance * cos(angle - 1.5f * M_PI);
+            x_pos = distance * cos(angle + 1.5f * M_PI);
         }
 
         if ((angle < (0.5f * M_PI)) && (angle > (-0.5f * M_PI))) {
             y_pos = arenaSize - distance * cos(angle);
         } else {
-            y_pos = distance * cos(angle - M_PI);
+            y_pos = distance * cos(angle + M_PI);
         }
 
         return {x_pos, y_pos};
@@ -325,9 +325,9 @@ namespace STATE_ESTIMATOR {
         // these are inferred possible positions, depending on which arena wall each sensor 
         // is measuring, the sensor could be used to infer an x position or y position
         auto [Fx, Fy] = possiblePositions(heading, tof_distances.front);
-        auto [Rx, Ry] = possiblePositions(heading + M_PI_2, tof_distances.right);
-        auto [Bx, By] = possiblePositions(heading + M_PI, tof_distances.rear);
-        auto [Lx, Ly] = possiblePositions(heading + 3 * M_PI_2, tof_distances.left);
+        auto [Rx, Ry] = possiblePositions(heading - M_PI_2, tof_distances.right);
+        auto [Bx, By] = possiblePositions(heading - M_PI, tof_distances.rear);
+        auto [Lx, Ly] = possiblePositions(heading - 3 * M_PI_2, tof_distances.left);
 
         // Combine the calculated positions into lists for easier manipulation
         vector<float> x_positions = {Fx, Rx, Bx, Lx};
