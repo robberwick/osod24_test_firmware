@@ -39,9 +39,9 @@ namespace CONFIG {
     constexpr float HALF_WHEEL_TRACK = WHEEL_TRACK / 2;
 
     // ToF Sensor Offsets from the robot's center (in meters)
-    constexpr float TOF_FRONT_OFFSET = 0.15f;
+    constexpr float TOF_FRONT_OFFSET = 0.16f;
     constexpr float TOF_RIGHT_OFFSET = 0.07f;
-    constexpr float TOF_REAR_OFFSET = 0.08f;
+    constexpr float TOF_REAR_OFFSET = 0.09f;
     constexpr float TOF_LEFT_OFFSET = 0.07f;
 
     //steering
