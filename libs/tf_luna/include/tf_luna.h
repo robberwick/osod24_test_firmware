@@ -21,11 +21,11 @@ struct LidarData {
     int temperature;
 };
 
-struct FourTofDistances {
-    int front;
-    int right;
-    int rear;
-    int left;
+struct FourTofDistances {  //four tof distances, in metres
+    float front;
+    float right;
+    float rear;
+    float left;
 };
 
 // Function to get Lidar data
