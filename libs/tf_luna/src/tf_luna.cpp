@@ -2,6 +2,7 @@
 #include <array>
 #include "hardware/i2c.h"
 #include "tf_luna.h"
+#include "drivetrain_config.h"
 
 // Function to get Lidar data
 LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port) {
@@ -22,13 +23,18 @@ LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port) {
 
 FourTofDistances getAllLidarDistances(i2c_inst_t* i2c_port) {
     // function to get the distances of four ToF sensors in meters
-    // Get distance from each sensor and convert from millimeters to meters
-    float frontDistance = static_cast<float>(getSingleLidarData(tf_luna_front, i2c_port).distance) / 1000.0f;
-    float rightDistance = static_cast<float>(getSingleLidarData(tf_luna_right, i2c_port).distance) / 1000.0f;
-    float rearDistance = static_cast<float>(getSingleLidarData(tf_luna_rear, i2c_port).distance) / 1000.0f;
-    float leftDistance = static_cast<float>(getSingleLidarData(tf_luna_left, i2c_port).distance) / 1000.0f;
+    // Get distance from each sensor, convert from millimeters to meters, and apply the offset
+    int front_mm = getSingleLidarData(tf_luna_front, i2c_port).distance;
+    int right_mm = getSingleLidarData(tf_luna_right, i2c_port).distance;
+    int rear_mm = getSingleLidarData(tf_luna_rear, i2c_port).distance;
+    int left_mm = getSingleLidarData(tf_luna_left, i2c_port).distance;
 
+    // Convert from millimeters to meters and apply offsets
+    float front_m = static_cast<float>(front_mm) / 1000.0f + CONFIG::TOF_FRONT_OFFSET;
+    float right_m = static_cast<float>(right_mm ) / 1000.0f + CONFIG::TOF_RIGHT_OFFSET;
+    float rear_m = static_cast<float>(rear_mm) / 1000.0f + CONFIG::TOF_REAR_OFFSET;
+    float left_m = static_cast<float>(left_mm) / 1000.0f + CONFIG::TOF_LEFT_OFFSET;
 
     // Return the struct populated with the distances
-    return {frontDistance, rightDistance, rearDistance, leftDistance};
+    return {front_m, right_m, rear_m, left_m};
 }

@@ -34,6 +34,12 @@ namespace CONFIG {
     constexpr float WHEEL_TRACK = 0.15f; // metres
     constexpr float HALF_WHEEL_TRACK = WHEEL_TRACK / 2;
 
+    // ToF Sensor Offsets from the robot's center (in meters)
+    constexpr float TOF_FRONT_OFFSET = 0.15f;
+    constexpr float TOF_RIGHT_OFFSET = 0.07f;
+    constexpr float TOF_REAR_OFFSET = 0.08f;
+    constexpr float TOF_LEFT_OFFSET = 0.07f;
+
     //steering
     constexpr float MAX_STEERING_ANGLE = 3.14 / 4; // radians
     const float STEERING_HYPOTENUSE = std::sqrt(HALF_WHEEL_TRACK * HALF_WHEEL_TRACK + WHEEL_BASE * WHEEL_BASE);
