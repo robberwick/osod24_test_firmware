@@ -61,7 +61,7 @@ namespace STATE_ESTIMATOR {
 
         static float wrap_pi(float heading);
 
-        void calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
+        void calculateBilateralSpeeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
 
         CONFIG::SteeringStyle driveDirection; //factor to change odometry direction based on what we currently consider the front
@@ -98,31 +98,32 @@ namespace STATE_ESTIMATOR {
         Observer* observers[10] = {};
         int observerCount = 0;
 
-        void capture_encoders(Encoder::Capture* encoderCaptures) const;
+        void captureEncoders(Encoder::Capture* encoderCaptures) const;
         
-        void get_latest_heading(float& heading);
+        void getLatestHeading(float& heading);
 
-        bool initialise_heading_offset();
+        bool initialiseHeadingOffset();
 
-        void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
+        void getPositionDelta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
 
-        void calculate_new_position(State& tmpState, float distance_travelled, float heading);
+        void calculateNewPosition(State& tmpState, float distance_travelled, float heading);
 
-        Velocity calculate_velocities(float new_heading, float previous_heading, float left_speed, float right_speed);
+        Velocity calculateVelocities(float new_heading, float previous_heading, float left_speed, float right_speed);
 
-        static MotorSpeeds get_wheel_speeds(const Encoder::Capture* encoderCaptures);
+        static MotorSpeeds getWheelSpeeds(const Encoder::Capture* encoderCaptures);
 
-        [[nodiscard]] SteeringAngles estimate_steering_angles() const;
+        [[nodiscard]] SteeringAngles estimateSteeringAngles() const;
         
-        pair<float, float> possiblePositions(float heading, float distance);
+        pair<float, float> calculatePossiblePositions(float heading, float distance);
 
-        tuple<float, float, float> coordinateVariance(const vector<float>& xList, const vector<float>& yList);
+        tuple<float, float, float> calculateCoordinateVariance(const vector<float>& xList, const vector<float>& yList);
 
-        Pose filter_positions(Pose odometryEstimate, Pose localisationEstimate);
+        Pose filterPositions(Pose odometryEstimate, Pose localisationEstimate);
 
-        pair<vector<float>, vector<float>> createPermutation(int permutation,
-                                                                    const vector<float>& xPositions,
-                                                                    const vector<float>& yPositions);
+        pair<vector<float>, vector<float>> createPermutation(
+            int permutation,
+            const vector<float>& xPositions,
+            const vector<float>& yPositions);
 
     };
 } // STATE_ESTIMATOR

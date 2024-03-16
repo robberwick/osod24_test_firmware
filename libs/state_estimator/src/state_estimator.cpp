@@ -47,7 +47,7 @@ namespace STATE_ESTIMATOR {
             arenaSize = arenaDimension;
         }
 
-        if (initialise_heading_offset() == false) {
+        if (initialiseHeadingOffset() == false) {
             while (1){
                 printf("failed to set initial heading offset\n");
                 sleep_ms(1000);
@@ -103,7 +103,7 @@ namespace STATE_ESTIMATOR {
         }
     }
 
-    void StateEstimator::capture_encoders(Encoder::Capture* encoderCaptures) const {
+    void StateEstimator::captureEncoders(Encoder::Capture* encoderCaptures) const {
         for(int i = 0; i < MOTOR_POSITION::MOTOR_POSITION_COUNT; i++) {
             encoderCaptures[i] = encoders[i]->capture();
         }
@@ -116,7 +116,7 @@ namespace STATE_ESTIMATOR {
         return static_cast<float>(wrapped);
     }
 
-    void StateEstimator::calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, const SteeringAngles steering_angles, float& left_speed, float& right_speed) {
+    void StateEstimator::calculateBilateralSpeeds(const MotorSpeeds& motor_speeds, const SteeringAngles steering_angles, float& left_speed, float& right_speed) {
         left_speed = (motor_speeds[MOTOR_POSITION::FRONT_LEFT] * cos(steering_angles.left)
                       + motor_speeds[MOTOR_POSITION::REAR_LEFT]) / 2;
 
@@ -128,7 +128,7 @@ namespace STATE_ESTIMATOR {
         right_speed = right_speed * CONFIG::WHEEL_DIAMETER / 2;
     }
 
-    void StateEstimator::get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const {
+    void StateEstimator::getPositionDelta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const {
         // Calculate average wheel rotation delta for left and right sides
         // for the front wheels we only use the forward component of the movement
         //this should give a more accurate estimate for distance_travelled
@@ -141,7 +141,7 @@ namespace STATE_ESTIMATOR {
         distance_travelled = ((left_travel - right_travel) / 2) * CONFIG::WHEEL_DIAMETER / 2;
     }
 
-    void StateEstimator::calculate_new_position(State& tmpState, const float distance_travelled, const float heading) {
+    void StateEstimator::calculateNewPosition(State& tmpState, const float distance_travelled, const float heading) {
         //use the latest heading and distance travleled to update the estiamted position
         tmpState.odometry.x -= driveDirection * distance_travelled * sin(heading);
         tmpState.odometry.y += driveDirection * distance_travelled * cos(heading);
@@ -153,7 +153,7 @@ namespace STATE_ESTIMATOR {
         tmpState.odometry.heading = wrap_pi(tmpState.odometry.heading);
     }
 
-    Velocity StateEstimator::calculate_velocities(const float new_heading, const float previous_heading, const float left_speed, const float right_speed) {
+    Velocity StateEstimator::calculateVelocities(const float new_heading, const float previous_heading, const float left_speed, const float right_speed) {
         // TODO return a velocities struct instead of setting individual values
         Velocity tmpVelocity{};
         tmpVelocity.velocity = (left_speed - right_speed) / 2;
@@ -164,7 +164,7 @@ namespace STATE_ESTIMATOR {
         return tmpVelocity;
     }
 
-    MotorSpeeds StateEstimator::get_wheel_speeds(const Encoder::Capture* encoderCaptures) {
+    MotorSpeeds StateEstimator::getWheelSpeeds(const Encoder::Capture* encoderCaptures) {
         MotorSpeeds wheelSpeeds{};
         for(int i = 0; i < MOTOR_POSITION::MOTOR_POSITION_COUNT; i++) {
             wheelSpeeds.speeds[static_cast<MOTOR_POSITION::MotorPosition>(i)] = encoderCaptures[i].radians_per_second();
@@ -172,7 +172,7 @@ namespace STATE_ESTIMATOR {
         return wheelSpeeds;
     }
 
-    SteeringAngles StateEstimator::estimate_steering_angles() const {
+    SteeringAngles StateEstimator::estimateSteeringAngles() const {
         return currentSteeringAngles;
     }
 
@@ -182,42 +182,42 @@ namespace STATE_ESTIMATOR {
         
         //get current encoder state
         Encoder::Capture encoderCaptures[MOTOR_POSITION::MOTOR_POSITION_COUNT];
-        capture_encoders(encoderCaptures);
+        captureEncoders(encoderCaptures);
 
         // calculate position deltas
 
         float distance_travelled = 0.0f;
-        get_position_delta(encoderCaptures, distance_travelled);
+        getPositionDelta(encoderCaptures, distance_travelled);
 
 
         float heading = 0.0f;
-        get_latest_heading(heading);
+        getLatestHeading(heading);
 
         //calculate new position and orientation
-        calculate_new_position(tmpState, distance_travelled, heading);
+        calculateNewPosition(tmpState, distance_travelled, heading);
 
         //calculate speeds
 
         //get wheel speeds
-        tmpState.driveTrainState.speeds = get_wheel_speeds(encoderCaptures);
+        tmpState.driveTrainState.speeds = getWheelSpeeds(encoderCaptures);
 
         // estimate steering angles
-        tmpState.driveTrainState.angles = estimate_steering_angles();
+        tmpState.driveTrainState.angles = estimateSteeringAngles();
 
         // calculate left and right speeds
         float left_speed;
         float right_speed;
-        calculate_bilateral_speeds(tmpState.driveTrainState.speeds, tmpState.driveTrainState.angles, left_speed, right_speed);
+        calculateBilateralSpeeds(tmpState.driveTrainState.speeds, tmpState.driveTrainState.angles, left_speed, right_speed);
 
         //calc all velocities
-        tmpState.velocity = calculate_velocities(tmpState.odometry.heading, previousState.odometry.heading, left_speed, right_speed);
+        tmpState.velocity = calculateVelocities(tmpState.odometry.heading, previousState.odometry.heading, left_speed, right_speed);
 
         // get ToF data
         tmpState.tofDistances = getAllLidarDistances(i2c_port);
         
         localisationEstimate = localisation(tmpState.odometry.heading, tmpState.tofDistances);
 
-        tmpState.odometry = filter_positions(tmpState.odometry, localisationEstimate);
+        tmpState.odometry = filterPositions(tmpState.odometry, localisationEstimate);
 
         // update the estimated states
         previousState = estimatedState;
@@ -228,7 +228,7 @@ namespace STATE_ESTIMATOR {
 
     }
 
-    void StateEstimator::get_latest_heading(float& heading) {
+    void StateEstimator::getLatestHeading(float& heading) {
       //default latest heading is the current heading
       heading = estimatedState.odometry.heading;
       
@@ -262,7 +262,7 @@ namespace STATE_ESTIMATOR {
         currentSteeringAngles = newSteeringAngles;
     }
 
-    bool StateEstimator::initialise_heading_offset() {
+    bool StateEstimator::initialiseHeadingOffset() {
         // function sets the heading_offset to the current heading
         // returns true if the offset is set, false if timed out (no heading updates available)
         long timeoutDuration = 5000;
@@ -281,7 +281,7 @@ namespace STATE_ESTIMATOR {
         return isUpdated;
     }
 
-    pair<float, float> StateEstimator::possiblePositions(float angle, float distance) {
+    pair<float, float> StateEstimator::calculatePossiblePositions(float angle, float distance) {
         /**
          * Calculates the potential X, Y positions of the robot based on a single distance measurement
          * and the robot's heading. This method assumes the robot is facing a square arena and uses trigonometry
@@ -324,10 +324,10 @@ namespace STATE_ESTIMATOR {
         // Calculate possible positions for each sensor
         // these are inferred possible positions, depending on which arena wall each sensor 
         // is measuring, the sensor could be used to infer an x position or y position
-        auto [Fx, Fy] = possiblePositions(heading, tof_distances.front);
-        auto [Rx, Ry] = possiblePositions(heading - M_PI_2, tof_distances.right);
-        auto [Bx, By] = possiblePositions(heading - M_PI, tof_distances.rear);
-        auto [Lx, Ly] = possiblePositions(heading - 3 * M_PI_2, tof_distances.left);
+        auto [Fx, Fy] = calculatePossiblePositions(heading, tof_distances.front);
+        auto [Rx, Ry] = calculatePossiblePositions(heading - M_PI_2, tof_distances.right);
+        auto [Bx, By] = calculatePossiblePositions(heading - M_PI, tof_distances.rear);
+        auto [Lx, Ly] = calculatePossiblePositions(heading - 3 * M_PI_2, tof_distances.left);
 
         // Combine the calculated positions into lists for easier manipulation
         vector<float> x_positions = {Fx, Rx, Bx, Lx};
@@ -341,7 +341,7 @@ namespace STATE_ESTIMATOR {
             // positions), then iterate through them to check which is most self-consistent (lowest
             // variance), assume that permutation is the most likely, best estimate of our position
             auto [xList, yList] = createPermutation(permutation, x_positions, y_positions);
-            auto [totalVariance, xMean, yMean] = coordinateVariance(xList, yList);
+            auto [totalVariance, xMean, yMean] = calculateCoordinateVariance(xList, yList);
             
             if (totalVariance < lowestVariance) {
                 lowestVariance = totalVariance;
@@ -354,7 +354,7 @@ namespace STATE_ESTIMATOR {
         return bestEstimate;;
     }
 
-    tuple<float, float, float> StateEstimator::coordinateVariance(const vector<float>& xList, const vector<float>& yList) {
+    tuple<float, float, float> StateEstimator::calculateCoordinateVariance(const vector<float>& xList, const vector<float>& yList) {
         /**
          * Calculates the variance and mean of potential robot positions based on X and Y coordinates.
          * This method helps in understanding the spread of potential positions, indicating the likelihood 
@@ -381,7 +381,7 @@ namespace STATE_ESTIMATOR {
         return {totalVariance, xMean, yMean};
     }
 
-    Pose StateEstimator::filter_positions(Pose odometryEstimate, Pose localisationEstimate){
+    Pose StateEstimator::filterPositions(Pose odometryEstimate, Pose localisationEstimate){
         /**
          * Combines the odometry and localization estimates to produce a filtered position estimate.
          * This method uses a weighted average approach to merge the estimates, potentially improving
