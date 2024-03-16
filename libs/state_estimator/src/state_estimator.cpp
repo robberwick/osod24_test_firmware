@@ -330,18 +330,18 @@ namespace STATE_ESTIMATOR {
         auto [Lx, Ly] = calculatePossiblePositions(heading - 3 * M_PI_2, tof_distances.left);
 
         // Combine the calculated positions into lists for easier manipulation
-        vector<float> x_positions = {Fx, Rx, Bx, Lx};
-        vector<float> y_positions = {Fy, Ry, By, Ly};
+        std::array<float, NUM_TOF_SENSORS> x_positions = {Fx, Rx, Bx, Lx};
+        std::array<float, NUM_TOF_SENSORS> y_positions = {Fy, Ry, By, Ly};
 
         float lowestVariance = numeric_limits<float>::max();
         Pose bestEstimate;
         
-        for (int permutation = 1; permutation < 16; ++permutation) {
+        for (int permutationNo = 1; permutationNo < (NUM_TOF_SENSORS * NUM_TOF_SENSORS); ++permutationNo) {
             // create 16 permutations (all the possible combinations of the two lists of possible
             // positions), then iterate through them to check which is most self-consistent (lowest
             // variance), assume that permutation is the most likely, best estimate of our position
-            auto [xList, yList] = createPermutation(permutation, x_positions, y_positions);
-            auto [totalVariance, xMean, yMean] = calculateCoordinateVariance(xList, yList);
+            PermutationResult permutation = createPermutation(permutationNo, x_positions, y_positions);
+            auto [totalVariance, xMean, yMean] = calculateCoordinateVariance(permutation);
             
             if (totalVariance < lowestVariance) {
                 lowestVariance = totalVariance;
@@ -354,27 +354,24 @@ namespace STATE_ESTIMATOR {
         return bestEstimate;;
     }
 
-    tuple<float, float, float> StateEstimator::calculateCoordinateVariance(const vector<float>& xList, const vector<float>& yList) {
+    tuple<float, float, float> StateEstimator::calculateCoordinateVariance(const PermutationResult& result) {
         /**
-         * Calculates the variance and mean of potential robot positions based on X and Y coordinates.
-         * This method helps in understanding the spread of potential positions, indicating the likelihood 
-         * of this cobination representing the robot's positio within the arena.
+         * Computes the variance and mean of X and Y position estimates within the limits of valid data points as specified in the PermutationResult.
+         * The function calculates the mean for X and Y positions separately, then determines the variance for each set based on the deviation from their respective means.
+         * The total variance is the sum of the X and Y variances. This approach ensures only valid data points are considered, aligning with the static allocation strategy in embedded systems.
          *
-         * @param xList A vector of floats representing potential X positions.
-         * @param yList A vector of floats representing potential Y positions.
-         * @return A tuple containing the total variance, mean X, and mean Y values.
+         * @param result The result structure from createPermutation containing X and Y positions with their valid counts.
+         * @return A tuple with the total variance, mean of X positions, and mean of Y positions.
          */
 
-        float xMean = accumulate(xList.begin(), xList.end(), 0.0f) / xList.size();
-        float yMean = accumulate(yList.begin(), yList.end(), 0.0f) / yList.size();
+        float xMean = std::accumulate(result.xList.begin(), result.xList.begin() + result.xSize, 0.0f) / result.xSize;
+        float yMean = std::accumulate(result.yList.begin(), result.yList.begin() + result.ySize, 0.0f) / result.ySize;
 
-        float xVariance = accumulate(xList.begin(), xList.end(), 0.0f, [xMean](float acc, float x) {
-            return acc + pow(x - xMean, 2);
-        }) / xList.size();
-
-        float yVariance = accumulate(yList.begin(), yList.end(), 0.0f, [yMean](float acc, float y) {
-            return acc + pow(y - yMean, 2);
-        }) / yList.size();
+        // Calculate variances
+        auto xVariance = std::accumulate(result.xList.begin(), result.xList.begin() + result.xSize, 0.0f,
+                                        [xMean](float acc, float x) { return acc + std::pow(x - xMean, 2); }) / result.xSize;
+        auto yVariance = std::accumulate(result.yList.begin(), result.yList.begin() + result.ySize, 0.0f,
+                                        [yMean](float acc, float y) { return acc + std::pow(y - yMean, 2); }) / result.ySize;
 
         float totalVariance = xVariance + yVariance;
 
@@ -399,30 +396,34 @@ namespace STATE_ESTIMATOR {
         return filteredPosition;
     }
 
-    pair<vector<float>, vector<float>> StateEstimator::createPermutation(int permutation,
-                                                                        const vector<float>& xPositions,
-                                                                        const vector<float>& yPositions) {
+
+    StateEstimator::PermutationResult StateEstimator::createPermutation(
+            int permutation,
+            const std::array<float, NUM_TOF_SENSORS>& xPositions,
+            const std::array<float, NUM_TOF_SENSORS>& yPositions) {
         /**
-         * Generates a specific permutation of X and Y position estimates based on the given permutation number.
-         * This function interprets the permutation number as a binary representation, where each bit indicates
-         * whether to use a corresponding position from the xPositions or yPositions array. A '1' bit implies
-         * the use of a yPosition for that index, and a '0' bit implies the use of an xPosition.
+         * Generates a specific permutation of valid X and Y position estimates based on the given permutation number.
+         * The permutation number is interpreted as a binary representation, where each bit indicates whether a position
+         * from the input X or Y positions list is selected. Positions corresponding to '1' bits are added to the Y list,
+         * and positions corresponding to '0' bits are added to the X list. The function returns arrays containing the
+         * selected positions along with the actual count of valid positions in each array.
          *
-         * @param permutation An integer representing the permutation pattern as a binary number.
-         * @param xPositions A vector of floats representing potential X positions inferred from sensor readings.
-         * @param yPositions A vector of floats representing potential Y positions inferred from sensor readings.
-         * @return A pair of vectors, the first containing selected X positions and the second containing selected Y positions.
-         */
-        vector<float> xList, yList;
+        * @param permutation The permutation number, interpreted as a binary pattern for selecting X or Y positions.
+        * @param xPositions The array of potential X positions.
+        * @param yPositions The array of potential Y positions.
+        * @return A structure containing the X and Y lists along with their counts of valid elements.
+        */
+        std::array<float, NUM_TOF_SENSORS> xList, yList;
+        size_t xSize = 0, ySize = 0;
         bitset<4> binary(permutation);
-        for (size_t i = 0; i < 4; ++i) {
-            if (binary[i]) {
-                yList.push_back(yPositions[i]);
+        for (size_t sensor = 0; sensor < NUM_TOF_SENSORS; ++sensor) {
+            if (binary[sensor]) {
+                yList[ySize++] = yPositions[sensor];
             } else {
-                xList.push_back(xPositions[i]);
+                xList[xSize++] = xPositions[sensor];
             }
         }
-        return {xList, yList};
+        return {xList, yList, xSize, ySize};;
     }
 
     StateEstimator::~StateEstimator() {

@@ -73,6 +73,12 @@ namespace STATE_ESTIMATOR {
         std::tuple<float, float, float> coordinateVariance(const std::vector<float>& xList, const std::vector<float>& yList);
 
         bool arenaLocalisation;
+        struct PermutationResult {
+            std::array<float, NUM_TOF_SENSORS> xList;
+            std::array<float, NUM_TOF_SENSORS> yList;
+            size_t xSize;
+            size_t ySize;
+        };
 
     private:
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
@@ -116,14 +122,14 @@ namespace STATE_ESTIMATOR {
         
         pair<float, float> calculatePossiblePositions(float heading, float distance);
 
-        tuple<float, float, float> calculateCoordinateVariance(const vector<float>& xList, const vector<float>& yList);
+        tuple<float, float, float> calculateCoordinateVariance(const PermutationResult& result);
 
         Pose filterPositions(Pose odometryEstimate, Pose localisationEstimate);
 
-        pair<vector<float>, vector<float>> createPermutation(
+        PermutationResult createPermutation(
             int permutation,
-            const vector<float>& xPositions,
-            const vector<float>& yPositions);
+            const std::array<float, NUM_TOF_SENSORS>& xPositions,
+            const std::array<float, NUM_TOF_SENSORS>& yPositions);
 
     };
 } // STATE_ESTIMATOR
