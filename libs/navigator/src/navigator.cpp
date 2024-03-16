@@ -2,13 +2,13 @@
 #include "navigator.h"
 #include "statemanager.h"
 #include "state_estimator.h"
-
 #include "drivetrain_config.h"
 
-Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* stateManager) {
+Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* stateManager, CONFIG::SteeringStyle direction) {
     this->receiver = receiver;
     this->pStateManager = stateManager;
 
+    driveDirection = direction;
 }
 
 void Navigator::navigate() {
@@ -27,7 +27,7 @@ void Navigator::navigate() {
         // send the receiver data to the state manager
         // TODO: use a queue to send the receiver data to the state manager
         STATE_ESTIMATOR::State requestedState{};
-        requestedState.velocity.velocity = values.ELE * CONFIG::MAX_VELOCITY;
+        requestedState.velocity.velocity = driveDirection * values.ELE * CONFIG::MAX_VELOCITY;
         requestedState.velocity.angular_velocity = values.AIL * CONFIG::MAX_ANGULAR_VELOCITY;
         pStateManager->requestState(requestedState);
     } else {
