@@ -62,7 +62,7 @@ void Navigator::update(const COMMON::VehicleState newState) {
     current_state = newState;
 }
 
-void Navigator::parseTxSignals(ReceiverChannelValues signals){
+void Navigator::parseTxSignals(const ReceiverChannelValues& signals){
     // function to use "spare" transmitter channels as auxiliary inputs
     // currently can set (zero) odoemtry heading and and origin
         if (shouldSetHeading(signals.RUD)){
