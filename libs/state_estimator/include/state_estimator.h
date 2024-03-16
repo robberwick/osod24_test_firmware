@@ -125,12 +125,18 @@ namespace STATE_ESTIMATOR {
         tuple<float, float, float> calculateCoordinateVariance(const PermutationResult& result);
 
         Pose filterPositions(Pose odometryEstimate, Pose localisationEstimate);
-
+        
+        const size_t NUM_PERMUTATIONS = 1 << NUM_TOF_SENSORS; //number of permations is 2^(num sensors)
+        
         PermutationResult createPermutation(
             int permutation,
             const std::array<float, NUM_TOF_SENSORS>& xPositions,
             const std::array<float, NUM_TOF_SENSORS>& yPositions);
-
+        
+        Pose evaluatePositionPermutations(
+            float heading,
+            const std::array<float, NUM_TOF_SENSORS>& xPositions,
+            const std::array<float, NUM_TOF_SENSORS>& yPositions);
     };
 } // STATE_ESTIMATOR
 

@@ -333,14 +333,23 @@ namespace STATE_ESTIMATOR {
         std::array<float, NUM_TOF_SENSORS> x_positions = {Fx, Rx, Bx, Lx};
         std::array<float, NUM_TOF_SENSORS> y_positions = {Fy, Ry, By, Ly};
 
+        // evaluate all the possible purmutation of the positions and return the best-fitting position
+        return evaluatePositionPermutations(heading, x_positions, y_positions);
+    }
+
+    Pose StateEstimator::evaluatePositionPermutations(
+            float heading,
+            const std::array<float, NUM_TOF_SENSORS>& xPositions,
+            const std::array<float, NUM_TOF_SENSORS>& yPositions){
+
         float lowestVariance = numeric_limits<float>::max();
         Pose bestEstimate;
         
-        for (int permutationNo = 1; permutationNo < (NUM_TOF_SENSORS * NUM_TOF_SENSORS); ++permutationNo) {
+        for (int permutationNo = 1; permutationNo < NUM_PERMUTATIONS; ++permutationNo) {
             // create 16 permutations (all the possible combinations of the two lists of possible
             // positions), then iterate through them to check which is most self-consistent (lowest
             // variance), assume that permutation is the most likely, best estimate of our position
-            PermutationResult permutation = createPermutation(permutationNo, x_positions, y_positions);
+            PermutationResult permutation = createPermutation(permutationNo, xPositions, yPositions);
             auto [totalVariance, xMean, yMean] = calculateCoordinateVariance(permutation);
             
             if (totalVariance < lowestVariance) {
@@ -351,8 +360,8 @@ namespace STATE_ESTIMATOR {
             }
         }
         
-        return bestEstimate;;
-    }
+        return bestEstimate;
+        }
 
     tuple<float, float, float> StateEstimator::calculateCoordinateVariance(const PermutationResult& result) {
         /**
