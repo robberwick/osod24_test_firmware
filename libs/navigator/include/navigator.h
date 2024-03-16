@@ -25,5 +25,5 @@ private:
     bool shouldSetOdometryOrigin(float signal);
     void setHeading(); //local method that's linked to the stateEstimator set_Heading_Offset method
     void setOrigin(); //local method that's linked to the stateEstimator set_Odometry_Offset method
-    void parseTxSignals(ReceiverChannelValues signals); //function to use "spare" transmitter channels as auxiliary inputs
+    void parseTxSignals(const ReceiverChannelValues& signals); //function to use "spare" transmitter channels as auxiliary inputs
 };
