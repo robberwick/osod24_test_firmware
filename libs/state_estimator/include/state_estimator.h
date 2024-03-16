@@ -41,7 +41,7 @@ namespace STATE_ESTIMATOR {
 
     class StateEstimator : public Subject {
     public:
-        explicit StateEstimator(BNO08x* IMUinstance, i2c_inst_t* port, CONFIG::SteeringStyle direction, float arenaDimension);
+        explicit StateEstimator(BNO08x* IMUinstance, i2c_inst_t* port, CONFIG::SteeringStyle direction);
 
     protected:
         ~StateEstimator(); // Destructor to cancel the timer

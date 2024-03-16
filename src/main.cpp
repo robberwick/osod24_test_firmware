@@ -72,7 +72,7 @@ int main() {
     IMU.enableRotationVector();
 
     // set up the state estimator
-    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, i2c_port0, CONFIG::DRIVING_STYLE, CONFIG::ARENA_SIZE);
+    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, i2c_port0, CONFIG::DRIVING_STYLE);
 
     // set up the state manager
     using namespace STATEMANAGER;
