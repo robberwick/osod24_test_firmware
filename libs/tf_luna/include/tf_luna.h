@@ -31,4 +31,4 @@ struct FourTofDistances {  //four tof distances, in metres
 // Function to get Lidar data
 LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port);
 FourTofDistances getAllLidarDistances(i2c_inst_t* i2c_port);
-
+float convertAndApplyOffset(int distance_cm, float offset);

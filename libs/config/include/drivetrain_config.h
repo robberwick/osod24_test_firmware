@@ -13,11 +13,7 @@ namespace CONFIG {
     #define PI_NOON 5
     #define TEMPLE_OF_DOOM 6
 
-<<<<<<< HEAD
-    #define CURRENT_CHALLENGE ESCAPE_ROUTE //ECO_DISASTER
-=======
     #define CURRENT_CHALLENGE MINESWEEPER
->>>>>>> 18a5f0a... changed minesweeper arena size to match my test arena, fixed some mistakes with comments not being escaped
 
     constexpr int I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
     constexpr int I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
