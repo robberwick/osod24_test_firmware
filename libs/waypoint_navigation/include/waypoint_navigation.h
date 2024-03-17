@@ -17,16 +17,11 @@ namespace WAYPOINTS {
         void navigate(const VehicleState& currentState); //update the desired movement to get to the next waypoint
         float desiredV;  // desired velocity to get to next waypoint
         float desiredW;  // desired angular velocity to get to next waypoint
-        const static uint8_t waypointBufferSize = 40;
-        Waypoint waypointBuffer[waypointBufferSize]; // waypoint buffer
-        void addWaypoint(const Waypoint& newWaypoint); // add a waypoint to the buffer
-        bool isWaypointEmpty(const Waypoint& waypoint); // check if a waypoint slot in the buffer is empty
         uint8_t targetWaypointIndex = 0; // the index of the current waypoint we're navigating to
         Waypoint targetWaypoint; // the actual waypoint we're navigating to
         uint8_t nextWaypoint(const uint8_t currentWaypointIndex, const VehicleState& currentState); //find the index of the next waypoint to navigate to
         uint8_t nearestWaypointIndex; // the index of the waypoint we're closest to
         uint8_t nearestWaypoint(const VehicleState& currentState); //find the index of the closest waypoint
-        void clearWaypointBuffer(); // clear all waypoints from buffer
         float headingToWaypoint(const Waypoint& target, const VehicleState& currentState); // heading to a waypoint. not currently used?
         float bearingToWaypoint(const Waypoint& target, const VehicleState& currentState); // Compass bearing to a waypoint
         float distanceToWaypoint(const Waypoint& target, const VehicleState& currentState); // distance to a waypoint
