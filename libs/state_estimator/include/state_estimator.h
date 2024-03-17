@@ -89,7 +89,7 @@ namespace STATE_ESTIMATOR {
         VehicleState previousState;
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
-        float localisation_weighting = 0.01;
+        float localisation_weighting = 0.1;
         Pose localisationEstimate;
 
         static void timerCallback(repeating_timer_t* timer);
