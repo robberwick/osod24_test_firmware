@@ -82,7 +82,7 @@ namespace STATE_ESTIMATOR {
         repeating_timer_t* timer;
         BNO08x* IMU;
         i2c_inst_t* i2c_port;
-        float IMUHeadingOffset;
+        float IMUHeadingOffset = 0;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
         VehicleState estimatedState;
