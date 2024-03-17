@@ -349,8 +349,8 @@ namespace STATE_ESTIMATOR {
             
             if (totalVariance < lowestVariance) {
                 lowestVariance = totalVariance;
-                bestEstimate.x = xMean - CONFIG::ARENA_SIZE/2;
-                bestEstimate.y = yMean - CONFIG::ARENA_SIZE/2;
+                bestEstimate.x = driveDirection * (xMean - CONFIG::ARENA_SIZE/2);
+                bestEstimate.y = driveDirection * (yMean - CONFIG::ARENA_SIZE/2);
                 bestEstimate.heading = heading;
             }
         }
