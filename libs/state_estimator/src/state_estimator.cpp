@@ -208,9 +208,10 @@ namespace STATE_ESTIMATOR {
         // get ToF data
         tmpState.tofDistances = getAllLidarDistances(i2c_port);
         
-        localisationEstimate = localisation(tmpState.odometry.heading, tmpState.tofDistances);
-
-        tmpState.odometry = filterPositions(tmpState.odometry, localisationEstimate);
+        if (arenaLocalisation) {
+            localisationEstimate = localisation(tmpState.odometry.heading, tmpState.tofDistances);
+            tmpState.odometry = filterPositions(tmpState.odometry, localisationEstimate);
+        }
 
         // update the estimated states
         previousState = estimatedState;
