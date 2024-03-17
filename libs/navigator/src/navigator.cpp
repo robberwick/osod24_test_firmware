@@ -5,40 +5,32 @@
 #include "types.h"
 #include "drivetrain_config.h"
 #include "waypoint_navigation.h"
+#include "types.h"
 
-Navigator::Navigator(const Receiver* receiver, STATEMANAGER::StateManager* stateManager, CONFIG::SteeringStyle direction) {
+Navigator::Navigator(const Receiver* receiver,
+                     STATEMANAGER::StateManager* stateManager,
+                     STATE_ESTIMATOR::StateEstimator* stateEstimator,
+                     CONFIG::SteeringStyle direction) {
     this->receiver = receiver;
     this->pStateManager = stateManager;
-
+    this->pStateEstimator = stateEstimator;
     driveDirection = direction;
     navigationMode = NAVIGATION_MODE::REMOTE_CONTROL;
 }
 
 void Navigator::navigate() {
-    printf("Navigating...\n");
     if (receiver->get_receiver_data()) {
-        //printf("Receiver data available\n");
-
+        
         ReceiverChannelValues values = receiver->get_channel_values();
-        //printf("AIL: %f ", values.AIL);
-        //printf("ELE: %f ", values.ELE);
-        //printf("THR: %f ", values.THR);
-        //printf("RUD: %f ", values.RUD);
-        //printf("AUX: %f ", values.AUX);
-        //printf("NC: %f ", values.NC);
-        //printf("\n");
 
         NAVIGATION_MODE::Mode newMode;
-        newMode = determineMode(values.AUX);
+        //check if the extra Tx channels should trigger anything
+        newMode = parseTxSignals(values);
         if (newMode != navigationMode){
             printf("changing mode to mode %d, where 1=RC, 2=waypoint, 3=Pi\n", newMode);
             navigationMode = newMode;
         }
         STATE_ESTIMATOR::VehicleState requestedState{};
-        if (shouldResetWaypointIndex(values.THR)){
-            printf("resetting waypoint index to 0.\n");
-            waypointNavigator.targetWaypointIndex = 0;
-        }
         switch (navigationMode) {
         case NAVIGATION_MODE::WAYPOINT:
             waypointNavigator.navigate(current_state);
@@ -50,7 +42,6 @@ void Navigator::navigate() {
             requestedState.velocity.angular_velocity = values.AIL * CONFIG::MAX_ANGULAR_VELOCITY;
             break;
         }
-        // send the receiver data to the state manager
         // TODO: use a queue to send the receiver data to the state manager
         pStateManager->requestState(requestedState);
     } else {
@@ -74,6 +65,40 @@ bool Navigator::shouldResetWaypointIndex(float signal){
 
 void Navigator::update(const VehicleState newState) {
     current_state = newState;
+}
+
+bool Navigator::shouldSetHeading(float signal){
+    return (signal < setHeadingThreshold);
+}
+
+bool Navigator::shouldSetOdometryOrigin(float signal){
+    return (signal > setOriginThreshold);
+}
+
+void Navigator::setHeading(){
+    pStateEstimator->zeroHeading();
+}
+
+void Navigator::setOrigin(){
+    pStateEstimator->requestOdometryOffset(current_state.odometry.x, current_state.odometry.y, 0);
+}
+
+NAVIGATION_MODE::Mode Navigator::parseTxSignals(const ReceiverChannelValues& signals){
+    // function to use "spare" transmitter channels as auxiliary inputs
+    // currently can set (zero) odoemtry heading and and origin
+        if (shouldResetWaypointIndex(signals.THR)){
+            printf("resetting waypoint index to 0.\n");
+            waypointNavigator.targetWaypointIndex = 0;
+        }
+        if (shouldSetHeading(signals.RUD)){
+            printf("setting current heading to 0.\n");
+            setHeading();
+        }
+        if (shouldSetOdometryOrigin(signals.RUD)){
+            printf("setting current position as zero for odometry.\n");
+            setOrigin();
+        }
+        return determineMode(signals.AUX);
 }
 
 Navigator::~Navigator() = default;

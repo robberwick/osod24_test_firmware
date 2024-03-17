@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "balance_port.h"
 #include "bno080.h"
+#include "tf_luna.h"
 
 
 Navigator *navigator;
@@ -71,7 +72,7 @@ int main() {
     IMU.enableRotationVector();
 
     // set up the state estimator
-    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, CONFIG::DRIVING_STYLE);
+    auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, i2c_port0, CONFIG::DRIVING_STYLE);
 
     // set up the state manager
     using namespace STATEMANAGER;
@@ -86,7 +87,7 @@ int main() {
     Receiver *pReceiver = getReceiver(motor::motor2040::RX_ECHO);
 
     // set up the navigator
-    navigator = new Navigator(pReceiver, pStateManager, CONFIG::DRIVING_STYLE);
+    navigator = new Navigator(pReceiver, pStateManager, pStateEstimator, CONFIG::DRIVING_STYLE);
     pStateEstimator->addObserver(navigator);
 
     // Initialize a hardware timer
@@ -99,8 +100,9 @@ int main() {
     );
 
     while (true) {
+        // Do nothing in the main loop
         if (timerCallbackData.shouldNavigate) {
-            // Call the navigate function
+            // Call the navigate function in the interrupt handler
             navigator->navigate();
             timerCallbackData.shouldNavigate = false;
         }
