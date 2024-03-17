@@ -43,9 +43,6 @@ namespace STATE_ESTIMATOR {
         // check if we're going to use the ToF sensors for arena localisation 
         // (a naN arena size means we're not going to use the arena for localisation):
         arenaLocalisation = !isnan(CONFIG::ARENA_SIZE);
-        if (arenaLocalisation) {
-            arenaSize = CONFIG::ARENA_SIZE;
-        }
 
         if (initialiseHeadingOffset() == false) {
             while (1){
@@ -296,13 +293,13 @@ namespace STATE_ESTIMATOR {
         float x_pos = 0.0f, y_pos = 0.0f;
 
         if (angle < 0) {
-            x_pos = arenaSize - distance * cos(angle + M_PI / 2);
+            x_pos = CONFIG::ARENA_SIZE - distance * cos(angle + M_PI / 2);
         } else {
             x_pos = distance * cos(angle + 1.5f * M_PI);
         }
 
         if ((angle < (0.5f * M_PI)) && (angle > (-0.5f * M_PI))) {
-            y_pos = arenaSize - distance * cos(angle);
+            y_pos = CONFIG::ARENA_SIZE - distance * cos(angle);
         } else {
             y_pos = distance * cos(angle + M_PI);
         }
@@ -343,7 +340,7 @@ namespace STATE_ESTIMATOR {
             const std::array<float, NUM_TOF_SENSORS>& yPositions){
 
         float lowestVariance = numeric_limits<float>::max();
-        Pose bestEstimate;
+        Pose bestEstimate = {0.0f, 0.0f, 0.0f};
         
         for (int permutationNo = 1; permutationNo < NUM_PERMUTATIONS; ++permutationNo) {
             // create 16 permutations (all the possible combinations of the two lists of possible
@@ -422,7 +419,8 @@ namespace STATE_ESTIMATOR {
         * @param yPositions The array of potential Y positions.
         * @return A structure containing the X and Y lists along with their counts of valid elements.
         */
-        std::array<float, NUM_TOF_SENSORS> xList, yList;
+        std::array<float, NUM_TOF_SENSORS> xList = {0.0f};
+        std::array<float, NUM_TOF_SENSORS> yList = {0.0f};
         size_t xSize = 0, ySize = 0;
         bitset<4> binary(permutation);
         for (size_t sensor = 0; sensor < NUM_TOF_SENSORS; ++sensor) {
@@ -432,7 +430,7 @@ namespace STATE_ESTIMATOR {
                 xList[xSize++] = xPositions[sensor];
             }
         }
-        return {xList, yList, xSize, ySize};;
+        return {xList, yList, xSize, ySize};
     }
 
     StateEstimator::~StateEstimator() {

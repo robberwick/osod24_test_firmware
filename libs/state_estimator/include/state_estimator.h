@@ -93,7 +93,6 @@ namespace STATE_ESTIMATOR {
         State previousState;
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
-        float arenaSize;
         float localisation_weighting = 0.01;
         Pose localisationEstimate;
 
