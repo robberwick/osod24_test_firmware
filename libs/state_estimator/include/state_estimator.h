@@ -57,7 +57,7 @@ namespace STATE_ESTIMATOR {
 
         CONFIG::SteeringStyle driveDirection; //factor to change odometry direction based on what we currently consider the front
 
-        Pose localisation(float heading, FourTofDistances tof_distances);
+        Pose localisation(float heading, FourToFDistances tof_distances);
 
         std::pair<float, float> possiblePositions(float heading, float distance, float arena_size);
 

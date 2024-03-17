@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
+#include "types.h"
 
 #pragma once
 
@@ -21,14 +22,7 @@ struct LidarData {
     int temperature;
 };
 
-struct FourTofDistances {  //four tof distances, in metres
-    float front;
-    float right;
-    float rear;
-    float left;
-};
-
 // Function to get Lidar data
 LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port);
-FourTofDistances getAllLidarDistances(i2c_inst_t* i2c_port);
+COMMON::FourToFDistances getAllLidarDistances(i2c_inst_t* i2c_port);
 float convertAndApplyOffset(int distance_cm, float offset);

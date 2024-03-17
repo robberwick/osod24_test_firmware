@@ -308,7 +308,7 @@ namespace STATE_ESTIMATOR {
         return {x_pos, y_pos};
     }
 
-    Pose StateEstimator::localisation(float heading, FourTofDistances tof_distances) {
+    Pose StateEstimator::localisation(float heading, FourToFDistances tof_distances) {
         /**
          * Estimates the robot's position within the arena by aggregating distance measurements from all ToF sensors.
          * It calculates potential positions for each sensor based on the robot's current heading and the sensor readings,

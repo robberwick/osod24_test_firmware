@@ -1,8 +1,8 @@
 #include "pico/stdlib.h"
 #include <array>
 #include "hardware/i2c.h"
-#include "tf_luna.h"
 #include "drivetrain_config.h"
+#include "tf_luna.h"
 
 // Function to get Lidar data
 LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port) {
@@ -21,7 +21,7 @@ LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port) {
     return data;
 }
 
-FourTofDistances getAllLidarDistances(i2c_inst_t* i2c_port) {
+COMMON::FourToFDistances getAllLidarDistances(i2c_inst_t* i2c_port) {
     // function to get the distances of four ToF sensors in meters
     // Get distance from each sensor, convert from centimeters to meters, and apply the offset
     int front_cm = getSingleLidarData(tf_luna_front, i2c_port).distance;

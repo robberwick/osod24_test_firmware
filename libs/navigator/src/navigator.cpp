@@ -50,11 +50,11 @@ bool Navigator::shouldSetOdometryOrigin(float signal){
 }
 
 void Navigator::setHeading(){
-    pStateEstimator->zero_heading();
+    pStateEstimator->zeroHeading();
 }
 
 void Navigator::setOrigin(){
-    pStateEstimator->request_odometry_offset(current_state.odometry.x, current_state.odometry.y, 0);
+    pStateEstimator->requestOdometryOffset(current_state.odometry.x, current_state.odometry.y, 0);
 }
 
 void Navigator::update(const COMMON::VehicleState newState) {

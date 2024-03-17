@@ -5,6 +5,8 @@
 #ifndef OSOD_MOTOR_2040_TYPES_H
 #define OSOD_MOTOR_2040_TYPES_H
 #include <cstddef>
+
+#pragma once
 namespace COMMON {
     namespace MOTOR_POSITION {
         enum MotorPosition {
@@ -62,7 +64,7 @@ namespace COMMON {
         Velocity velocity;
         Pose odometry;
         DriveTrainState driveTrainState;
-        FourTofDistances tofDistances;
+        FourToFDistances tofDistances;
     };
 }
 
