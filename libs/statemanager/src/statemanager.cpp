@@ -29,9 +29,9 @@ namespace STATEMANAGER {
 
         // set up the servos
         // left - ADC2 / PWM 6 - Pin 28
-        initialiseServo(steering_servos.left, motor2040::ADC2, 1032, 1599, 2200);
+        initialiseServo(steering_servos.left, motor2040::ADC2, 1221, 1750, 2200);
         // right - TX_TRIG / PWM 0 - Pin 16
-        initialiseServo(steering_servos.right, motor2040::TX_TRIG, 2200, 1670, 1221);
+        initialiseServo(steering_servos.right, motor2040::TX_TRIG, 1900, 1400, 1000);
     }
 
     void StateManager::requestState(const COMMON::VehicleState& requestedState) {
