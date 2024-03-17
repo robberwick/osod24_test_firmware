@@ -26,7 +26,7 @@ namespace STATEMANAGER {
 
         void initialiseServo(servo::Servo*& servo, uint pin, float minPulse, float midPulse, float maxPulse, float minValue, float midValue, float maxValue);
 
-        void requestState(const STATE_ESTIMATOR::State& requestedState);
+        void requestState(const COMMON::VehicleState& requestedState);
 
         void setServoSteeringAngle(const DriveTrainState& driveTrainState, CONFIG::Handedness side) const;
 
