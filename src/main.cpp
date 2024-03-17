@@ -100,7 +100,6 @@ int main() {
 
     while (true) {
         // Do nothing in the main loop
-
         if (timerCallbackData.shouldNavigate) {
             // Call the navigate function in the interrupt handler
             navigator->navigate();

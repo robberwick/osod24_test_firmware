@@ -13,7 +13,7 @@ namespace CONFIG {
     #define PI_NOON 5
     #define TEMPLE_OF_DOOM 6
 
-    #define CURRENT_CHALLENGE ESCAPE_ROUTE //ECO_DISASTER
+    #define CURRENT_CHALLENGE MINESWEEPER
 
     constexpr int I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
     constexpr int I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
@@ -33,6 +33,12 @@ namespace CONFIG {
     constexpr float WHEEL_BASE = 0.18f; // metres
     constexpr float WHEEL_TRACK = 0.15f; // metres
     constexpr float HALF_WHEEL_TRACK = WHEEL_TRACK / 2;
+
+    // ToF Sensor Offsets from the robot's center (in meters)
+    constexpr float TOF_FRONT_OFFSET = 0.16f;
+    constexpr float TOF_RIGHT_OFFSET = 0.07f;
+    constexpr float TOF_REAR_OFFSET = 0.09f;
+    constexpr float TOF_LEFT_OFFSET = 0.07f;
 
     //steering
     constexpr float MAX_STEERING_ANGLE = 3.14 / 4; // radians
@@ -59,29 +65,38 @@ namespace CONFIG {
     constexpr float MECANUM_DIAMETER = 0.048f; // metres, valid for "48mm" mecanums
     constexpr float GEARMOTOR_RATIO = 19.22f; // -to-1
 
-
     // Define WHEEL_DIAMETER and GEAR_RATIO based on CURRENT_CHALLENGE
     #if (CURRENT_CHALLENGE == ECO_DISASTER)
         constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-        constexpr float GEAR_RATIO = 42.0 / 18.0 * GEARMOTOR_RATIO;
+        constexpr float GEAR_RATIO = 51.0 / 16.0 * GEARMOTOR_RATIO;
         constexpr SteeringStyle DRIVING_STYLE = Forklift;
-    #elif (CURRENT_CHALLENGE == ESCAPE_ROUTE || CURRENT_CHALLENGE == MINESWEEPER || CURRENT_CHALLENGE == ZOMBIE_APOCALYPSE)
+        constexpr float ARENA_SIZE = 2.2; // metres square
+    #elif (CURRENT_CHALLENGE == ESCAPE_ROUTE || CURRENT_CHALLENGE == ZOMBIE_APOCALYPSE)
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
         constexpr SteeringStyle DRIVING_STYLE = Car;
+        constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
+    #elif (CURRENT_CHALLENGE == MINESWEEPER)
+        const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
+        const float GEAR_RATIO = GEARMOTOR_RATIO;
+        constexpr SteeringStyle DRIVING_STYLE = Car;
+        constexpr float ARENA_SIZE = 1.2; //1.2m just for testing, should be 1.6 metres square
     #elif (CURRENT_CHALLENGE == PI_NOON)
         const float WHEEL_DIAMETER = MECANUM_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
         constexpr SteeringStyle DRIVING_STYLE = Car;
+        constexpr float ARENA_SIZE = 2.4; //metres square
     #elif  (CURRENT_CHALLENGE == LAVA_PALAVA || CURRENT_CHALLENGE == TEMPLE_OF_DOOM)
         const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
         constexpr SteeringStyle DRIVING_STYLE = Car;
+        constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #else
         // Default case
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
         constexpr SteeringStyle DRIVING_DIRECTION = CarSteering;
+        constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #endif
 
 

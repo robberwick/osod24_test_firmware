@@ -4,7 +4,10 @@
 
 #ifndef OSOD_MOTOR_2040_STATE_ESTIMATOR_H
 #define OSOD_MOTOR_2040_STATE_ESTIMATOR_H
-
+#include <vector>
+#include <numeric>
+#include <cmath>
+#include <tuple>
 #include "pico/stdlib.h"
 #include "hardware/timer.h"
 #include "motor2040.hpp"
@@ -26,11 +29,12 @@ struct Encoders {
 
 namespace STATE_ESTIMATOR {
     using namespace COMMON;
+    using namespace std;
 
     // define a State struct containing the state parameters that can be requested or tracked
     struct State {
         Velocity velocity;
-        Odometry odometry;
+        Pose odometry;
         DriveTrainState driveTrainState;
         FourTofDistances tofDistances;
     };
@@ -57,11 +61,24 @@ namespace STATE_ESTIMATOR {
 
         static float wrap_pi(float heading);
 
-        void calculate_bilateral_speeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
+        void calculateBilateralSpeeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
 
         CONFIG::SteeringStyle driveDirection; //factor to change odometry direction based on what we currently consider the front
 
+        Pose localisation(float heading, FourTofDistances tof_distances);
+
+        std::pair<float, float> possiblePositions(float heading, float distance, float arena_size);
+
+        std::tuple<float, float, float> coordinateVariance(const std::vector<float>& xList, const std::vector<float>& yList);
+
+        bool arenaLocalisation;
+        struct PermutationResult {
+            std::array<float, NUM_TOF_SENSORS> xList;
+            std::array<float, NUM_TOF_SENSORS> yList;
+            size_t xSize;
+            size_t ySize;
+        };
 
     private:
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
@@ -76,6 +93,8 @@ namespace STATE_ESTIMATOR {
         State previousState;
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
+        float localisation_weighting = 0.01;
+        Pose localisationEstimate;
 
         static void timerCallback(repeating_timer_t* timer);
 
@@ -84,21 +103,39 @@ namespace STATE_ESTIMATOR {
         Observer* observers[10] = {};
         int observerCount = 0;
 
-        void capture_encoders(Encoder::Capture* encoderCaptures) const;
+        void captureEncoders(Encoder::Capture* encoderCaptures) const;
         
-        void get_latest_heading(float& heading);
+        void getLatestHeading(float& heading);
 
-        bool initialise_heading_offset();
+        bool initialiseHeadingOffset();
 
-        void get_position_delta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
+        void getPositionDelta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
 
-        void calculate_new_position(State& tmpState, float distance_travelled, float heading);
+        void calculateNewPosition(State& tmpState, float distance_travelled, float heading);
 
-        Velocity calculate_velocities(float new_heading, float previous_heading, float left_speed, float right_speed);
+        Velocity calculateVelocities(float new_heading, float previous_heading, float left_speed, float right_speed);
 
-        static MotorSpeeds get_wheel_speeds(const Encoder::Capture* encoderCaptures);
+        static MotorSpeeds getWheelSpeeds(const Encoder::Capture* encoderCaptures);
 
-        [[nodiscard]] SteeringAngles estimate_steering_angles() const;
+        [[nodiscard]] SteeringAngles estimateSteeringAngles() const;
+        
+        pair<float, float> calculatePossiblePositions(float heading, float distance);
+
+        tuple<float, float, float> calculateCoordinateVariance(const PermutationResult& result);
+
+        Pose filterPositions(Pose odometryEstimate, Pose localisationEstimate);
+        
+        const size_t NUM_PERMUTATIONS = 1 << NUM_TOF_SENSORS; //number of permations is 2^(num sensors)
+        
+        PermutationResult createPermutation(
+            int permutation,
+            const std::array<float, NUM_TOF_SENSORS>& xPositions,
+            const std::array<float, NUM_TOF_SENSORS>& yPositions);
+        
+        Pose evaluatePositionPermutations(
+            float heading,
+            const std::array<float, NUM_TOF_SENSORS>& xPositions,
+            const std::array<float, NUM_TOF_SENSORS>& yPositions);
     };
 } // STATE_ESTIMATOR
 

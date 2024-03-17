@@ -4,7 +4,7 @@
 
 #ifndef OSOD_MOTOR_2040_TYPES_H
 #define OSOD_MOTOR_2040_TYPES_H
-
+#include <cstddef>
 namespace COMMON {
     namespace MOTOR_POSITION {
         enum MotorPosition {
@@ -43,7 +43,10 @@ namespace COMMON {
         float rear;
         float left;
     };
-    struct Odometry {
+
+    constexpr size_t NUM_TOF_SENSORS = sizeof(ToFDistances) / sizeof(float);
+
+    struct Pose {
         float x;
         float y;
         float heading;

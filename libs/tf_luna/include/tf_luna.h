@@ -21,13 +21,14 @@ struct LidarData {
     int temperature;
 };
 
-struct FourTofDistances {
-    int front;
-    int right;
-    int rear;
-    int left;
+struct FourTofDistances {  //four tof distances, in metres
+    float front;
+    float right;
+    float rear;
+    float left;
 };
 
 // Function to get Lidar data
-LidarData getLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port);
+LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port);
 FourTofDistances getAllLidarDistances(i2c_inst_t* i2c_port);
+float convertAndApplyOffset(int distance_cm, float offset);
