@@ -31,7 +31,7 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
 
     headingPID.setpoint = bearingToNextWaypoint;
     //scale the response by the speed, so that the steering correction angle is consistent as run speeds varies
-    desiredW = std::clamp(desiredV * headingPID.calculate(currentHeading),
+    desiredW = std::clamp(-desiredV * headingPID.calculate(currentHeading),
                                 -maxTurnVelocity, maxTurnVelocity);
     float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
     printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredV: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV);
@@ -51,8 +51,13 @@ uint8_t WaypointNavigation::nextWaypoint(const uint8_t currentWaypointIndex, con
     uint8_t nextWaypointIndex = currentWaypointIndex;
     Waypoint targetWaypoint = CONFIG::waypointBuffer[currentWaypointIndex];
     while (distanceToWaypoint(targetWaypoint, currentState) < lookAhead ) { 
+
         // we don't enter/increment if the current target waypoint is already outside the lookahead
         nextWaypointIndex += 1;
+        if (nextWaypointIndex == CONFIG::waypointCount){
+            //if we've reached the end of the list of waypoints, loop back to the first waypoint
+            nextWaypointIndex = 0;
+        }
         targetWaypoint = CONFIG::waypointBuffer[nextWaypointIndex];
     } 
     return nextWaypointIndex;
@@ -64,15 +69,25 @@ uint8_t WaypointNavigation::nearestWaypoint(const VehicleState& currentState){
     // closest waypoint up to the target waypoint, checking the distance of each
     uint8_t closestWaypointIndex = nearestWaypointIndex; 
     float distanceToClosestWaypoint = std::numeric_limits<float>::max(); //initialise to max possible value
+    uint8_t lookaheadLimit = targetWaypointIndex;
+    if (nearestWaypointIndex > targetWaypointIndex) {
+        //if we've looping around and the targetwaypoint is at the start of the buffer,
+        // but the current nearest is towards the end then set the limit proportionally ahead
+        uint8_t lookaheadLimit = targetWaypointIndex + CONFIG::waypointCount;
+    }
+    
+    for (uint8_t index = nearestWaypointIndex; index <= lookaheadLimit; index++) {
+        // Wrap the index around if it exceeds the buffer size
+        uint8_t wrappedIndex = index % CONFIG::waypointCount;
 
-    for (uint8_t index = nearestWaypointIndex; index <= targetWaypointIndex; index++) {
-        Waypoint waypoint = CONFIG::waypointBuffer[index];
+        Waypoint waypoint = CONFIG::waypointBuffer[wrappedIndex];
         float distance = distanceToWaypoint(waypoint, currentState);
+
         if (distance < distanceToClosestWaypoint){
             distanceToClosestWaypoint = distance;
-            closestWaypointIndex = index;
+            closestWaypointIndex = wrappedIndex;
         }
-    } 
+    }
     return closestWaypointIndex;
 }
 
@@ -94,7 +109,7 @@ float WaypointNavigation::bearingToWaypoint(const Waypoint& target, const Vehicl
     if (dy != 0) {
         //x and Y flipped around in atan2 as we want angle from Yaxis,
         // not angle from X axis as the convention in maths
-        bearingToWaypoint = (float)atan2(dx, dy); 
+        bearingToWaypoint = (float)atan2(-dx, dy);
     } else {
         if (dx > 0) {
             bearingToWaypoint = M_PI / 2;
