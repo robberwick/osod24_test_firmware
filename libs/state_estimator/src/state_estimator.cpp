@@ -47,7 +47,7 @@ namespace STATE_ESTIMATOR {
         arenaLocalisation = !isnan(CONFIG::ARENA_SIZE);
         
         odometryOffsetRequest.x = odometryOffsetRequest.y = odometryOffsetRequest.heading = 0;
-       
+
         driveDirection = direction;
         
         zeroHeading();
