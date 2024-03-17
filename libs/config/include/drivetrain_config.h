@@ -92,7 +92,7 @@ namespace CONFIG {
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
         const float GEAR_RATIO = GEARMOTOR_RATIO;
         constexpr SteeringStyle DRIVING_STYLE = Car;
-        constexpr float ARENA_SIZE = 1.2; //1.2m just for testing, should be 1.6 metres square
+        constexpr float ARENA_SIZE = 1.6; //metres square
         constexpr COMMON::Waypoint* waypointBuffer = minesweeperRoute;
         constexpr size_t waypointCount = sizeof(minesweeperRoute) / sizeof(minesweeperRoute[0]);
     #elif (CURRENT_CHALLENGE == PI_NOON)
