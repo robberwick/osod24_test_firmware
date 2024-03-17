@@ -30,15 +30,6 @@ struct Encoders {
 namespace STATE_ESTIMATOR {
     using namespace COMMON;
     using namespace std;
-
-    // define a State struct containing the state parameters that can be requested or tracked
-    struct State {
-        Velocity velocity;
-        Pose odometry;
-        DriveTrainState driveTrainState;
-        FourTofDistances tofDistances;
-    };
-
     class StateEstimator : public Subject {
     public:
         explicit StateEstimator(BNO08x* IMUinstance, i2c_inst_t* port, CONFIG::SteeringStyle direction);
@@ -55,7 +46,7 @@ namespace STATE_ESTIMATOR {
 
         void addObserver(Observer* observer) override;
 
-        void notifyObservers(DriveTrainState newState) override;
+        void notifyObservers(VehicleState newState) override;
 
         void updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles);
 
@@ -79,6 +70,11 @@ namespace STATE_ESTIMATOR {
             size_t xSize;
             size_t ySize;
         };
+        void zeroHeading(); 
+
+        void requestOdometryOffset(float xOffset, float yOffset, float extraHeadingOffset);
+
+        Pose odometryOffsetRequest;
 
     private:
         Encoder* encoders[MOTOR_POSITION::MOTOR_POSITION_COUNT];
@@ -86,11 +82,11 @@ namespace STATE_ESTIMATOR {
         repeating_timer_t* timer;
         BNO08x* IMU;
         i2c_inst_t* i2c_port;
-        float heading_offset;
+        float IMUHeadingOffset;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
-        State estimatedState;
-        State previousState;
+        VehicleState estimatedState;
+        VehicleState previousState;
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
         float localisation_weighting = 0.01;
@@ -111,7 +107,7 @@ namespace STATE_ESTIMATOR {
 
         void getPositionDelta(Encoder::Capture encoderCaptures[4], float& distance_travelled) const;
 
-        void calculateNewPosition(State& tmpState, float distance_travelled, float heading);
+        void calculateNewPosition(VehicleState& tmpState, float distance_travelled, float heading);
 
         Velocity calculateVelocities(float new_heading, float previous_heading, float left_speed, float right_speed);
 
@@ -136,6 +132,8 @@ namespace STATE_ESTIMATOR {
             float heading,
             const std::array<float, NUM_TOF_SENSORS>& xPositions,
             const std::array<float, NUM_TOF_SENSORS>& yPositions);
+
+        void processOdometryOffsets();
     };
 } // STATE_ESTIMATOR
 

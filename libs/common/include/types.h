@@ -37,14 +37,14 @@ namespace COMMON {
         SteeringAngles angles;
     };
 
-    struct ToFDistances {
+    struct FourToFDistances {
         float front;
         float right;
         float rear;
         float left;
     };
 
-    constexpr size_t NUM_TOF_SENSORS = sizeof(ToFDistances) / sizeof(float);
+    constexpr size_t NUM_TOF_SENSORS = sizeof(FourToFDistances) / sizeof(float);
 
     struct Pose {
         float x;
@@ -57,6 +57,12 @@ namespace COMMON {
         float y_dot;
         float velocity;
         float angular_velocity;
+    };
+    struct VehicleState {
+        Velocity velocity;
+        Pose odometry;
+        DriveTrainState driveTrainState;
+        FourTofDistances tofDistances;
     };
 }
 
