@@ -334,7 +334,9 @@ namespace STATE_ESTIMATOR {
             float heading,
             const std::array<float, NUM_TOF_SENSORS>& xPositions,
             const std::array<float, NUM_TOF_SENSORS>& yPositions){
-
+     // evaluate all the possible purmutation of the positions and return the
+     // best-fitting position. The position is based on an arena-centre origin
+     
         float lowestVariance = numeric_limits<float>::max();
         Pose bestEstimate = {0.0f, 0.0f, 0.0f};
         
@@ -347,8 +349,8 @@ namespace STATE_ESTIMATOR {
             
             if (totalVariance < lowestVariance) {
                 lowestVariance = totalVariance;
-                bestEstimate.x = xMean;
-                bestEstimate.y = yMean;
+                bestEstimate.x = xMean - CONFIG::ARENA_SIZE/2;
+                bestEstimate.y = yMean - CONFIG::ARENA_SIZE/2;
                 bestEstimate.heading = heading;
             }
         }
