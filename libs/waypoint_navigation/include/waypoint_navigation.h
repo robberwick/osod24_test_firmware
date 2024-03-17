@@ -20,7 +20,7 @@ namespace WAYPOINTS {
         uint8_t targetWaypointIndex = 0; // the index of the current waypoint we're navigating to
         Waypoint targetWaypoint; // the actual waypoint we're navigating to
         uint8_t nextWaypoint(const uint8_t currentWaypointIndex, const VehicleState& currentState); //find the index of the next waypoint to navigate to
-        uint8_t nearestWaypointIndex; // the index of the waypoint we're closest to
+        uint8_t nearestWaypointIndex = 0; // the index of the waypoint we're closest to
         uint8_t nearestWaypoint(const VehicleState& currentState); //find the index of the closest waypoint
         float headingToWaypoint(const Waypoint& target, const VehicleState& currentState); // heading to a waypoint. not currently used?
         float bearingToWaypoint(const Waypoint& target, const VehicleState& currentState); // Compass bearing to a waypoint
@@ -30,9 +30,9 @@ namespace WAYPOINTS {
         float unwrapHeading(const float targetHeading, float currentHeading); //find "nearest" description of current heading to target
 
     private:
-        float headingPGain = 1;
-        float headingIGain = 0;
-        float headingDGain = 0;
+        float headingPGain = 20;
+        float headingIGain = 0.5;
+        float headingDGain = 5.0;
         float UPDATE_RATE = 0.02; //seconds
         Waypoint nanWaypoint = {NAN, NAN, NAN, NAN}; // Create a NaN waypoint
 
