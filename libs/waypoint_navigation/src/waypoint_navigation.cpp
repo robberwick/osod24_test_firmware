@@ -143,7 +143,13 @@ float WaypointNavigation::unwrapHeading(const float targetHeading, const float c
     minHeadingError = wrap_pi(targetHeading-currentHeading);
     nearestHeading = targetHeading+ minHeadingError;
     return nearestHeading;
-} 
+}
+
+float WaypointNavigation::getDifferenceInWallDistances(const VehicleState& currentState){
+    // uses the Tof distances from the current state to work out the distance from the centreline, in m
+    // gives a positive return for an offset to the right
+    return ((currentState.tofDistances.right-currentState.tofDistances.left)/2);
+}
 
 WaypointNavigation::~WaypointNavigation() = default;
 

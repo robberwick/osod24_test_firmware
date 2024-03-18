@@ -16,7 +16,7 @@ namespace CONFIG {
     #define PI_NOON 5
     #define TEMPLE_OF_DOOM 6
 
-    #define CURRENT_CHALLENGE MINESWEEPER
+    #define CURRENT_CHALLENGE  ESCAPE_ROUTE
 
     constexpr int I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
     constexpr int I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;

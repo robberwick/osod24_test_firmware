@@ -28,14 +28,21 @@ namespace WAYPOINTS {
         float lookAhead = 0.2; //lookahead distance in metres
         float maxTurnVelocity = 10; //max turn velocity in radians per second
         float unwrapHeading(const float targetHeading, float currentHeading); //find "nearest" description of current heading to target
+        float getDifferenceInWallDistances(const VehicleState& currentState);
 
     private:
-        float headingPGain = 20;
-        float headingIGain = 0.5;
-        float headingDGain = 5.0;
+        float headingPGain = 10;
+        float headingIGain = 0.25;
+        float headingDGain = 2.0;
         float UPDATE_RATE = 0.02; //seconds
 
         PID headingPID = PID(headingPGain, headingIGain, headingDGain, UPDATE_RATE); // used for steering to waypoints
+
+        float wallPGain = 20;
+        float wallIGain = 0.5;
+        float wallDGain = 5.0;
+
+        PID wallPID = PID(wallPGain, wallIGain, wallDGain, UPDATE_RATE); // used for steering to avoid the walls
     };
 }
 #endif // WAYPOINT_NAVIGATION_H
