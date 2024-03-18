@@ -39,7 +39,7 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
     desiredW = std::clamp(desiredW,-maxTurnVelocity, maxTurnVelocity);
 
     float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
-    printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredV: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV);
+    printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredw: %f, ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredW);
     printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
         currentState.odometry.x,
         currentState.odometry.y,
@@ -153,7 +153,11 @@ float WaypointNavigation::unwrapHeading(const float targetHeading, const float c
 float WaypointNavigation::getOffsetFromWallDistances(const VehicleState& currentState){
     // uses the Tof distances from the current state to work out the distance from the centreline, in m
     // gives a positive return for an offset to the right
-    return ((currentState.tofDistances.right-currentState.tofDistances.left)/2);
+    float offset = (currentState.tofDistances.right-currentState.tofDistances.left)/2;    
+    // constrain offset to the max it can practically be in the narrow sections
+    float clearanceOnCourse = 0.25;
+    offset = std::clamp(offset, -clearanceOnCourse, clearanceOnCourse);
+    return offset;
 }
 
 WaypointNavigation::~WaypointNavigation() = default;
