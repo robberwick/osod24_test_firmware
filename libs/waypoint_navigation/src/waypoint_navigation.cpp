@@ -7,7 +7,9 @@
 
 namespace WAYPOINTS {
 
-WaypointNavigation::WaypointNavigation(){}
+WaypointNavigation::WaypointNavigation(){
+    wallPID.setpoint = 0; //target the centreline between the walls
+}
 
 void WaypointNavigation::navigate(const VehicleState& currentState) {
     // updates desiredV and desiredW (speed and turn velocity)
@@ -30,9 +32,12 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
     float currentHeading = unwrapHeading(bearingToNextWaypoint, currentState.odometry.heading);
 
     headingPID.setpoint = bearingToNextWaypoint;
+    
     //scale the response by the speed, so that the steering correction angle is consistent as run speeds varies
-    desiredW = std::clamp(-desiredV * headingPID.calculate(currentHeading),
-                                -maxTurnVelocity, maxTurnVelocity);
+    desiredW = -desiredV * (headingPID.calculate(currentHeading) -
+                            wallPID.calculate(getOffsetFromWallDistances(currentState)));
+    desiredW = std::clamp(desiredW,-maxTurnVelocity, maxTurnVelocity);
+
     float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
     printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredV: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV);
     printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
@@ -145,7 +150,7 @@ float WaypointNavigation::unwrapHeading(const float targetHeading, const float c
     return nearestHeading;
 }
 
-float WaypointNavigation::getDifferenceInWallDistances(const VehicleState& currentState){
+float WaypointNavigation::getOffsetFromWallDistances(const VehicleState& currentState){
     // uses the Tof distances from the current state to work out the distance from the centreline, in m
     // gives a positive return for an offset to the right
     return ((currentState.tofDistances.right-currentState.tofDistances.left)/2);
