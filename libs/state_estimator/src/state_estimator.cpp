@@ -126,10 +126,18 @@ namespace STATE_ESTIMATOR {
         // Calculate average wheel rotation delta for left and right sides
         // for the front wheels we only use the forward component of the movement
         //this should give a more accurate estimate for distance_travelled
-        float left_travel = (encoderCaptures[MOTOR_POSITION::FRONT_LEFT].radians_delta() * cos(estimatedState.driveTrainState.angles.left)
-                             + encoderCaptures[MOTOR_POSITION::REAR_LEFT].radians_delta()) / 2;
-        float right_travel = (encoderCaptures[MOTOR_POSITION::FRONT_RIGHT].radians_delta() * cos(estimatedState.driveTrainState.angles.right)
-                              + encoderCaptures[MOTOR_POSITION::REAR_RIGHT].radians_delta()) / 2;
+        
+        // Store the radians_delta values
+        float front_left_delta = encoderCaptures[MOTOR_POSITION::FRONT_LEFT].radians_delta();
+        float rear_left_delta = encoderCaptures[MOTOR_POSITION::REAR_LEFT].radians_delta();
+        float front_right_delta = encoderCaptures[MOTOR_POSITION::FRONT_RIGHT].radians_delta();
+        float rear_right_delta = encoderCaptures[MOTOR_POSITION::REAR_RIGHT].radians_delta();
+
+        // Now, calculate left_travel and right_travel using the stored values.
+        float left_travel = (front_left_delta * cos(estimatedState.driveTrainState.angles.left) + rear_left_delta) / 2;
+        float right_travel = (front_right_delta * cos(estimatedState.driveTrainState.angles.right) + rear_right_delta) / 2;
+
+        printf("FL: %f, FR: %f, RR: %f, RL: %f\n", front_left_delta, front_right_delta, rear_right_delta, rear_left_delta);
 
         // convert wheel rotation to distance travelled in meters
         distance_travelled = ((left_travel - right_travel) / 2) * CONFIG::WHEEL_DIAMETER / 2;
