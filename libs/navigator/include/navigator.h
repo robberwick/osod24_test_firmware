@@ -36,6 +36,9 @@ private:
     float waypointIndexThreshold = 0.5; //if signal above this, reset the waypoint index
     float setHeadingThreshold = -0.5; //if signal below this, set the heading
     float setOriginThreshold = 0.5; //if signal above this, set the odometry origin
+    float expo(float signal, float expoValue); // apply an exponential response to the channel
+    float velocityExpoValue = 0.7;
+    float steeringExpoValue = 0.7;
     bool shouldResetWaypointIndex(float signal);
     bool shouldSetHeading(float signal);
     bool shouldSetOdometryOrigin(float signal);

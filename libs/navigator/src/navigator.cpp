@@ -20,7 +20,7 @@ Navigator::Navigator(const Receiver* receiver,
 
 void Navigator::navigate() {
     if (receiver->get_receiver_data()) {
-        
+
         ReceiverChannelValues values = receiver->get_channel_values();
 
         NAVIGATION_MODE::Mode newMode;
@@ -38,8 +38,15 @@ void Navigator::navigate() {
             requestedState.velocity.angular_velocity = waypointNavigator.desiredW;
             break;
         default: //includes REMOTE_CONTROL, which is the default
-            requestedState.velocity.velocity = driveDirection * values.ELE * CONFIG::MAX_VELOCITY;
-            requestedState.velocity.angular_velocity = values.AIL * CONFIG::MAX_ANGULAR_VELOCITY;
+            // Apply expo function to AIL and ELE
+            float expoAIL = expo(values.AIL, steeringExpoValue);
+            float expoELE = expo(values.ELE, velocityExpoValue);
+
+            // send the receiver data to the state manager
+            // TODO: use a queue to send the receiver data to the state manager
+            requestedState.velocity.velocity = driveDirection * expoELE * CONFIG::MAX_VELOCITY;
+            requestedState.velocity.angular_velocity = expoAIL * CONFIG::MAX_ANGULAR_VELOCITY;
+            pStateManager->requestState(requestedState);
             break;
         }
         // TODO: use a queue to send the receiver data to the state manager
@@ -99,6 +106,10 @@ NAVIGATION_MODE::Mode Navigator::parseTxSignals(const ReceiverChannelValues& sig
             setOrigin();
         }
         return determineMode(signals.AUX);
+}
+
+float Navigator::expo(float input, float expoValue) {
+    return input * (abs(input) * expoValue + (1.0f - expoValue));
 }
 
 Navigator::~Navigator() = default;
