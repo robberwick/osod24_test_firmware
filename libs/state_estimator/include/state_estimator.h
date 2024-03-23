@@ -50,10 +50,10 @@ namespace STATE_ESTIMATOR {
 
         void updateCurrentSteeringAngles(const SteeringAngles& newSteeringAngles);
 
-        static float wrap_pi(float heading);
-
         void calculateBilateralSpeeds(const MotorSpeeds& motor_speeds, SteeringAngles steering_angles,
                                         float& left_speed, float& right_speed);
+                                        
+        bool set_heading_offset();
 
         CONFIG::SteeringStyle driveDirection; //factor to change odometry direction based on what we currently consider the front
 
@@ -82,14 +82,14 @@ namespace STATE_ESTIMATOR {
         repeating_timer_t* timer;
         BNO08x* IMU;
         i2c_inst_t* i2c_port;
-        float IMUHeadingOffset;
+        float IMUHeadingOffset = 0;
         //TODO: (related to issue #42) actually use timer (defined above) instead of fixed interval
         const uint32_t timerInterval = 50;  // Interval in milliseconds
         VehicleState estimatedState;
         VehicleState previousState;
         DriveTrainState currentDriveTrainState;
         SteeringAngles currentSteeringAngles;
-        float localisation_weighting = 0.01;
+        float localisation_weighting = 0.1;
         Pose localisationEstimate;
 
         static void timerCallback(repeating_timer_t* timer);

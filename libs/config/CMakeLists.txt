@@ -1,9 +1,12 @@
-add_library(config INTERFACE)
-
-target_link_libraries(config INTERFACE
-        motor2040
+add_library(config STATIC
+        src/waypoint_routes.cpp
 )
 
-target_include_directories(config INTERFACE
+target_link_libraries(config
+        motor2040
+        common
+)
+
+target_include_directories(config PUBLIC
         include
 )

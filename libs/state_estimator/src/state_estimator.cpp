@@ -7,6 +7,8 @@
 #include "drivetrain_config.h"
 #include "encoder.hpp"
 #include "bno080.h"
+#include "utils.h"
+
 #include "tf_luna.h"
 namespace STATE_ESTIMATOR {
     StateEstimator *StateEstimator::instancePtr = nullptr;
@@ -45,7 +47,7 @@ namespace STATE_ESTIMATOR {
         arenaLocalisation = !isnan(CONFIG::ARENA_SIZE);
         
         odometryOffsetRequest.x = odometryOffsetRequest.y = odometryOffsetRequest.heading = 0;
-       
+
         driveDirection = direction;
         
         zeroHeading();
@@ -101,13 +103,6 @@ namespace STATE_ESTIMATOR {
         for(int i = 0; i < MOTOR_POSITION::MOTOR_POSITION_COUNT; i++) {
             encoderCaptures[i] = encoders[i]->capture();
         }
-    }
-
-    float StateEstimator::wrap_pi(const float heading) {
-        //constrain heading to +/-pi
-
-        const double wrapped = heading > M_PI ? heading - M_TWOPI : heading < -M_PI ? heading + M_TWOPI : heading;
-        return static_cast<float>(wrapped);
     }
 
     void StateEstimator::calculateBilateralSpeeds(const MotorSpeeds& motor_speeds, const SteeringAngles steering_angles, float& left_speed, float& right_speed) {
@@ -213,9 +208,10 @@ namespace STATE_ESTIMATOR {
         // get ToF data
         tmpState.tofDistances = getAllLidarDistances(i2c_port);
         
-        localisationEstimate = localisation(tmpState.odometry.heading, tmpState.tofDistances);
-
-        tmpState.odometry = filterPositions(tmpState.odometry, localisationEstimate);
+        if (arenaLocalisation) {
+            localisationEstimate = localisation(tmpState.odometry.heading, tmpState.tofDistances);
+            tmpState.odometry = filterPositions(tmpState.odometry, localisationEstimate);
+        }
 
         // update the estimated states
         previousState = estimatedState;
@@ -339,7 +335,9 @@ namespace STATE_ESTIMATOR {
             float heading,
             const std::array<float, NUM_TOF_SENSORS>& xPositions,
             const std::array<float, NUM_TOF_SENSORS>& yPositions){
-
+     // evaluate all the possible purmutation of the positions and return the
+     // best-fitting position. The position is based on an arena-centre origin
+     
         float lowestVariance = numeric_limits<float>::max();
         Pose bestEstimate = {0.0f, 0.0f, 0.0f};
         
@@ -352,8 +350,8 @@ namespace STATE_ESTIMATOR {
             
             if (totalVariance < lowestVariance) {
                 lowestVariance = totalVariance;
-                bestEstimate.x = xMean;
-                bestEstimate.y = yMean;
+                bestEstimate.x = driveDirection * (xMean - CONFIG::ARENA_SIZE/2);
+                bestEstimate.y = driveDirection * (yMean - CONFIG::ARENA_SIZE/2);
                 bestEstimate.heading = heading;
             }
         }
