@@ -8,6 +8,7 @@
 #include "encoder.hpp"
 #include "bno080.h"
 #include "utils.h"
+#include "communicator.h"
 
 #include "tf_luna.h"
 namespace STATE_ESTIMATOR {
@@ -50,6 +51,8 @@ namespace STATE_ESTIMATOR {
 
         driveDirection = direction;
 
+        communicator = &Communicator::getInstance();
+
         zeroHeading();
 
         setupTimer();
@@ -83,8 +86,18 @@ namespace STATE_ESTIMATOR {
            estimatedState.tofDistances.left);
     }
 
+    void StateEstimator::logEstimatedState() const {
+        // send the estimated state via the communicator
+        PAYLOADS::EstimatedStatePayload estimatedStatePayload(
+            millis(),
+            estimatedState.odometry,
+            estimatedState.tofDistances
+        );
+        communicator->sendPacket(estimatedStatePayload);
+    }
+
     void StateEstimator::publishState() const {
-        showValuesViaCSV();
+        logEstimatedState();
     }
 
     void StateEstimator::addObserver(Observer* observer) {

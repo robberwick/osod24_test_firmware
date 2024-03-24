@@ -15,6 +15,7 @@
 #include "interfaces.h"
 #include "types.h"
 #include "bno080.h"
+#include "communicator.h"
 #include "tf_luna.h"
 
 using namespace motor;
@@ -39,6 +40,7 @@ namespace STATE_ESTIMATOR {
     public:
         void showValues() const;
         void showValuesViaCSV() const;
+        void logEstimatedState() const;
         
         void estimateState();
 
@@ -91,6 +93,7 @@ namespace STATE_ESTIMATOR {
         SteeringAngles currentSteeringAngles;
         float localisation_weighting = 0.1;
         Pose localisationEstimate;
+        Communicator* communicator;
 
         static void timerCallback(repeating_timer_t* timer);
 

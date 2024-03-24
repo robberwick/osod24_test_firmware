@@ -9,6 +9,7 @@ target_link_libraries(state_estimator PUBLIC
         motor2040
         encoder
         tf_luna
+        communicator
 )
 
 target_include_directories(state_estimator PUBLIC
