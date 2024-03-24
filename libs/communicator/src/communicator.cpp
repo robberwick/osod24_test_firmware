@@ -12,11 +12,3 @@ Communicator& Communicator::getInstance() {
 
 Communicator::Communicator() = default;
 Communicator::~Communicator() = default;
-
-// template<typename T>
-// void Communicator::sendPacket(const T& packet) {
-//     if (this->serialTransfer) {
-//         const uint16_t packetSize = this->serialTransfer->txObj(packet);
-//         this->serialTransfer->sendData(packetSize);
-//     }
-// }

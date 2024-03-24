@@ -7,6 +7,11 @@ public:
     static Communicator& getInstance();
     void setSerialTransfer(SerialTransfer* serialTransfer);
 
+    #ifdef LOGGING_DISABLED
+    template <typename T>
+    void sendPacket(const T& packet) {}
+    #else
+
     template <typename T>
     void sendPacket(const T& packet) {
         if (this->serialTransfer) {
@@ -14,7 +19,7 @@ public:
             this->serialTransfer->sendData(packetSize);
         }
     }
-
+    #endif
 
     Communicator(const Communicator&) = delete;
     void operator=(const Communicator&) = delete;
