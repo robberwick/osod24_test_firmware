@@ -35,4 +35,21 @@ namespace PAYLOADS {
         uint8_t available;
         explicit SerialTransferAvailableStatus(bool available = false) : Payload(0x05), available(available) {} // 0x05 is an example value
     };
+
+    // payload for EstimatedState
+    struct __attribute__((packed)) EstimatedStatePayload : Payload {
+        float x;
+        float y;
+        float heading;
+        float tofFront;
+        float tofRear;
+        float tofLeft;
+        float tofRight;
+
+        explicit EstimatedStatePayload(const COMMON::Pose& odometry,
+                                       const COMMON::FourToFDistances& tofDistances) : Payload(0x06),
+            x(odometry.x), y(odometry.y), heading(odometry.heading), tofFront(tofDistances.front),
+            tofRear(tofDistances.rear), tofLeft(tofDistances.left), tofRight(tofDistances.right) {
+        } // 0x06 is an example value
+    };
 }
