@@ -33,7 +33,8 @@ void Navigator::navigate() {
         //check if the extra Tx channels should trigger anything
         newMode = parseTxSignals(values);
         if (newMode != navigationMode){
-            printf("changing mode to mode %d, where 1=RC, 2=waypoint, 3=Pi\n", newMode);
+            // TODO: log this via communicator
+            // printf("changing mode to mode %d, where 1=RC, 2=waypoint, 3=Pi\n", newMode);
             navigationMode = newMode;
         }
         STATE_ESTIMATOR::VehicleState requestedState{};
@@ -63,7 +64,8 @@ void Navigator::navigate() {
         requestedStatePayload.angular_velocity = requestedState.velocity.angular_velocity;
         communicator_->sendPacket(requestedStatePayload);
     } else {
-        // printf("No receiver data available\n");
+            // TODO: log this via communicator
+        // // printf("No receiver data available\n");
         PAYLOADS::SerialTransferAvailableStatus serial_transfer_available_status(false);
         communicator_->sendPacket(serial_transfer_available_status);
     }
@@ -107,15 +109,18 @@ NAVIGATION_MODE::Mode Navigator::parseTxSignals(const ReceiverChannelValues& sig
     // function to use "spare" transmitter channels as auxiliary inputs
     // currently can set (zero) odoemtry heading and and origin
         if (shouldResetWaypointIndex(signals.THR)){
-            printf("resetting waypoint index to 0.\n");
+            // TODO: log this via communicator
+            // printf("resetting waypoint index to 0.\n");
             waypointNavigator.targetWaypointIndex = 0;
         }
         if (shouldSetHeading(signals.RUD)){
-            printf("setting current heading to 0.\n");
+            // TODO: log this via communicator
+            // printf("setting current heading to 0.\n");
             setHeading();
         }
         if (shouldSetOdometryOrigin(signals.RUD)){
-            printf("setting current position as zero for odometry.\n");
+            // TODO: log this via communicator
+            // printf("setting current position as zero for odometry.\n");
             setOrigin();
         }
         return determineMode(signals.AUX);
