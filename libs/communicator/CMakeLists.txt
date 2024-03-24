@@ -4,6 +4,7 @@ add_library(communicator STATIC
 )
 target_link_libraries(communicator PUBLIC
         serialtransfer
+        common
 )
 target_include_directories(communicator PUBLIC
         include
