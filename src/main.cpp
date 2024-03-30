@@ -55,6 +55,7 @@ extern "C" void timer_callback(repeating_timer_t *t) {
 
 int main() {
     stdio_init_all();
+    stdio_set_translate_crlf(&stdio_usb, false);
     i2c_inst_t* i2c_port0;
     initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
     bool adcPresent;
