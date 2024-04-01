@@ -40,7 +40,7 @@ COMMON::adcVoltages BalancePort::getCellVoltages() {
 }
 
 COMMON::CellStatus BalancePort::checkVoltages(COMMON::adcVoltages measuredVoltages) {
-    COMMON::CellStatus voltageStatus;
+    COMMON::CellStatus voltageStatus{};
     voltageStatus.voltages =  measuredVoltages;
     float cell1 = measuredVoltages.cell1;
     float cell2 = measuredVoltages.cell2;
@@ -49,27 +49,17 @@ COMMON::CellStatus BalancePort::checkVoltages(COMMON::adcVoltages measuredVoltag
 
     float maxVoltage = std::max({cell1, cell2, cell3});
     float minVoltage = std::min({cell1, cell2, cell3});
-    voltageStatus.allOk = true;
-    if ((maxVoltage - minVoltage) > balanceThreshold){
-        voltageStatus.outOfBalance = true;
-        voltageStatus.allOk = false;
-        // voltageStatus.fault = "cells out of balance, ";
-    }
-    if ( minVoltage < minCellVoltage ){
-        voltageStatus.lowCellVoltage = true;
-        voltageStatus.allOk = false;
-        // voltageStatus.fault += "cell undervoltage, ";
-    }
-    if (maxVoltage > maxCellVoltage) {
-        voltageStatus.highCellVoltage = true;
-        voltageStatus.allOk = false;
-        // voltageStatus.fault += "cell overvoltage, ";
-    }
-    if (PSU > PSUConnectedThreshold && PSU < minPSU) {
-        voltageStatus.psuUnderVoltage = true;
-        voltageStatus.allOk = false;
-        // voltageStatus.fault += "PSU undervoltage, ";
-    }
+
+    // voltage is out of balance if the difference between the max and min voltage is greater than the balance threshold
+    voltageStatus.outOfBalance = (maxVoltage - minVoltage) > balanceThreshold;
+    // voltage is low if the minimum cell voltage is less than the minimum cell voltage threshold
+    voltageStatus.lowCellVoltage = minVoltage < minCellVoltage;
+    // voltage is high if the maximum cell voltage is greater than the maximum cell voltage threshold
+    voltageStatus.highCellVoltage = maxVoltage > maxCellVoltage;
+    // voltage is under voltage if the PSU voltage is greater than the PSU connected threshold and less than the minimum PSU voltage
+    voltageStatus.psuUnderVoltage = PSU > PSUConnectedThreshold && PSU < minPSU;
+    // voltage is okay if none of the above conditions are met
+    voltageStatus.allOk = !voltageStatus.lowCellVoltage && !voltageStatus.highCellVoltage && !voltageStatus.outOfBalance && !voltageStatus.psuUnderVoltage;
     return voltageStatus;
 }
 
