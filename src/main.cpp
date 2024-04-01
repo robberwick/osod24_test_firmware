@@ -53,6 +53,8 @@ extern "C" void timer_callback(repeating_timer_t *t) {
     }
 }
 
+bool lastBrawnStatus = false;
+
 int main() {
     stdio_init_all();
 
@@ -104,8 +106,9 @@ int main() {
             &navigationTimer
     );
     printf("repeating timer created");
-    gpio_set_irq_enabled_with_callback(CONFIG::motorStatusPin, GPIO_IRQ_EDGE_RISE, true, &handlerMotorController);
-    printf("IRQ created");
+    //following interupt causes board to lock up: 
+    //gpio_set_irq_enabled_with_callback(CONFIG::motorStatusPin, GPIO_IRQ_EDGE_RISE, true, &handlerMotorController);
+    //printf("IRQ created");
 
     while (true) {
         // Do nothing in the main loop
@@ -119,19 +122,26 @@ int main() {
             balancePort.raiseCellStatus();
             timerCallbackData.shouldReadCellStatus = false;
         }
+        bool brawnSwitchStatus = gpio_get(CONFIG::motorStatusPin); // Read current status
+        if (!lastBrawnStatus && brawnSwitchStatus) {
+            printf("Brawn status changed to HIGH\n");
+            ESCirqTriggered = true; // Indicate that a rising edge was detected
+        }
+        lastBrawnStatus = brawnSwitchStatus;
+
+        // Handle the non-blocking delay outside of the rising edge detection
         if (ESCirqTriggered && !ESCdelayInProgress) {
-            printf("ESC irq triggered!\n");
-            ESCdelayInProgress = true;
-            ESCirqTriggered = false; // Reset IRQ flag
+            printf("delay started\n");
+            ESCdelayInProgress = true; // Start the non-blocking delay
+            ESCirqTriggered = false; // Reset the flag
         }
 
         if (ESCdelayInProgress) {
             if (non_blocking_delay_us(2000)) {
-                ESCdelayInProgress = false; // Reset delay flag
+                ESCdelayInProgress = false; // Reset delay flag once the delay is completed
                 toggleMotorSleepPin();
                 printf("motor drives (re?)enabled\n");
             }
         }
-
     }
 }
