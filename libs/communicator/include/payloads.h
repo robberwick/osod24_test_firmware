@@ -8,6 +8,7 @@ namespace PAYLOADS {
             SERIAL_TRANSFER_AVAILABLE_STATUS = 0x01,
             REQUESTED_STATE = 0x02,
             ESTIMATED_STATE = 0x03,
+            CELL_STATUS = 0x04,
         };
     }
 
@@ -59,6 +60,33 @@ namespace PAYLOADS {
               tofFront(tofDistances.front),
               tofRear(tofDistances.rear), tofLeft(tofDistances.left),
               tofRight(tofDistances.right) {
+        }
+    };
+
+    // payload for CellStatus
+    struct __attribute__((packed)) CellStatusPayload : Payload {
+        float cell1;
+        float cell2;
+        float cell3;
+        float psu;
+        bool allOk;
+        bool outOfBalance;
+        bool lowCellVoltage;
+        bool highCellVoltage;
+        bool psuUnderVoltage;
+
+        explicit CellStatusPayload(
+            const COMMON::CellStatus& cellStatus)
+            : Payload(PACKET_TYPE::CELL_STATUS),
+              cell1(cellStatus.voltages.cell1),
+              cell2(cellStatus.voltages.cell2),
+              cell3(cellStatus.voltages.cell3),
+              psu(cellStatus.voltages.psu),
+              allOk(cellStatus.allOk),
+              outOfBalance(cellStatus.outOfBalance),
+              lowCellVoltage(cellStatus.lowCellVoltage),
+              highCellVoltage(cellStatus.highCellVoltage),
+              psuUnderVoltage(cellStatus.psuUnderVoltage) {
         }
     };
 }
