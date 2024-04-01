@@ -27,6 +27,7 @@ include(FetchContent)
 target_link_libraries(balance_port PUBLIC
     pico_stdlib 
     hardware_i2c
+    communicator
     config
     pico_ads1x15
 )

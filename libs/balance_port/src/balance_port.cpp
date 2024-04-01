@@ -4,6 +4,10 @@
 #include "balance_port.h"
 #include "ads1x15.h"
 
+BalancePort::BalancePort() {
+    communicator = &Communicator::getInstance();
+}
+
 bool BalancePort::initADC(i2c_inst_t* i2c_port) {
     // Initialize inputVoltagesADC, set gain, etc.
 
@@ -76,11 +80,10 @@ void BalancePort::raiseCellStatus() {
         // Increment failCount if the cell status is not okay for 10 consecutive times
         failCount++;
         if (failCount > failCountThreshold) {
-            // TODO: raise this via communicator
-            // printf("input voltage error! %s Voltages: ", status.fault.c_str());
-            // printf("cell 1: %fV, cell 2: %fV, cell 3: %fV, PSU: %fV\n",
-            //        status.voltages.cell1, status.voltages.cell2,
-            //        status.voltages.cell3, status.voltages.psu);
+            PAYLOADS::CellStatusPayload cellStatuspayload(
+            status
+        );
+            communicator->sendPacket(cellStatuspayload);
         }
     } else {
         failCount = 0;

@@ -6,6 +6,7 @@
 #include "ads1x15/ads1x15.hpp"
 #include "drivetrain_config.h"
 #include "types.h"
+#include "communicator.h"
 
 // ADC address
 const uint8_t ADS1015_address = 0x48;
@@ -14,7 +15,7 @@ const uint8_t ADS1015_address = 0x48;
 
 class BalancePort {
 public:
-    //BalancePort(); // Constructor for initializing the ADC
+    BalancePort(); // Constructor for initializing the ADC
     bool initADC(i2c_inst_t* i2c_port); // Method to initialize ADC settings
     COMMON::CellStatus checkVoltages(COMMON::adcVoltages measuredVoltages);
     COMMON::adcVoltages getCellVoltages(); // Method to read and return cell voltages
@@ -29,4 +30,5 @@ public:
 private:
     PICO_ADS1015 inputVoltagesADC; // ADS1015 object
     int failCount = 0;
+    Communicator* communicator;
 };
