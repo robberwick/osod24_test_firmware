@@ -55,6 +55,9 @@ extern "C" void timer_callback(repeating_timer_t *t) {
 
 int main() {
     stdio_init_all();
+
+    initMotorMonitorPins();
+    
     i2c_inst_t* i2c_port0;
     initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
     bool adcPresent;
@@ -83,10 +86,13 @@ int main() {
     // set up the receiver
     // if the cmake build flag RX_PROTOCOL is CPPM, then use the CPPM receiver
     // otherwise use the SBUS receiver
+    printf("creating receiver");
     Receiver *pReceiver = getReceiver(motor::motor2040::SHARED_ADC);
+    printf("receiver created, creating navigator");
 
     // set up the navigator
     navigator = new Navigator(pReceiver, pStateManager, pStateEstimator, CONFIG::DRIVING_STYLE);
+    printf("navigator created");
     pStateEstimator->addObserver(navigator);
 
     // Initialize a hardware timer
@@ -97,6 +103,9 @@ int main() {
             &timerCallbackData,
             &navigationTimer
     );
+    printf("repeating timer created");
+    gpio_set_irq_enabled_with_callback(CONFIG::motorStatusPin, GPIO_IRQ_EDGE_RISE, true, &handlerMotorController);
+    printf("IRQ created");
 
     while (true) {
         // Do nothing in the main loop
@@ -110,5 +119,19 @@ int main() {
             balancePort.raiseCellStatus();
             timerCallbackData.shouldReadCellStatus = false;
         }
+        if (ESCirqTriggered && !ESCdelayInProgress) {
+            printf("ESC irq triggered!\n");
+            ESCdelayInProgress = true;
+            ESCirqTriggered = false; // Reset IRQ flag
+        }
+
+        if (ESCdelayInProgress) {
+            if (non_blocking_delay_us(2000)) {
+                ESCdelayInProgress = false; // Reset delay flag
+                toggleMotorSleepPin();
+                printf("motor drives (re?)enabled\n");
+            }
+        }
+
     }
 }
