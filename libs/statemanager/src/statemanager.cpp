@@ -19,8 +19,7 @@ namespace STATEMANAGER {
     }
 
     StateManager::StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator) : mixerStrategy(mixerStrategy), stateEstimator(stateEstimator) {
-        printf("State estimator created\n");
-        printf("State manager created\n");
+        printf("creating State manager\n");
         // set up the stokers
         stokers[MOTOR_POSITION::FRONT_LEFT] = new STOKER::Stoker(motor::motor2040::MOTOR_A, MOTOR_POSITION::FRONT_LEFT, Direction::NORMAL_DIR);
         stokers[MOTOR_POSITION::FRONT_RIGHT] = new STOKER::Stoker(motor::motor2040::MOTOR_B, MOTOR_POSITION::FRONT_RIGHT, Direction::NORMAL_DIR);
@@ -32,6 +31,7 @@ namespace STATEMANAGER {
         initialiseServo(steering_servos.left, motor2040::RX_ECHO, 1221, 1750, 2200);
         // right - TX_TRIG / PWM 0 - Pin 16
         initialiseServo(steering_servos.right, motor2040::TX_TRIG, 1900, 1400, 1000);
+        printf("State manager created\n");
     }
 
     void StateManager::requestState(const COMMON::VehicleState& requestedState) {

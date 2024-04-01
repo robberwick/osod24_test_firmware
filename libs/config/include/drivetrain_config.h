@@ -20,6 +20,9 @@ namespace CONFIG {
 
     constexpr int I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
     constexpr int I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
+    constexpr int motorSleepPin = motor::motor2040::ADC_ADDR_0; // pin 22;
+    constexpr int motorStatusPin = motor::motor2040::USER_SW; // pin 23;
+
     constexpr uint8_t BNO08X_ADDR = 0x4A;
     enum Handedness {
         LEFT,
