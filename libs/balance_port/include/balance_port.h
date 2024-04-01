@@ -5,32 +5,19 @@
 #include "hardware/i2c.h"
 #include "ads1x15/ads1x15.hpp"
 #include "drivetrain_config.h"
+#include "types.h"
 
 // ADC address
 const uint8_t ADS1015_address = 0x48;
 
-struct adcVoltages {
-    float cell1;
-    float cell2;
-    float cell3;
-    float psu;
-};
-struct CellStatus {
-    adcVoltages voltages; // Include this only if needed
-    bool allOk; // True if all cells are within the acceptable range
-    bool outOfBalance;
-    bool lowCellVoltage;
-    bool highCellVoltage;
-    bool psuUnderVoltage;
-    std::string fault;
-};
+
 
 class BalancePort {
 public:
     //BalancePort(); // Constructor for initializing the ADC
     bool initADC(i2c_inst_t* i2c_port); // Method to initialize ADC settings
-    CellStatus checkVoltages(adcVoltages measuredVoltages);
-    adcVoltages getCellVoltages(); // Method to read and return cell voltages
+    COMMON::CellStatus checkVoltages(COMMON::adcVoltages measuredVoltages);
+    COMMON::adcVoltages getCellVoltages(); // Method to read and return cell voltages
     void raiseCellStatus();
     float minCellVoltage = 3.5;
     float maxCellVoltage = 4.2;

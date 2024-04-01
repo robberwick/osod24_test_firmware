@@ -83,6 +83,20 @@ namespace COMMON {
         DriveTrainState driveTrainState;
         FourToFDistances tofDistances;
     };
+    struct adcVoltages {
+        float cell1;
+        float cell2;
+        float cell3;
+        float psu;
+    };
+    struct CellStatus {
+        adcVoltages voltages; // Include this only if needed
+        bool allOk; // True if all cells are within the acceptable range
+        bool outOfBalance;
+        bool lowCellVoltage;
+        bool highCellVoltage;
+        bool psuUnderVoltage;
+    };
 }
 
 #endif //OSOD_MOTOR_2040_TYPES_H
