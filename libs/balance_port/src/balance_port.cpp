@@ -4,6 +4,10 @@
 #include "balance_port.h"
 #include "ads1x15.h"
 
+BalancePort::BalancePort() {
+    communicator = &Communicator::getInstance();
+}
+
 bool BalancePort::initADC(i2c_inst_t* i2c_port) {
     // Initialize inputVoltagesADC, set gain, etc.
 
@@ -18,8 +22,8 @@ bool BalancePort::initADC(i2c_inst_t* i2c_port) {
     }
 }
 
-adcVoltages BalancePort::getCellVoltages() {
-    adcVoltages voltages;
+COMMON::adcVoltages BalancePort::getCellVoltages() {
+    COMMON::adcVoltages voltages;
     int16_t adc0, adc1, adc2, adc3;
 
     adc0 = inputVoltagesADC.readADC_SingleEnded(ADSX_AIN0);
@@ -35,8 +39,8 @@ adcVoltages BalancePort::getCellVoltages() {
     return voltages;
 }
 
-CellStatus BalancePort::checkVoltages(adcVoltages measuredVoltages) {
-    CellStatus voltageStatus;
+COMMON::CellStatus BalancePort::checkVoltages(COMMON::adcVoltages measuredVoltages) {
+    COMMON::CellStatus voltageStatus{};
     voltageStatus.voltages =  measuredVoltages;
     float cell1 = measuredVoltages.cell1;
     float cell2 = measuredVoltages.cell2;
@@ -45,41 +49,31 @@ CellStatus BalancePort::checkVoltages(adcVoltages measuredVoltages) {
 
     float maxVoltage = std::max({cell1, cell2, cell3});
     float minVoltage = std::min({cell1, cell2, cell3});
-    voltageStatus.allOk = true;
-    if ((maxVoltage - minVoltage) > balanceThreshold){
-        voltageStatus.outOfBalance = true;
-        voltageStatus.allOk = false;
-        voltageStatus.fault = "cells out of balance, ";
-    }
-    if ( minVoltage < minCellVoltage ){
-        voltageStatus.lowCellVoltage = true;
-        voltageStatus.allOk = false;
-        voltageStatus.fault += "cell undervoltage, ";
-    }
-    if (maxVoltage > maxCellVoltage) {
-        voltageStatus.highCellVoltage = true;
-        voltageStatus.allOk = false;
-        voltageStatus.fault += "cell overvoltage, ";
-    }
-    if (PSU > PSUConnectedThreshold && PSU < minPSU) {
-        voltageStatus.psuUnderVoltage = true;
-        voltageStatus.allOk = false;
-        voltageStatus.fault += "PSU undervoltage, ";
-    }
+
+    // voltage is out of balance if the difference between the max and min voltage is greater than the balance threshold
+    voltageStatus.outOfBalance = (maxVoltage - minVoltage) > balanceThreshold;
+    // voltage is low if the minimum cell voltage is less than the minimum cell voltage threshold
+    voltageStatus.lowCellVoltage = minVoltage < minCellVoltage;
+    // voltage is high if the maximum cell voltage is greater than the maximum cell voltage threshold
+    voltageStatus.highCellVoltage = maxVoltage > maxCellVoltage;
+    // voltage is under voltage if the PSU voltage is greater than the PSU connected threshold and less than the minimum PSU voltage
+    voltageStatus.psuUnderVoltage = PSU > PSUConnectedThreshold && PSU < minPSU;
+    // voltage is okay if none of the above conditions are met
+    voltageStatus.allOk = !voltageStatus.lowCellVoltage && !voltageStatus.highCellVoltage && !voltageStatus.outOfBalance && !voltageStatus.psuUnderVoltage;
     return voltageStatus;
 }
 
 void BalancePort::raiseCellStatus() {
-    const adcVoltages voltages = getCellVoltages(); // Assume this method exists and fetches voltages
-    const CellStatus status = checkVoltages(voltages);
+    const COMMON::adcVoltages voltages = getCellVoltages(); // Assume this method exists and fetches voltages
+    const COMMON::CellStatus status = checkVoltages(voltages);
     if (!status.allOk) {
         // Increment failCount if the cell status is not okay for 10 consecutive times
         failCount++;
         if (failCount > failCountThreshold) {
-            printf("input voltage error! %s Voltages: ", status.fault.c_str());
-            printf("cell 1: %fV, cell 2: %fV, cell 3: %fV, PSU: %fV\n",
-                   status.voltages.cell1, status.voltages.cell2,
-                   status.voltages.cell3, status.voltages.psu);
+            PAYLOADS::CellStatusPayload cellStatuspayload(
+            status
+        );
+            communicator->sendPacket(cellStatuspayload);
         }
     } else {
         failCount = 0;

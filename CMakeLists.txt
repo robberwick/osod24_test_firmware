@@ -17,6 +17,15 @@ add_executable(osod_motor_2040
 )
 add_subdirectory(${PIMORONI_PICO_PATH} ${CMAKE_BINARY_DIR}/pimoroni-pico-build)
 
+option(DISABLE_LOGGING "Disable logging" OFF)
+
+if(DISABLE_LOGGING)
+    add_compile_definitions(-DLOGGING_DISABLED)
+    message(STATUS "LOGGING DISABLED")
+else()
+    message(STATUS "LOGGING ENABLED")
+endif()
+
 add_subdirectory(libs)
 
 target_link_libraries(${PROJECT_NAME}
@@ -29,6 +38,9 @@ target_link_libraries(${PROJECT_NAME}
         tf_luna
         config
         common
+        usb_serial
+        serialtransfer
+        communicator
         balance_port
         bno080
         waypoint_navigation

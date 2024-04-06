@@ -8,6 +8,7 @@
 #include "encoder.hpp"
 #include "bno080.h"
 #include "utils.h"
+#include "communicator.h"
 
 #include "tf_luna.h"
 namespace STATE_ESTIMATOR {
@@ -40,39 +41,41 @@ namespace STATE_ESTIMATOR {
         estimatedState.driveTrainState.angles.right = 0.0f;
         estimatedState.tofDistances = getAllLidarDistances(i2c_port);
         IMU = IMUinstance;
-        
+
         instancePtr = this;
-        // check if we're going to use the ToF sensors for arena localisation 
+        // check if we're going to use the ToF sensors for arena localisation
         // (a naN arena size means we're not going to use the arena for localisation):
         arenaLocalisation = !isnan(CONFIG::ARENA_SIZE);
-        
+
         odometryOffsetRequest.x = odometryOffsetRequest.y = odometryOffsetRequest.heading = 0;
 
         driveDirection = direction;
-        
+
+        communicator = &Communicator::getInstance();
+
         zeroHeading();
 
         setupTimer();
     }
 
     void StateEstimator::showValues() const {
-        //printf("FRONT_LEFT: %ld ", encoders.FRONT_LEFT->count());
-        //printf("FRONT_RIGHT: %ld ", encoders.FRONT_RIGHT->count());
-        //printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
-        //printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
-        //printf("\n");
-        printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f, front ToF: %f\n", 
-           estimatedState.odometry.x,
-           estimatedState.odometry.y,
-           estimatedState.velocity.velocity,
-           estimatedState.odometry.heading,
-           estimatedState.velocity.angular_velocity,
-           estimatedState.tofDistances.front);
+        // printf("FRONT_LEFT: %ld ", encoders.FRONT_LEFT->count());
+        // printf("FRONT_RIGHT: %ld ", encoders.FRONT_RIGHT->count());
+        // printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
+        // printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
+        // printf("\n");
+        // printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f, front ToF: %f\n",
+        //    estimatedState.odometry.x,
+        //    estimatedState.odometry.y,
+        //    estimatedState.velocity.velocity,
+        //    estimatedState.odometry.heading,
+        //    estimatedState.velocity.angular_velocity,
+           // estimatedState.tofDistances.front);
     }
 
     void StateEstimator::showValuesViaCSV() const {
 
-        printf("%i, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f\n", 
+        printf("%i, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f, %.3f\n",
            millis(),
            estimatedState.odometry.x,
            estimatedState.odometry.y,
@@ -83,8 +86,18 @@ namespace STATE_ESTIMATOR {
            estimatedState.tofDistances.left);
     }
 
+    void StateEstimator::logEstimatedState() const {
+        // send the estimated state via the communicator
+        PAYLOADS::EstimatedStatePayload estimatedStatePayload(
+            millis(),
+            estimatedState.odometry,
+            estimatedState.tofDistances
+        );
+        communicator->sendPacket(estimatedStatePayload);
+    }
+
     void StateEstimator::publishState() const {
-        showValuesViaCSV();
+        logEstimatedState();
     }
 
     void StateEstimator::addObserver(Observer* observer) {
@@ -148,7 +161,7 @@ namespace STATE_ESTIMATOR {
         tmpVelocity.velocity = (left_speed - right_speed) / 2;
         tmpVelocity.x_dot = -driveDirection * tmpVelocity.velocity * sin(new_heading);
         tmpVelocity.y_dot = driveDirection * tmpVelocity.velocity * cos(new_heading);
-       
+
         tmpVelocity.angular_velocity = 1000 * (wrap_pi(new_heading - previous_heading)) / timerInterval;
         return tmpVelocity;
     }
@@ -207,7 +220,7 @@ namespace STATE_ESTIMATOR {
 
         // get ToF data
         tmpState.tofDistances = getAllLidarDistances(i2c_port);
-        
+
         if (arenaLocalisation) {
             localisationEstimate = localisation(tmpState.odometry.heading, tmpState.tofDistances);
             tmpState.odometry = filterPositions(tmpState.odometry, localisationEstimate);
@@ -224,7 +237,7 @@ namespace STATE_ESTIMATOR {
     void StateEstimator::getLatestHeading(float& heading) {
       //default latest heading is the current heading
       heading = estimatedState.odometry.heading;
-      
+
       //if possible, update the heading with the latest from the IMU
         if (IMU->getSensorEvent() == true) {
             if (IMU->getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
@@ -316,7 +329,7 @@ namespace STATE_ESTIMATOR {
          */
 
         // Calculate possible positions for each sensor
-        // these are inferred possible positions, depending on which arena wall each sensor 
+        // these are inferred possible positions, depending on which arena wall each sensor
         // is measuring, the sensor could be used to infer an x position or y position
         auto [Fx, Fy] = calculatePossiblePositions(heading, tof_distances.front);
         auto [Rx, Ry] = calculatePossiblePositions(heading - M_PI_2, tof_distances.right);
@@ -337,17 +350,17 @@ namespace STATE_ESTIMATOR {
             const std::array<float, NUM_TOF_SENSORS>& yPositions){
      // evaluate all the possible purmutation of the positions and return the
      // best-fitting position. The position is based on an arena-centre origin
-     
+
         float lowestVariance = numeric_limits<float>::max();
         Pose bestEstimate = {0.0f, 0.0f, 0.0f};
-        
+
         for (int permutationNo = 1; permutationNo < NUM_PERMUTATIONS; ++permutationNo) {
             // create 16 permutations (all the possible combinations of the two lists of possible
             // positions), then iterate through them to check which is most self-consistent (lowest
             // variance), assume that permutation is the most likely, best estimate of our position
             PermutationResult permutation = createPermutation(permutationNo, xPositions, yPositions);
             auto [totalVariance, xMean, yMean] = calculateCoordinateVariance(permutation);
-            
+
             if (totalVariance < lowestVariance) {
                 lowestVariance = totalVariance;
                 bestEstimate.x = driveDirection * (xMean - CONFIG::ARENA_SIZE/2);
@@ -355,7 +368,7 @@ namespace STATE_ESTIMATOR {
                 bestEstimate.heading = heading;
             }
         }
-        
+
         return bestEstimate;
         }
 
