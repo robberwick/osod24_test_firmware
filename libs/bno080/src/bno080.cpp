@@ -42,6 +42,8 @@
 #include "bno080.h"
 #include <cmath>
 #include <string.h>
+
+#include "drivetrain_config.h"
 #include "hardware/gpio.h"
 
 int8_t _int_pin = -1, _reset_pin = -1;
@@ -1278,7 +1280,7 @@ bool BNO08x::isConnected()
 {
     uint8_t dummy;
     // Attempt to read a single byte from the device
-    int result = i2c_read_blocking(_i2cPort, _deviceAddress, &dummy, 1, false);
+    int result = i2c_read_timeout_us(_i2cPort, _deviceAddress, &dummy, 1, false, CONFIG::I2C_TIMEOUT_US);
 
     // If the result is positive, the read was successful, which means the device is connected
     return (result > 0);
@@ -1325,7 +1327,7 @@ bool i2c_write(const uint8_t *buffer, size_t len, bool stop,
     total_len += len;
 
     // Perform the I2C write
-    int bytes_written = i2c_write_blocking(_i2cPort, _deviceAddress, combined_buffer, total_len, !stop);
+    int bytes_written = i2c_write_timeout_us(_i2cPort, _deviceAddress, combined_buffer, total_len, !stop, CONFIG::I2C_TIMEOUT_US);
 
     // Check if all bytes were written
     return bytes_written == total_len;
@@ -1354,7 +1356,7 @@ bool i2c_read(uint8_t *buffer, size_t len, bool stop) {
 
 bool _i2c_read(uint8_t *buffer, size_t len, bool stop) {
     // Perform the I2C read
-    int bytes_read = i2c_read_blocking(_i2cPort, _deviceAddress, buffer, len, !stop);
+    int bytes_read = i2c_read_timeout_us(_i2cPort, _deviceAddress, buffer, len, !stop, CONFIG::I2C_TIMEOUT_US);
 
     // Check if the number of bytes read is as expected
     return bytes_read == len;
