@@ -8,6 +8,13 @@ volatile bool ESCirqTriggered = false;
 
 void initI2C(i2c_inst_t* &i2c_port, uint baudrate, uint sda_pin, uint scl_pin) {
     i2c_port = i2c_default; // or i2c0, i2c1, etc.
+
+    // de-initialise I2C pins in case
+    gpio_disable_pulls(sda_pin);
+    gpio_set_function(sda_pin, GPIO_FUNC_NULL);
+    gpio_disable_pulls(scl_pin);
+    gpio_set_function(scl_pin, GPIO_FUNC_NULL);
+    // initialise I2C with baudrate
     i2c_init(i2c_port, baudrate);
 
     gpio_set_function(sda_pin, GPIO_FUNC_I2C);
