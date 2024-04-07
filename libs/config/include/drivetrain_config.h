@@ -20,8 +20,9 @@ namespace CONFIG {
 
     inline uint I2C_TIMEOUT_US = 5000;
 
-    constexpr int I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
-    constexpr int I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
+    constexpr uint I2C_BAUD_RATE = 100 * 1000; // 100kHz
+    constexpr uint I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
+    constexpr uint I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
     constexpr int motorSleepPin = motor::motor2040::ADC_ADDR_0; // pin 22;
     constexpr int motorStatusPin = motor::motor2040::USER_SW; // pin 23;
 
