@@ -9,7 +9,7 @@
 extern volatile bool ESCdelayInProgress;
 extern volatile bool ESCirqTriggered;
 
-void initI2C(i2c_inst_t* &i2c_port, uint baudrate, uint sda_pin, uint scl_pin);
+void initI2C(i2c_inst_t* &i2c_port);
 
 float wrap_pi(const float heading);
 
