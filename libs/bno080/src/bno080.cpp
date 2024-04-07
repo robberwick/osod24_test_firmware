@@ -44,6 +44,7 @@
 #include <string.h>
 
 #include "drivetrain_config.h"
+#include "utils.h"
 #include "hardware/gpio.h"
 
 int8_t _int_pin = -1, _reset_pin = -1;
@@ -1280,7 +1281,12 @@ bool BNO08x::isConnected()
 {
     uint8_t dummy;
     // Attempt to read a single byte from the device
-    int result = i2c_read_timeout_us(_i2cPort, _deviceAddress, &dummy, 1, false, CONFIG::I2C_TIMEOUT_US);
+    const int result = i2c_read_timeout_us(_i2cPort, _deviceAddress, &dummy, 1, false, CONFIG::I2C_TIMEOUT_US);
+
+	if (result == PICO_ERROR_GENERIC || result == PICO_ERROR_TIMEOUT) {
+		// re-init the i2c port
+		initI2C(_i2cPort);
+	}
 
     // If the result is positive, the read was successful, which means the device is connected
     return (result > 0);
@@ -1357,6 +1363,11 @@ bool i2c_read(uint8_t *buffer, size_t len, bool stop) {
 bool _i2c_read(uint8_t *buffer, size_t len, bool stop) {
     // Perform the I2C read
     int bytes_read = i2c_read_timeout_us(_i2cPort, _deviceAddress, buffer, len, !stop, CONFIG::I2C_TIMEOUT_US);
+
+	if (bytes_read == PICO_ERROR_GENERIC || bytes_read == PICO_ERROR_TIMEOUT) {
+		// re-init the i2c port
+		initI2C(_i2cPort);
+	}
 
     // Check if the number of bytes read is as expected
     return bytes_read == len;
