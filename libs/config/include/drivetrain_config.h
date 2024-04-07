@@ -18,6 +18,8 @@ namespace CONFIG {
 
     #define CURRENT_CHALLENGE MINESWEEPER
 
+    inline uint I2C_TIMEOUT_US = 5000;
+
     constexpr int I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
     constexpr int I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
     constexpr int motorSleepPin = motor::motor2040::ADC_ADDR_0; // pin 22;

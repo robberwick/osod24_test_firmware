@@ -6,6 +6,7 @@ add_library(bno080 STATIC
         src/sh2_SensorValue.c
 )
 target_link_libraries(bno080
+        common
         pico_stdlib 
         hardware_i2c
 )
