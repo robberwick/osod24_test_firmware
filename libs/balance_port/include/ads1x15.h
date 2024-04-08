@@ -13,6 +13,7 @@
 #include <stdio.h> // optional for printf debug error messages
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
+#include "utils.h"
 
 // I2C interface
 #define ADSX_I2C_DELAY 50000 // uS delay , I2C timeout

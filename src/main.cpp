@@ -61,7 +61,7 @@ int main() {
     initMotorMonitorPins();
     
     i2c_inst_t* i2c_port0;
-    initI2C(i2c_port0);
+    initI2C(i2c_port0, false);
     bool adcPresent;
     BalancePort balancePort;
     adcPresent = balancePort.initADC(i2c_port0); // Initialize ADC

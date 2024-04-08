@@ -1283,10 +1283,11 @@ bool BNO08x::isConnected()
     // Attempt to read a single byte from the device
     const int result = i2c_read_timeout_us(_i2cPort, _deviceAddress, &dummy, 1, false, CONFIG::I2C_TIMEOUT_US);
 
-	if (result == PICO_ERROR_GENERIC || result == PICO_ERROR_TIMEOUT) {
-		// re-init the i2c port
-		initI2C(_i2cPort);
-	}
+	  if (result == PICO_ERROR_GENERIC || result == PICO_ERROR_TIMEOUT) {
+		  // re-init the i2c port
+      printf("I2C error for BNO08X\r\n");
+		  handleI2CError(_i2cPort);
+	  }
 
     // If the result is positive, the read was successful, which means the device is connected
     return (result > 0);
@@ -1366,7 +1367,7 @@ bool _i2c_read(uint8_t *buffer, size_t len, bool stop) {
 
 	if (bytes_read == PICO_ERROR_GENERIC || bytes_read == PICO_ERROR_TIMEOUT) {
 		// re-init the i2c port
-		initI2C(_i2cPort);
+		handleI2CError(_i2cPort);
 	}
 
     // Check if the number of bytes read is as expected

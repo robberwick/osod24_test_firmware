@@ -50,7 +50,9 @@ bool PICO_ADS1X15::beginADSX(ADSXAddressI2C_e i2c_addr, i2c_inst_t* i2c_type, ui
   // check connection?
   ReturnCode = i2c_read_timeout_us(_i2c, _AddresI2C , &rxData, 1, false, ADSX_I2C_DELAY);
   if (ReturnCode < 1){ // no bytes read back from device or error issued
-       #ifdef ADS_SERIAL_DEBUG
+      printf("I2C error for ADS1x15\r\n");
+      handleI2CError(_i2c);
+      #ifdef ADS_SERIAL_DEBUG
           printf("1201  PICO_ADS1X15::begin: \r\n");
           printf("Check Connection, Return code :: %d ,RX data :: %u \r\n", ReturnCode , rxdata);
       #endif
@@ -278,8 +280,9 @@ void PICO_ADS1X15::writeRegister(uint8_t reg, uint16_t value) {
   int ReturnCode = 0;
 
   ReturnCode = i2c_write_timeout_us(_i2c, _AddresI2C, _dataBuffer, 3 , false, ADSX_I2C_DELAY);
-    if (ReturnCode < 1)
-    {
+    if (ReturnCode < 1) {
+        printf("I2C error for ADS1x15\r\n");
+        handleI2CError(_i2c);
         #ifdef ADS_SERIAL_DEBUG
             printf("1203 data: \r\n");
             printf("I2C error :: writeRegister \r\n");
@@ -287,7 +290,6 @@ void PICO_ADS1X15::writeRegister(uint8_t reg, uint16_t value) {
             busy_wait_ms(100);
         #endif
     }
-
 }
 
 // Desc :: Read 16-bits from the specified destination register
@@ -300,6 +302,8 @@ uint16_t PICO_ADS1X15::readRegister(uint8_t registerRead) {
   ReturnCode = i2c_write_timeout_us(_i2c, _AddresI2C, _dataBuffer, 1 , false, ADSX_I2C_DELAY);
   if (ReturnCode < 1)
     {
+        printf("I2C error for ADS1x15\r\n");
+        handleI2CError(_i2c);
         #ifdef ADS_SERIAL_DEBUG
             printf("1201 error I2C readRegister A: \r\n");
             printf("Tranmission code : %d \r\n", ReturnCode );
@@ -310,6 +314,8 @@ uint16_t PICO_ADS1X15::readRegister(uint8_t registerRead) {
 
   ReturnCode = i2c_read_timeout_us(_i2c, _AddresI2C, _dataBuffer, 2, false, ADSX_I2C_DELAY);
   if (ReturnCode < 1){ // no bytes read back from device or error issued
+      printf("I2C error for ADS1x15\r\n");
+      handleI2CError(_i2c);
       #ifdef ADS_SERIAL_DEBUG
           printf("1202 I2C Error readRegister B: \r\n");
           printf("Tranmission Code :: %d\r\n", ReturnCode);
