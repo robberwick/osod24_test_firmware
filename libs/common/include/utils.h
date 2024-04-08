@@ -9,7 +9,11 @@
 extern volatile bool ESCdelayInProgress;
 extern volatile bool ESCirqTriggered;
 
-void initI2C(i2c_inst_t* &i2c_port);
+void initI2C(i2c_inst_t* &i2c_port, bool force_recovery);
+
+void handleI2CError(i2c_inst_t* &i2c_port);
+
+void i2cBusRecovery(uint sda_pin, uint scl_pin);
 
 float wrap_pi(const float heading);
 
