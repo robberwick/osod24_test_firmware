@@ -1285,7 +1285,8 @@ bool BNO08x::isConnected()
 
 	  if (result == PICO_ERROR_GENERIC || result == PICO_ERROR_TIMEOUT) {
 		  // re-init the i2c port
-      printf("I2C error for BNO08X\r\n");
+      printf("I2C isConnected read error for BNO08X\n");
+      sleep_ms(10);
 		  handleI2CError(_i2cPort);
 	  }
 
@@ -1335,6 +1336,13 @@ bool i2c_write(const uint8_t *buffer, size_t len, bool stop,
 
     // Perform the I2C write
     int bytes_written = i2c_write_timeout_us(_i2cPort, _deviceAddress, combined_buffer, total_len, !stop, CONFIG::I2C_TIMEOUT_US);
+    
+    if (bytes_written == PICO_ERROR_GENERIC || bytes_written == PICO_ERROR_TIMEOUT) {
+		    // re-init the i2c port
+        printf("I2C write error for BNO08X\n");
+        sleep_ms(8);
+		    handleI2CError(_i2cPort);
+	  }
 
     // Check if all bytes were written
     return bytes_written == total_len;
@@ -1365,10 +1373,12 @@ bool _i2c_read(uint8_t *buffer, size_t len, bool stop) {
     // Perform the I2C read
     int bytes_read = i2c_read_timeout_us(_i2cPort, _deviceAddress, buffer, len, !stop, CONFIG::I2C_TIMEOUT_US);
 
-	if (bytes_read == PICO_ERROR_GENERIC || bytes_read == PICO_ERROR_TIMEOUT) {
-		// re-init the i2c port
-		handleI2CError(_i2cPort);
-	}
+	  if (bytes_read == PICO_ERROR_GENERIC || bytes_read == PICO_ERROR_TIMEOUT) {
+		  // re-init the i2c port
+      printf("I2C read error for BNO08X\n");
+      sleep_ms(7);
+		  handleI2CError(_i2cPort);
+	  }
 
     // Check if the number of bytes read is as expected
     return bytes_read == len;

@@ -13,7 +13,7 @@ bool BalancePort::initADC(i2c_inst_t* i2c_port) {
       return true;
     } else {
       sleep_ms(5000);
-      printf("ADS1x15 : Failed to initialize ADS.!\r\n");
+      printf("ADS1x15 : Failed to initialize ADS.!\n");
       return false;
     }
 }

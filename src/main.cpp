@@ -62,9 +62,6 @@ int main() {
     
     i2c_inst_t* i2c_port0;
     initI2C(i2c_port0, false);
-    bool adcPresent;
-    BalancePort balancePort;
-    adcPresent = balancePort.initADC(i2c_port0); // Initialize ADC
    
     //set up IMU
     BNO08x IMU;
@@ -73,6 +70,10 @@ int main() {
         sleep_ms(1000);
     }
     IMU.enableRotationVector();
+
+    bool adcPresent;
+    BalancePort balancePort;
+    adcPresent = balancePort.initADC(i2c_port0); // Initialize ADC
 
     // set up the state estimator
     auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, i2c_port0, CONFIG::DRIVING_STYLE);
@@ -87,13 +88,13 @@ int main() {
     // set up the receiver
     // if the cmake build flag RX_PROTOCOL is CPPM, then use the CPPM receiver
     // otherwise use the SBUS receiver
-    printf("creating receiver");
+    printf("creating receiver\n");
     Receiver *pReceiver = getReceiver(motor::motor2040::SHARED_ADC);
-    printf("receiver created, creating navigator");
+    printf("receiver created, creating navigator\n");
 
     // set up the navigator
     navigator = new Navigator(pReceiver, pStateManager, pStateEstimator, CONFIG::DRIVING_STYLE);
-    printf("navigator created");
+    printf("navigator created\n");
     pStateEstimator->addObserver(navigator);
 
     // Initialize a hardware timer
@@ -104,7 +105,7 @@ int main() {
             &timerCallbackData,
             &navigationTimer
     );
-    printf("repeating timer created");
+    printf("repeating timer created\n");
     //following interupt causes board to lock up: 
     //gpio_set_irq_enabled_with_callback(CONFIG::motorStatusPin, GPIO_IRQ_EDGE_RISE, true, &handlerMotorController);
     //printf("IRQ created");
