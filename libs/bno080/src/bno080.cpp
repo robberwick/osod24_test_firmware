@@ -1285,8 +1285,6 @@ bool BNO08x::isConnected()
 
 	  if (result == PICO_ERROR_GENERIC || result == PICO_ERROR_TIMEOUT) {
 		  // re-init the i2c port
-      printf("I2C isConnected read error for BNO08X\n");
-      sleep_ms(10);
 		  handleI2CError(_i2cPort);
 	  }
 
@@ -1339,8 +1337,6 @@ bool i2c_write(const uint8_t *buffer, size_t len, bool stop,
     
     if (bytes_written == PICO_ERROR_GENERIC || bytes_written == PICO_ERROR_TIMEOUT) {
 		    // re-init the i2c port
-        printf("I2C write error for BNO08X\n");
-        sleep_ms(8);
 		    handleI2CError(_i2cPort);
 	  }
 
@@ -1375,8 +1371,6 @@ bool _i2c_read(uint8_t *buffer, size_t len, bool stop) {
 
 	  if (bytes_read == PICO_ERROR_GENERIC || bytes_read == PICO_ERROR_TIMEOUT) {
 		  // re-init the i2c port
-      printf("I2C read error for BNO08X\n");
-      sleep_ms(7);
 		  handleI2CError(_i2cPort);
 	  }
 

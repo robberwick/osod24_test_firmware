@@ -11,12 +11,10 @@ LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port) {
     uint8_t temp[9] = {0};
     const int retval = i2c_write_timeout_us(i2c_port, i2c_addr, getLidarDataCmd, 5, false, CONFIG::I2C_TIMEOUT_US); // Send command
     if (retval == PICO_ERROR_GENERIC || retval == PICO_ERROR_TIMEOUT) {
-        printf("I2C write error for ToF\n");
         handleI2CError(i2c_port);;
     }
     i2c_read_timeout_us(i2c_port, i2c_addr, temp, 9, false, CONFIG::I2C_TIMEOUT_US); // Read response
     if (retval == PICO_ERROR_GENERIC || retval == PICO_ERROR_TIMEOUT) {
-        printf("I2C read error for ToF\n");
         handleI2CError(i2c_port);;
     }
 

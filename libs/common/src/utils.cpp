@@ -13,12 +13,8 @@ const int max_i2c_reinit_attempts = 4;
 
 // Wrapper function to manage recovery attempts and reinitialization
 void handleI2CError(i2c_inst_t* &i2c_port) {
-    printf("handling i2c bus error %d\n", i2c_reinit_attempts);
-    fflush(stdout); 
-    //sleep_ms(200);
     if (++i2c_reinit_attempts >= max_i2c_reinit_attempts ) {
         initI2C(i2c_port, true); // Force recovery on the nth attempt
-        //initI2C(i2c_port, false); // Force recovery on the nth attempt
         i2c_reinit_attempts = 0; // Reset attempts after recovery
     } else {
         initI2C(i2c_port, false); // Regular reinitialization without forcing recovery
@@ -26,8 +22,6 @@ void handleI2CError(i2c_inst_t* &i2c_port) {
 }
 
 void i2cBusRecovery(uint sda_pin, uint scl_pin) {
-    printf("attempting bus recovery\n");
-    fflush(stdout); 
     gpio_init(sda_pin);
     gpio_init(scl_pin);
 
@@ -57,8 +51,6 @@ void i2cBusRecovery(uint sda_pin, uint scl_pin) {
     sleep_us(5);
     gpio_put(sda_pin, 1);
     sleep_us(5);
-    printf("recovery complete\n");
-    fflush(stdout); 
 }
 
 void initI2C(i2c_inst_t* &i2c_port, bool force_recovery) {
@@ -68,8 +60,6 @@ void initI2C(i2c_inst_t* &i2c_port, bool force_recovery) {
     if (force_recovery) {
         i2cBusRecovery(CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
     }
-    printf("attempting bus reinit\n");
-    fflush(stdout); 
     // de-initialise I2C pins in case
     gpio_disable_pulls(CONFIG::I2C_SDA_PIN);
     gpio_set_function(CONFIG::I2C_SDA_PIN, GPIO_FUNC_NULL);
@@ -83,8 +73,6 @@ void initI2C(i2c_inst_t* &i2c_port, bool force_recovery) {
     gpio_set_function(CONFIG::I2C_SCL_PIN, GPIO_FUNC_I2C);
     gpio_pull_up(CONFIG::I2C_SDA_PIN);
     gpio_pull_up(CONFIG::I2C_SCL_PIN);
-    printf("reinit complete\n");
-    fflush(stdout); 
 }
 
 float wrap_pi(const float heading) {
