@@ -76,10 +76,11 @@ namespace STATEMANAGER {
     }
 
     void StateManager::setDriveTrainState(const DriveTrainState& motorSpeeds) {
-        stokers[MOTOR_POSITION::FRONT_LEFT]->set_speed(motorSpeeds.speeds[MOTOR_POSITION::FRONT_LEFT]);
-        stokers[MOTOR_POSITION::FRONT_RIGHT]->set_speed(motorSpeeds.speeds[MOTOR_POSITION::FRONT_RIGHT]);
-        stokers[MOTOR_POSITION::REAR_LEFT]->set_speed(motorSpeeds.speeds[MOTOR_POSITION::REAR_LEFT]);
-        stokers[MOTOR_POSITION::REAR_RIGHT]->set_speed(motorSpeeds.speeds[MOTOR_POSITION::REAR_RIGHT]);
+        using namespace MOTOR_POSITION;
+        stokers[FRONT_LEFT]->set_speed(velocityToRadiansPerSec(motorSpeeds.speeds[FRONT_LEFT]));
+        stokers[FRONT_RIGHT]->set_speed(velocityToRadiansPerSec(motorSpeeds.speeds[FRONT_RIGHT]));
+        stokers[REAR_LEFT]->set_speed(velocityToRadiansPerSec(motorSpeeds.speeds[REAR_LEFT]));
+        stokers[REAR_RIGHT]->set_speed(velocityToRadiansPerSec(motorSpeeds.speeds[REAR_RIGHT]));
         setServoSteeringAngle(motorSpeeds, CONFIG::Handedness::LEFT);
         setServoSteeringAngle(motorSpeeds, CONFIG::Handedness::RIGHT);
 
@@ -90,8 +91,7 @@ namespace STATEMANAGER {
         stateEstimator->updateCurrentSteeringAngles(motorSpeeds.angles);
     }
 
-    float StateManager::velocityToRPM(const float velocity) {
-        float desired_radians_per_second = velocity / (CONFIG::WHEEL_DIAMETER / 2);
-        return (desired_radians_per_second * 60) / (2 * pi);
+    float StateManager::velocityToRadiansPerSec(const float velocity) {
+        return velocity / (CONFIG::WHEEL_DIAMETER / 2);
     }
 } // StateManager
