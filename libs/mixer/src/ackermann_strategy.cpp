@@ -130,7 +130,7 @@ namespace MIXER {
     float
     AckermannMixer::getRearWheelSpeed(float velocity, const float wheelTurnRadius, CONFIG::Handedness side) const {
         float tmpSpeed = velocity * wheelTurnRadius / turnRadius;
-        if (side == CONFIG::Handedness::RIGHT) {
+        if (side == CONFIG::Handedness::LEFT) {
             tmpSpeed = -tmpSpeed;
         }
         return tmpSpeed;
@@ -140,7 +140,7 @@ namespace MIXER {
                                              CONFIG::Handedness side) const {
         float tmpSpeed = angularVelocity * std::sqrt(wheelTurnRadius * wheelTurnRadius + wheelBase * wheelBase);
         tmpSpeed = tmpSpeed * sign(wheelTurnRadius);
-        if (side == CONFIG::Handedness::RIGHT) {
+        if (side == CONFIG::Handedness::LEFT) {
             tmpSpeed = -tmpSpeed;
         }
         // return modified speeds to correct for limited steering
