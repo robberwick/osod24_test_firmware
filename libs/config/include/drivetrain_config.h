@@ -149,9 +149,9 @@ namespace CONFIG {
 
     // Control constants such as PID & feedforward
     // PID values
-    constexpr float VEL_KP = 3.25f; // Velocity proportional (P) gain
-    constexpr float VEL_KI = 0.001f; // Velocity integral (I) gain
-    constexpr float VEL_KD = 0.003f; // Velocity derivative (D) gain
+    constexpr float VEL_KP = 1.0f; // Velocity proportional (P) gain
+    constexpr float VEL_KI = 0.20f; // Velocity integral (I) gain
+    constexpr float VEL_KD = 0.3f; // Velocity derivative (D) gain
 
 // feedforward values
     constexpr float VEL_FF_GAIN = 1.0f;   // Velocity feedforward gain
