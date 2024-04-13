@@ -42,7 +42,7 @@ namespace STATEMANAGER {
 
         void setDriveTrainState(const DriveTrainState& motorSpeeds);
 
-        static float velocityToRPM(float velocity) ;
+        static float velocityToRadiansPerSec(float velocity) ;
     };
 
 } // StateManager
