@@ -85,7 +85,7 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::publishState() const {
-        showValuesViaCSV();
+        // showValuesViaCSV();
     }
 
     void StateEstimator::addObserver(Observer* observer) {

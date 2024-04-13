@@ -41,6 +41,8 @@ namespace STATEMANAGER {
         int observerCount = 0;
 
         void setDriveTrainState(const DriveTrainState& motorSpeeds);
+
+        static float velocityToRPM(float velocity) ;
     };
 
 } // StateManager
