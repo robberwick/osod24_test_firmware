@@ -31,9 +31,9 @@ void i2cBusRecovery(uint sda_pin, uint scl_pin) {
     // Attempt to clock out any stuck slave devices
     for (int i = 0; i < I2C_RECOVERY_CLOCKS; ++i) {
         gpio_put(scl_pin, 0);
-        sleep_us(5); // Clock low period
+        busy_wait_us(5); // Clock low period
         gpio_put(scl_pin, 1);
-        sleep_us(5); // Clock high period
+        busy_wait_us(5); // Clock high period
 
         // Check if SDA line has been released by slave
         if (gpio_get(sda_pin)) {
@@ -44,13 +44,13 @@ void i2cBusRecovery(uint sda_pin, uint scl_pin) {
     // Generate a stop condition in case a slave is still in the middle of a transaction
     gpio_set_dir(sda_pin, GPIO_OUT);
     gpio_put(scl_pin, 0);
-    sleep_us(5);
+    busy_wait_us(5);
     gpio_put(sda_pin, 0);
-    sleep_us(5);
+    busy_wait_us(5);
     gpio_put(scl_pin, 1);
-    sleep_us(5);
+    busy_wait_us(5);
     gpio_put(sda_pin, 1);
-    sleep_us(5);
+    busy_wait_us(5);
 }
 
 void initI2C(i2c_inst_t* &i2c_port, bool force_recovery) {
@@ -158,7 +158,7 @@ bool non_blocking_delay_us(uint32_t delay_us) {
 
 void toggleMotorSleepPin(){
     gpio_put(CONFIG::motorSleepPin, false);
-    sleep_us(15);
+    busy_wait_us(15);
     gpio_put(CONFIG::motorSleepPin, true);
-    sleep_us(10);
+    busy_wait_us(10);
 }
