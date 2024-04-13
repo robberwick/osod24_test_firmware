@@ -3,6 +3,8 @@
 #define DRIVETRAIN_CONFIG_H
 #include <cmath>
 #include <cstdint>
+#include <libraries/pico_synth/pico_synth.hpp>
+
 #include "motor2040.hpp"
 #include "waypoint_routes.h"
 #include "types.h"
@@ -135,7 +137,8 @@ namespace CONFIG {
     // because it depends on the value of CURRENT_CHALLENGE which is not evaluated until the preprocessing stage
     const float COUNTS_PER_REV = CPR * EXTERNAL_GEAR_RATIO * GEARMOTOR_RATIO;
     // The scaling to apply to the motor's speed to match its real-world speed
-    constexpr float SPEED_SCALE = 789.0f / EXTERNAL_GEAR_RATIO;
+    constexpr float SPEED_SCALE = 789.0f; // RPM from datasheet @ 12v
+    constexpr float SPEED_SCALE_RADIANS_PER_SEC = (SPEED_SCALE * 2 * pi) / (60* EXTERNAL_GEAR_RATIO);
 
     //dynamics
     constexpr float MAX_VELOCITY = 1.28; // m/s

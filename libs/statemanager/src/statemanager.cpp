@@ -5,6 +5,8 @@
 #include <cstdio>
 #include "state_estimator.h"
 #include "statemanager.h"
+
+#include <libraries/pico_synth/pico_synth.hpp>
 #include <libraries/servo2040/servo2040.hpp>
 #include "motor2040.hpp"
 #include "servo.hpp"
@@ -21,10 +23,15 @@ namespace STATEMANAGER {
     StateManager::StateManager(MIXER::MixerStrategy *mixerStrategy, STATE_ESTIMATOR::StateEstimator *stateEstimator) : mixerStrategy(mixerStrategy), stateEstimator(stateEstimator) {
         printf("creating State manager\n");
         // set up the stokers
-        stokers[MOTOR_POSITION::FRONT_LEFT] = new STOKER::Stoker(motor::motor2040::MOTOR_A, MOTOR_POSITION::FRONT_LEFT, Direction::NORMAL_DIR);
-        stokers[MOTOR_POSITION::FRONT_RIGHT] = new STOKER::Stoker(motor::motor2040::MOTOR_B, MOTOR_POSITION::FRONT_RIGHT, Direction::NORMAL_DIR);
-        stokers[MOTOR_POSITION::REAR_LEFT] = new STOKER::Stoker(motor::motor2040::MOTOR_C, MOTOR_POSITION::REAR_LEFT, Direction::NORMAL_DIR);
-        stokers[MOTOR_POSITION::REAR_RIGHT] = new STOKER::Stoker(motor::motor2040::MOTOR_D, MOTOR_POSITION::REAR_RIGHT, Direction::NORMAL_DIR);
+        stokers[MOTOR_POSITION::FRONT_LEFT] = new STOKER::Stoker(motor::motor2040::MOTOR_A, MOTOR_POSITION::FRONT_LEFT, Direction::REVERSED_DIR);
+        stokers[MOTOR_POSITION::FRONT_RIGHT] = new STOKER::Stoker(motor::motor2040::MOTOR_B, MOTOR_POSITION::FRONT_RIGHT, Direction::REVERSED_DIR);
+        stokers[MOTOR_POSITION::REAR_LEFT] = new STOKER::Stoker(motor::motor2040::MOTOR_C, MOTOR_POSITION::REAR_LEFT, Direction::REVERSED_DIR);
+        stokers[MOTOR_POSITION::REAR_RIGHT] = new STOKER::Stoker(motor::motor2040::MOTOR_D, MOTOR_POSITION::REAR_RIGHT, Direction::REVERSED_DIR);
+
+        stateEstimator->addObserver(stokers[MOTOR_POSITION::FRONT_LEFT]);
+        stateEstimator->addObserver(stokers[MOTOR_POSITION::FRONT_RIGHT]);
+        stateEstimator->addObserver(stokers[MOTOR_POSITION::REAR_LEFT]);
+        stateEstimator->addObserver(stokers[MOTOR_POSITION::REAR_RIGHT]);
 
         // set up the servos
         // left - ADC2 / PWM 6 - Pin 28
@@ -81,5 +88,10 @@ namespace STATEMANAGER {
 
         // update the state estimator with the current steering angles
         stateEstimator->updateCurrentSteeringAngles(motorSpeeds.angles);
+    }
+
+    float StateManager::velocityToRPM(const float velocity) {
+        float desired_radians_per_second = velocity / (CONFIG::WHEEL_DIAMETER / 2);
+        return (desired_radians_per_second * 60) / (2 * pi);
     }
 } // StateManager
