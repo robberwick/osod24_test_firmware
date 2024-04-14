@@ -19,8 +19,8 @@ namespace STOKER {
         float accel = vel_pid.calculate(current_motor_speed);
         motor.speed(speed + accel);
         // print the motor position, current motors peed, speed, accel, and (speed + accel)
-        printf("Motor position: %d, current motor speed: %f, setpoint: %f, accel: %f, speed + accel: %f\n",
-               motor_position_, current_motor_speed, speed, accel, speed + accel);
+        printf("millis(): %u  : %d, current motor speed: %f, setpoint: %f, accel: %f, speed + accel: %f\n",
+               millis(), motor_position_, current_motor_speed, speed, accel, speed + accel);
     }
 
     void Stoker::update(const VehicleState newState) {
