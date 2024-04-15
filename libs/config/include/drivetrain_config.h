@@ -139,6 +139,8 @@ namespace CONFIG {
     // The scaling to apply to the motor's speed to match its real-world speed
     constexpr float SPEED_SCALE = 789.0f; // RPM from datasheet @ 12v
     constexpr float SPEED_SCALE_RADIANS_PER_SEC = (SPEED_SCALE * 2 * pi) / (60* EXTERNAL_GEAR_RATIO);
+    constexpr float STALL_CURRENT = 5.6f; // Amps at 12V. measured, note different from datasheet!
+    constexpr float MAX_CURRENT = 4.0f; //target to limit to
 
     //dynamics
     constexpr float MAX_VELOCITY = 1.28; // m/s
@@ -149,8 +151,8 @@ namespace CONFIG {
 
     // Control constants such as PID & feedforward
     // PID values
-    constexpr float VEL_KP = 0.5f; // Velocity proportional (P) gain
-    constexpr float VEL_KI = 0.10f; // Velocity integral (I) gain
+    constexpr float VEL_KP = 1.0f; // Velocity proportional (P) gain
+    constexpr float VEL_KI = 0.5f; // Velocity integral (I) gain
     constexpr float VEL_KD = 0.1f; // Velocity derivative (D) gain
 
 // feedforward values

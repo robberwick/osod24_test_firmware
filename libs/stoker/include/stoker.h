@@ -22,10 +22,13 @@ namespace STOKER {
 
         void update(VehicleState newState) override;
 
+        float pseudo_current_limit(float current_speed, float command_speed);
+
     private:
         motor::Motor motor;
         float current_motor_speed = 0.0f;
         MOTOR_POSITION::MotorPosition motor_position_;
+        float max_speed_change = CONFIG::MAX_CURRENT / CONFIG::STALL_CURRENT * CONFIG::SPEED_SCALE_RADIANS_PER_SEC;
 
         /* UPDATE_RATE is a fixed number for now. 
         note the parameter doesn't drive updates, it's just used for scaling PID parameters 
