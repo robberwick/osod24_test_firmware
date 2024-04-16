@@ -53,13 +53,15 @@ extern "C" void timer_callback(repeating_timer_t *t) {
     }
 }
 
+bool lastBrawnStatus = false;
+
 int main() {
     stdio_init_all();
+
+    initMotorMonitorPins();
+    
     i2c_inst_t* i2c_port0;
-    initI2C(i2c_port0, 100 * 1000, CONFIG::I2C_SDA_PIN, CONFIG::I2C_SCL_PIN);
-    bool adcPresent;
-    BalancePort balancePort;
-    adcPresent = balancePort.initADC(i2c_port0); // Initialize ADC
+    initI2C(i2c_port0, false);
    
     //set up IMU
     BNO08x IMU;
@@ -69,6 +71,10 @@ int main() {
         sleep_ms(1000);
     }
     IMU.enableRotationVector();
+
+    bool adcPresent;
+    BalancePort balancePort;
+    adcPresent = balancePort.initADC(i2c_port0); // Initialize ADC
 
     // set up the state estimator
     auto *pStateEstimator = new STATE_ESTIMATOR::StateEstimator(&IMU, i2c_port0, CONFIG::DRIVING_STYLE);
@@ -83,10 +89,13 @@ int main() {
     // set up the receiver
     // if the cmake build flag RX_PROTOCOL is CPPM, then use the CPPM receiver
     // otherwise use the SBUS receiver
-    Receiver *pReceiver = getReceiver(motor::motor2040::RX_ECHO);
+    printf("creating receiver\n");
+    Receiver *pReceiver = getReceiver(motor::motor2040::SHARED_ADC);
+    printf("receiver created, creating navigator\n");
 
     // set up the navigator
     navigator = new Navigator(pReceiver, pStateManager, pStateEstimator, CONFIG::DRIVING_STYLE);
+    printf("navigator created\n");
     pStateEstimator->addObserver(navigator);
 
     // Initialize a hardware timer
@@ -97,6 +106,10 @@ int main() {
             &timerCallbackData,
             &navigationTimer
     );
+    printf("repeating timer created\n");
+    //following interupt causes board to lock up: 
+    //gpio_set_irq_enabled_with_callback(CONFIG::motorStatusPin, GPIO_IRQ_EDGE_RISE, true, &handlerMotorController);
+    //printf("IRQ created");
 
     while (true) {
         // Do nothing in the main loop
@@ -109,6 +122,27 @@ int main() {
         if (adcPresent && timerCallbackData.shouldReadCellStatus) {
             balancePort.raiseCellStatus();
             timerCallbackData.shouldReadCellStatus = false;
+        }
+        bool brawnSwitchStatus = gpio_get(CONFIG::motorStatusPin); // Read current status
+        if (!lastBrawnStatus && brawnSwitchStatus) {
+            printf("Brawn status changed to HIGH\n");
+            ESCirqTriggered = true; // Indicate that a rising edge was detected
+        }
+        lastBrawnStatus = brawnSwitchStatus;
+
+        // Handle the non-blocking delay outside of the rising edge detection
+        if (ESCirqTriggered && !ESCdelayInProgress) {
+            printf("delay started\n");
+            ESCdelayInProgress = true; // Start the non-blocking delay
+            ESCirqTriggered = false; // Reset the flag
+        }
+
+        if (ESCdelayInProgress) {
+            if (non_blocking_delay_us(2000)) {
+                ESCdelayInProgress = false; // Reset delay flag once the delay is completed
+                toggleMotorSleepPin();
+                printf("motor drives (re?)enabled\n");
+            }
         }
     }
 }

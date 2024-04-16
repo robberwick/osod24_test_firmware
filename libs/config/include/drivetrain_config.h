@@ -3,6 +3,8 @@
 #define DRIVETRAIN_CONFIG_H
 #include <cmath>
 #include <cstdint>
+#include <libraries/pico_synth/pico_synth.hpp>
+
 #include "motor2040.hpp"
 #include "waypoint_routes.h"
 #include "types.h"
@@ -16,10 +18,16 @@ namespace CONFIG {
     #define PI_NOON 5
     #define TEMPLE_OF_DOOM 6
 
-    #define CURRENT_CHALLENGE MINESWEEPER
+    #define CURRENT_CHALLENGE ECO_DISASTER
 
-    constexpr int I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
-    constexpr int I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
+    inline uint I2C_TIMEOUT_US = 5000;
+
+    constexpr uint I2C_BAUD_RATE = 100 * 1000; // 100kHz
+    constexpr uint I2C_SDA_PIN = motor::motor2040::I2C_SDA; // pin 20;
+    constexpr uint I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
+    constexpr int motorSleepPin = motor::motor2040::ADC_ADDR_0; // pin 22;
+    constexpr int motorStatusPin = motor::motor2040::USER_SW; // pin 23;
+
     constexpr uint8_t BNO08X_ADDR = 0x4A;
     enum Handedness {
         LEFT,
@@ -71,51 +79,51 @@ namespace CONFIG {
     // Define WHEEL_DIAMETER and GEAR_RATIO based on CURRENT_CHALLENGE
     #if (CURRENT_CHALLENGE == ECO_DISASTER)
         constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-        constexpr float GEAR_RATIO = 51.0 / 16.0 * GEARMOTOR_RATIO;
+        constexpr float EXTERNAL_GEAR_RATIO = 51.0 / 16.0;
         constexpr SteeringStyle DRIVING_STYLE = Forklift;
         constexpr float ARENA_SIZE = 2.2; // metres square
         constexpr COMMON::Waypoint* waypointBuffer = ecodisasterRoute;
         constexpr size_t waypointCount = sizeof(ecodisasterRoute) / sizeof(ecodisasterRoute[0]);
     #elif (CURRENT_CHALLENGE == ESCAPE_ROUTE)
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-        const float GEAR_RATIO = GEARMOTOR_RATIO;
+        const float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
         constexpr COMMON::Waypoint* waypointBuffer = escapeRouteRoute;
         constexpr size_t waypointCount = sizeof(escapeRouteRoute) / sizeof(escapeRouteRoute[0]);
     #elif (CURRENT_CHALLENGE == ZOMBIE_APOCALYPSE)
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-        const float GEAR_RATIO = GEARMOTOR_RATIO;
+        const float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #elif (CURRENT_CHALLENGE == MINESWEEPER)
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-        const float GEAR_RATIO = GEARMOTOR_RATIO;
+        const float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = 1.6; //metres square
         constexpr COMMON::Waypoint* waypointBuffer = minesweeperRoute;
         constexpr size_t waypointCount = sizeof(minesweeperRoute) / sizeof(minesweeperRoute[0]);
     #elif (CURRENT_CHALLENGE == PI_NOON)
         const float WHEEL_DIAMETER = MECANUM_DIAMETER;
-        const float GEAR_RATIO = GEARMOTOR_RATIO;
+        const float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = 2.4; //metres square
     #elif  (CURRENT_CHALLENGE == LAVA_PALAVA)
         const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-        const float GEAR_RATIO = GEARMOTOR_RATIO;
+        const float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
         constexpr COMMON::Waypoint* waypointBuffer = lavaRoute;
         constexpr size_t waypointCount = sizeof(lavaRoute)/ sizeof(lavaRoute[0]);
     #elif  (CURRENT_CHALLENGE == TEMPLE_OF_DOOM)
         const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-        const float GEAR_RATIO = GEARMOTOR_RATIO;
+        const float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #else
         // Default case
         const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-        const float GEAR_RATIO = GEARMOTOR_RATIO;
+        const float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_DIRECTION = CarSteering;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #endif
@@ -127,9 +135,12 @@ namespace CONFIG {
     // The counts per revolution of the wheel
     // note that this is not constexpr because it depends on the gear ratio which is not constexpr
     // because it depends on the value of CURRENT_CHALLENGE which is not evaluated until the preprocessing stage
-    const float COUNTS_PER_REV = CPR * GEAR_RATIO;
+    const float COUNTS_PER_REV = CPR * EXTERNAL_GEAR_RATIO * GEARMOTOR_RATIO;
     // The scaling to apply to the motor's speed to match its real-world speed
-    constexpr float SPEED_SCALE = 495.0f;
+    constexpr float SPEED_SCALE = 789.0f; // RPM from datasheet @ 12v
+    constexpr float SPEED_SCALE_RADIANS_PER_SEC = (SPEED_SCALE * 2 * pi) / (60* EXTERNAL_GEAR_RATIO);
+    constexpr float STALL_CURRENT = 5.6f; // Amps at 12V. measured, note different from datasheet!
+    constexpr float MAX_CURRENT = 4.0f; //target to limit to
 
     //dynamics
     constexpr float MAX_VELOCITY = 1.28; // m/s
@@ -140,9 +151,9 @@ namespace CONFIG {
 
     // Control constants such as PID & feedforward
     // PID values
-    constexpr float VEL_KP = 3.25f; // Velocity proportional (P) gain
-    constexpr float VEL_KI = 0.001f; // Velocity integral (I) gain
-    constexpr float VEL_KD = 0.003f; // Velocity derivative (D) gain
+    constexpr float VEL_KP = 1.0f; // Velocity proportional (P) gain
+    constexpr float VEL_KI = 0.5f; // Velocity integral (I) gain
+    constexpr float VEL_KD = 0.1f; // Velocity derivative (D) gain
 
 // feedforward values
     constexpr float VEL_FF_GAIN = 1.0f;   // Velocity feedforward gain

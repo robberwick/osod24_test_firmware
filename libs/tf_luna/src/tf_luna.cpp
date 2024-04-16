@@ -3,12 +3,20 @@
 #include "hardware/i2c.h"
 #include "drivetrain_config.h"
 #include "tf_luna.h"
+#include "drivetrain_config.h"
+#include "utils.h"
 
 // Function to get Lidar data
 LidarData getSingleLidarData(uint8_t i2c_addr, i2c_inst_t* i2c_port) {
     uint8_t temp[9] = {0};
-    i2c_write_blocking(i2c_port, i2c_addr, getLidarDataCmd, 5, false); // Send command
-    i2c_read_blocking(i2c_port, i2c_addr, temp, 9, false); // Read response
+    const int retval = i2c_write_timeout_us(i2c_port, i2c_addr, getLidarDataCmd, 5, false, CONFIG::I2C_TIMEOUT_US); // Send command
+    if (retval == PICO_ERROR_GENERIC || retval == PICO_ERROR_TIMEOUT) {
+        handleI2CError(i2c_port);;
+    }
+    i2c_read_timeout_us(i2c_port, i2c_addr, temp, 9, false, CONFIG::I2C_TIMEOUT_US); // Read response
+    if (retval == PICO_ERROR_GENERIC || retval == PICO_ERROR_TIMEOUT) {
+        handleI2CError(i2c_port);;
+    }
 
     LidarData data = {0, 0, 0}; // Initialize to zero
     

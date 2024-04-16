@@ -53,6 +53,7 @@ namespace STATE_ESTIMATOR {
         zeroHeading();
 
         setupTimer();
+        printf("State estimator created\n");
     }
 
     void StateEstimator::showValues() const {
@@ -84,7 +85,7 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::publishState() const {
-        showValuesViaCSV();
+        // showValuesViaCSV();
     }
 
     void StateEstimator::addObserver(Observer* observer) {
