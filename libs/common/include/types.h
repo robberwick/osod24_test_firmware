@@ -84,6 +84,12 @@ namespace COMMON {
         DriveTrainState driveTrainState;
         FourToFDistances tofDistances;
     };
+
+    enum MixerType {
+        TANK,
+        ACKERMANN,
+        MECANUM
+    };
 }
 
 #endif //OSOD_MOTOR_2040_TYPES_H
