@@ -27,6 +27,14 @@ namespace CONFIG {
     constexpr uint I2C_SCL_PIN = motor::motor2040::I2C_SCL; // pin 21;
     constexpr int motorSleepPin = motor::motor2040::ADC_ADDR_0; // pin 22;
     constexpr int motorStatusPin = motor::motor2040::USER_SW; // pin 23;
+    constexpr int mineSensorPins[] = {
+        motor::motor2040::ADC_ADDR_2, // GPIO 25 pin 2 / SPI_CS of J6 / SPI connector
+        motor::motor2040::ADC0,       // GPIO 26 pin 3 / SPI_SCK of J6 / SPI connector
+        motor::motor2040::ADC1,       // GPIO 27 pin 4 / SPI_MOSI of J6 / SPI connector
+        motor::motor2040::ADC2        // GPIO 28 pin 5 / SPI_MISO of J6 / SPI connector
+    };
+    constexpr int numMineSensors = sizeof(mineSensorPins) / sizeof(mineSensorPins[0]);
+    constexpr int skidPin = motor::motor2040::ADC_ADDR_1; // GPIO 24 pin 6 / SPI_INT of J6 / SPI connector;
 
     constexpr uint8_t BNO08X_ADDR = 0x4A;
     enum Handedness {
