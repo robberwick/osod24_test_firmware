@@ -4,12 +4,23 @@
 #include "types.h"
 #include "drivetrain_config.h"
 #include "waypoint_navigation.h"
+#include "pico/stdlib.h"
 
 namespace WAYPOINTS {
 
 WaypointNavigation::WaypointNavigation(){}
 
 void WaypointNavigation::navigate(const VehicleState& currentState) {
+    if (mineDetected()) {
+        //stop
+        desiredW = desiredV = 0;
+    } else {
+        // go to next waypoint
+        navigateToWaypoint(currentState);
+    }
+}
+
+void WaypointNavigation::navigateToWaypoint(const VehicleState& currentState) {
     // updates desiredV and desiredW (speed and turn velocity)
     // based on the current position and the list of waypoints.
     // the velocity comes from the speed associated with the closest waypoint
@@ -144,6 +155,16 @@ float WaypointNavigation::unwrapHeading(const float targetHeading, const float c
     nearestHeading = targetHeading+ minHeadingError;
     return nearestHeading;
 } 
+
+bool WaypointNavigation::mineDetected(){
+    using namespace CONFIG;
+    for (int pin = 0; pin < numMineSensors; pin++) {
+        if (gpio_get(mineSensorPins[pin])) {  // Check if a mine has been detected
+            return true;
+        }
+    }
+    return false;  // Return false if no mines detected
+}
 
 WaypointNavigation::~WaypointNavigation() = default;
 
