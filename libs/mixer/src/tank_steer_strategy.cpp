@@ -7,7 +7,7 @@
 
 using namespace MIXER;
 
-DriveTrainState TankSteerStrategy::mix(float velocity, float angularVelocity) {
+DriveTrainState TankSteerStrategy::mix(float velocity, float angularVelocity, float strafeVelocity) {
     float left = velocity - angularVelocity;
     float right = velocity + angularVelocity;
     float abs_left = left >= 0 ? left : -left;

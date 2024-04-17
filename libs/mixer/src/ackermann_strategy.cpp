@@ -29,7 +29,7 @@ namespace MIXER {
         turnRadius = 0.0;
     }
 
-    DriveTrainState AckermannMixer::mix(float velocity, float angularVelocity) {
+    DriveTrainState AckermannMixer::mix(float velocity, float angularVelocity, float strafeVelocity) {
         // function takes desired forward speed ("throttle") in m/s and turn rate in radians/sec
         // and outputs individual wheel speeds in m/s and turn angle of steerable wheels in radians
 

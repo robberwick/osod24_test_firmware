@@ -11,7 +11,7 @@ namespace MIXER {
     using namespace COMMON;
     class MixerStrategy {
     public:
-        virtual DriveTrainState mix(float velocity, float angularVelocity) = 0;
+        virtual DriveTrainState mix(float velocity, float angularVelocity, float strafeVelocity) = 0;
     };
 }
 
