@@ -14,7 +14,8 @@ namespace WAYPOINTS {
     public:
         WaypointNavigation();
         ~WaypointNavigation();
-        void navigate(const VehicleState& currentState); //update the desired movement to get to the next waypoint
+        void navigateToWaypoint(const VehicleState& currentState); //update the desired movement to get to the next waypoint
+        void navigate(const VehicleState& currentState); //decide how to approach the challenge
         float desiredV;  // desired velocity to get to next waypoint
         float desiredW;  // desired angular velocity to get to next waypoint
         uint8_t targetWaypointIndex = 0; // the index of the current waypoint we're navigating to
@@ -28,6 +29,7 @@ namespace WAYPOINTS {
         float lookAhead = 0.2; //lookahead distance in metres
         float maxTurnVelocity = 10; //max turn velocity in radians per second
         float unwrapHeading(const float targetHeading, float currentHeading); //find "nearest" description of current heading to target
+        bool mineDetected();
 
     private:
         float headingPGain = 20;
