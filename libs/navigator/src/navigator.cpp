@@ -41,9 +41,11 @@ void Navigator::navigate() {
             // Apply expo function to AIL and ELE
             float expoAIL = expo(values.AIL, steeringExpoValue);
             float expoELE = expo(values.ELE, velocityExpoValue);
+            float expoRUD = expo(values.RUD, velocityExpoValue);
 
             // send the receiver data to the state manager
             // TODO: use a queue to send the receiver data to the state manager
+            requestedState.velocity.strafe = driveDirection * expoRUD * CONFIG::MAX_VELOCITY;
             requestedState.velocity.velocity = driveDirection * expoELE * CONFIG::MAX_VELOCITY;
             requestedState.velocity.angular_velocity = expoAIL * CONFIG::MAX_ANGULAR_VELOCITY;
             pStateManager->requestState(requestedState);

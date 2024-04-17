@@ -75,6 +75,7 @@ namespace COMMON {
         float x_dot;
         float y_dot;
         float velocity;
+        float strafe;
         float angular_velocity;
     };
     struct VehicleState {
