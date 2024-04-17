@@ -21,10 +21,6 @@ namespace STOKER {
         float command_speed = speed + accel;
 
         motor.speed(pseudo_current_limit(current_motor_speed, command_speed));
-        
-        // print the motor position, current motors peed, speed, accel, and (speed + accel)
-        printf("millis(): %u  : %d, current motor speed: %f, setpoint: %f, accel: %f, duty: %f\n",
-               millis(), motor_position_, current_motor_speed, speed, accel, motor.duty());
     }
 
     void Stoker::update(const VehicleState newState) {
