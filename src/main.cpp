@@ -8,6 +8,8 @@
 #include "motor2040.hpp"
 #include "tank_steer_strategy.h"
 #include "ackermann_strategy.h"
+#include "tank_steer_strategy.h"
+#include "mecanum_strategy.h"
 #include "drivetrain_config.h"
 #include "utils.h"
 #include "balance_port.h"
@@ -82,8 +84,29 @@ int main() {
     // set up the state manager
     using namespace STATEMANAGER;
 
-    auto* pAckermannSteerStrategy = new MIXER::AckermannMixer(CONFIG::WHEEL_TRACK, CONFIG::WHEEL_BASE);
-    auto* pStateManager = new StateManager(pAckermannSteerStrategy, pStateEstimator);
+    MIXER::MixerStrategy* pSteerStrategy = nullptr;
+
+    switch (CONFIG::MIXER_STYLE) {
+        case COMMON::MixerType::ACKERMANN: {
+            pSteerStrategy = new MIXER::AckermannMixer(CONFIG::WHEEL_TRACK, CONFIG::WHEEL_BASE);
+            break;
+        }
+        case COMMON::MixerType::MECANUM: {
+            pSteerStrategy = new MIXER::MecanumMixer(CONFIG::WHEEL_TRACK, CONFIG::WHEEL_BASE);
+            break;
+        }
+        case COMMON::MixerType::TANK: {
+            pSteerStrategy = new MIXER::TankSteerStrategy();
+            break;
+        }
+        default: {
+            // Fallback or default strategy
+            pSteerStrategy = new MIXER::AckermannMixer(CONFIG::WHEEL_TRACK, CONFIG::WHEEL_BASE);
+            break;
+        }
+    }
+
+    auto* pStateManager = new StateManager(pSteerStrategy, pStateEstimator);
 
 
     // set up the receiver
