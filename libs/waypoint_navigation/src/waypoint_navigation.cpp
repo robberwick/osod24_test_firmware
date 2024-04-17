@@ -19,7 +19,6 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
         navigateToWaypoint(currentState);
     }
 }
-
 void WaypointNavigation::navigateToWaypoint(const VehicleState& currentState) {
     // updates desiredV and desiredW (speed and turn velocity)
     // based on the current position and the list of waypoints.

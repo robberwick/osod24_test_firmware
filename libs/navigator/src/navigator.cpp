@@ -33,11 +33,15 @@ void Navigator::navigate() {
         STATE_ESTIMATOR::VehicleState requestedState{};
         switch (navigationMode) {
         case NAVIGATION_MODE::WAYPOINT:
+            //make sure mine sensors are lowered for minesweeping
+            gpio_put(CONFIG::skidPin, true);
             waypointNavigator.navigate(current_state);
             requestedState.velocity.velocity = driveDirection * waypointNavigator.desiredV;
             requestedState.velocity.angular_velocity = waypointNavigator.desiredW;
             break;
         default: //includes REMOTE_CONTROL, which is the default
+            //make sure mine sensors are raised for normal driving
+            gpio_put(CONFIG::skidPin, false);
             // Apply expo function to AIL and ELE
             float expoAIL = expo(values.AIL, steeringExpoValue);
             float expoELE = expo(values.ELE, velocityExpoValue);
