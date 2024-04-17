@@ -134,6 +134,24 @@ void initMotorMonitorPins() {
     printf("motor pins initialised\n");
 }
 
+void initSpiAttachmentPins(){
+    using namespace CONFIG;
+    
+    // Configure motorSleepPin as output and set it to high
+    gpio_init(skidPin);
+    gpio_set_dir(skidPin, GPIO_OUT);
+    gpio_put(skidPin, false);
+
+    // Configure motorStatusPin as input
+    int numMineSensors = sizeof(mineSensorPins) / sizeof(mineSensorPins[0]);
+    for (int pin = 0; pin < numMineSensors; pin++){
+        gpio_init(mineSensorPins[pin]);
+        gpio_set_dir(mineSensorPins[pin], GPIO_IN);
+    }
+    
+    printf("SPI attachment IO pins initialised\n");
+}
+
 void handlerMotorController(uint gpio, uint32_t events) {
     ESCirqTriggered = true;
 }
