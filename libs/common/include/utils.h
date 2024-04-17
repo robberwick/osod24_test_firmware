@@ -22,6 +22,8 @@ bool reserved_addr(uint8_t addr);
 void scan_i2c_bus();
 void initMotorMonitorPins();
 
+void initSpiAttachmentPins();
+
 void handlerMotorController(uint gpio, uint32_t events);
 
 bool non_blocking_delay_us(uint32_t delay_us);
