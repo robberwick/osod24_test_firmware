@@ -59,7 +59,8 @@ int main() {
     stdio_init_all();
 
     initMotorMonitorPins();
-    
+    initSpiAttachmentPins();
+
     i2c_inst_t* i2c_port0;
     initI2C(i2c_port0, false);
    
