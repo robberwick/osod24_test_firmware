@@ -47,9 +47,9 @@ namespace CONFIG {
 
     // ToF Sensor Offsets from the robot's center (in meters)
     constexpr float TOF_FRONT_OFFSET = 0.16f;
-    constexpr float TOF_RIGHT_OFFSET = 0.07f;
+    constexpr float TOF_RIGHT_OFFSET = 0.08f;
     constexpr float TOF_REAR_OFFSET = 0.09f;
-    constexpr float TOF_LEFT_OFFSET = 0.07f;
+    constexpr float TOF_LEFT_OFFSET = 0.08f;
 
     //steering
     constexpr float MAX_STEERING_ANGLE = 3.14 / 4; // radians
@@ -151,9 +151,9 @@ namespace CONFIG {
 
     // Control constants such as PID & feedforward
     // PID values
-    constexpr float VEL_KP = 1.0f; // Velocity proportional (P) gain
+    constexpr float VEL_KP = 0.9f; // Velocity proportional (P) gain
     constexpr float VEL_KI = 0.5f; // Velocity integral (I) gain
-    constexpr float VEL_KD = 0.1f; // Velocity derivative (D) gain
+    constexpr float VEL_KD = 0.0f; // Velocity derivative (D) gain was 0.1
 
 // feedforward values
     constexpr float VEL_FF_GAIN = 1.0f;   // Velocity feedforward gain
