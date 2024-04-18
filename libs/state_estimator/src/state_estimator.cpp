@@ -62,13 +62,16 @@ namespace STATE_ESTIMATOR {
         //printf("REAR_LEFT: %ld ", encoders.REAR_LEFT->count());
         //printf("REAR_RIGHT: %ld ", encoders.REAR_RIGHT->count());
         //printf("\n");
-        printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f, front ToF: %f\n", 
+        printf("X: %f, Y: %f, Heading: %f, V: %f, w: %f, front: %f, right: %f, rear: %f, left: %f \n", 
            estimatedState.odometry.x,
            estimatedState.odometry.y,
-           estimatedState.velocity.velocity,
            estimatedState.odometry.heading,
+           estimatedState.velocity.velocity,
            estimatedState.velocity.angular_velocity,
-           estimatedState.tofDistances.front);
+           estimatedState.tofDistances.front,
+           estimatedState.tofDistances.right,
+           estimatedState.tofDistances.rear,
+           estimatedState.tofDistances.left);
     }
 
     void StateEstimator::showValuesViaCSV() const {
@@ -85,7 +88,7 @@ namespace STATE_ESTIMATOR {
     }
 
     void StateEstimator::publishState() const {
-        // showValuesViaCSV();
+        showValues();
     }
 
     void StateEstimator::addObserver(Observer* observer) {
@@ -183,10 +186,8 @@ namespace STATE_ESTIMATOR {
         float distance_travelled = 0.0f;
         getPositionDelta(encoderCaptures, distance_travelled);
 
-
         float heading = 0.0f;
         getLatestHeading(heading);
-
         //calculate new position and orientation
         calculateNewPosition(tmpState, distance_travelled, heading);
 
@@ -356,9 +357,8 @@ namespace STATE_ESTIMATOR {
                 bestEstimate.heading = heading;
             }
         }
-        
         return bestEstimate;
-        }
+    }
 
     tuple<float, float, float> StateEstimator::calculateCoordinateVariance(const PermutationResult& result) {
         /**

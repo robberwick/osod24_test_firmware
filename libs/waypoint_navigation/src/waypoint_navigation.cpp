@@ -34,13 +34,8 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
     desiredW = std::clamp(-desiredV * headingPID.calculate(currentHeading),
                                 -maxTurnVelocity, maxTurnVelocity);
     float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
-    printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredV: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV);
-    printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
-        currentState.odometry.x,
-        currentState.odometry.y,
-        currentState.velocity.velocity,
-        currentState.odometry.heading,
-        currentState.velocity.angular_velocity);
+    printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredV: %f,  desiredW: %f\n",
+                 targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV,  desiredW);
 }
 
 

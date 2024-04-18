@@ -36,10 +36,10 @@ namespace STOKER {
 
         float current_limited_speed = std::clamp(command_speed, current_speed - max_speed_change, current_speed + max_speed_change);
 
-        if (command_speed != current_limited_speed){
-            printf("motor: %d's command limited from %f to %f, to reduce current draw\n",
-                                         motor_position_, command_speed, current_limited_speed);
-        }
+        //if (command_speed != current_limited_speed){
+        //    printf("motor: %d's command limited from %f to %f, to reduce current draw\n",
+        //                                 motor_position_, command_speed, current_limited_speed);
+        //}
         return current_limited_speed;
     }
 
