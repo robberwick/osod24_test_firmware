@@ -7,7 +7,9 @@
 
 namespace WAYPOINTS {
 
-WaypointNavigation::WaypointNavigation(){}
+WaypointNavigation::WaypointNavigation(){
+    wallPID.setpoint = 0; //target the centreline between the walls
+}
 
 void WaypointNavigation::navigate(const VehicleState& currentState) {
     // updates desiredV and desiredW (speed and turn velocity)
@@ -30,9 +32,12 @@ void WaypointNavigation::navigate(const VehicleState& currentState) {
     float currentHeading = unwrapHeading(bearingToNextWaypoint, currentState.odometry.heading);
 
     headingPID.setpoint = bearingToNextWaypoint;
+    
     //scale the response by the speed, so that the steering correction angle is consistent as run speeds varies
-    desiredW = std::clamp(-desiredV * headingPID.calculate(currentHeading),
-                                -maxTurnVelocity, maxTurnVelocity);
+    desiredW = -desiredV * (headingPID.calculate(currentHeading) -
+                            wallPID.calculate(getOffsetFromWallDistances(currentState)));
+    desiredW = std::clamp(desiredW,-maxTurnVelocity, maxTurnVelocity);
+
     float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
     printf("Target point: %d, Dist To Go: %f, Nearest point: %d, bearing To point: %f, desiredV: %f, ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV);
     printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f, L: %f, R:, %f \n", 
@@ -145,7 +150,17 @@ float WaypointNavigation::unwrapHeading(const float targetHeading, const float c
     minHeadingError = wrap_pi(targetHeading-currentHeading);
     nearestHeading = targetHeading+ minHeadingError;
     return nearestHeading;
-} 
+}
+
+float WaypointNavigation::getOffsetFromWallDistances(const VehicleState& currentState){
+    // uses the Tof distances from the current state to work out the distance from the centreline, in m
+    // gives a positive return for an offset to the right
+    float offset = (currentState.tofDistances.right-currentState.tofDistances.left)/2;    
+    // constrain offset to the max it can practically be in the narrow sections
+    float clearanceOnCourse = 0.25;
+    offset = std::clamp(offset, -clearanceOnCourse, clearanceOnCourse);
+    return offset;
+}
 
 WaypointNavigation::~WaypointNavigation() = default;
 
