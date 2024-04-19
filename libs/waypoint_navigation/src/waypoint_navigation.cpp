@@ -44,13 +44,13 @@ void WaypointNavigation::navigateToWaypoint(const VehicleState& currentState) {
     desiredW = std::clamp(-desiredV * headingPID.calculate(currentHeading),
                                 -maxTurnVelocity, maxTurnVelocity);
     float distanceToGo = distanceToWaypoint(targetWaypoint, currentState); 
-    printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredV: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV);
-    printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
-        currentState.odometry.x,
-        currentState.odometry.y,
-        currentState.velocity.velocity,
-        currentState.odometry.heading,
-        currentState.velocity.angular_velocity);
+    //printf("Target Waypoint: %d, Distance To Go: %f, Nearest Waypoint: %d, bearing To Waypoint: %f, desiredV: %f ", targetWaypointIndex, distanceToGo, nearestWaypointIndex, bearingToNextWaypoint, desiredV);
+    //printf("X: %f, Y: %f, Velocity: %f, Heading: %f, turn rate: %f\n", 
+    //    currentState.odometry.x,
+    //    currentState.odometry.y,
+    //    currentState.velocity.velocity,
+    //    currentState.odometry.heading,
+    //    currentState.velocity.angular_velocity);
 }
 
 
@@ -159,6 +159,7 @@ bool WaypointNavigation::mineDetected(){
     using namespace CONFIG;
     for (int pin = 0; pin < numMineSensors; pin++) {
         if (gpio_get(mineSensorPins[pin])) {  // Check if a mine has been detected
+            printf("mine detected with sensor %d", pin);
             return true;
         }
     }
