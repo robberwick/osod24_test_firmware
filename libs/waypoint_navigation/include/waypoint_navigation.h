@@ -32,7 +32,7 @@ namespace WAYPOINTS {
     private:
         float headingPGain = 20;
         float headingIGain = 0.5;
-        float headingDGain = 5.0;
+        float headingDGain = 0.0;
         float UPDATE_RATE = 0.02; //seconds
 
         PID headingPID = PID(headingPGain, headingIGain, headingDGain, UPDATE_RATE); // used for steering to waypoints
