@@ -26,14 +26,16 @@ namespace WAYPOINTS {
         float bearingToWaypoint(const Waypoint& target, const VehicleState& currentState); // Compass bearing to a waypoint
         float distanceToWaypoint(const Waypoint& target, const VehicleState& currentState); // distance to a waypoint
         float lookAhead = 0.25; //lookahead distance in metres
-        float maxTurnVelocity = 3; //max turn velocity in radians per second
+        float minTurnRadius = 0.3;
+        float routeSpeed = 0.4; //not linked to the same named property in waypoint_routes.cpp
+        float maxTurnVelocity = routeSpeed / minTurnRadius; //max turn velocity in radians per second
         float unwrapHeading(const float targetHeading, float currentHeading); //find "nearest" description of current heading to target
         float getOffsetFromWallDistances(const VehicleState& currentState);
 
     private:
-        float headingPGain = 20;
-        float headingIGain = 0.5;
-        float headingDGain = 0.0;
+        float headingPGain = 15;
+        float headingIGain = 0.000;
+        float headingDGain = 1.5;
         float UPDATE_RATE = 0.02; //seconds
 
         PID headingPID = PID(headingPGain, headingIGain, headingDGain, UPDATE_RATE); // used for steering to waypoints

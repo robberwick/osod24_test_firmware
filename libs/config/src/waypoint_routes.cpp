@@ -1,6 +1,6 @@
 #include "waypoint_routes.h"
 
-float routeSpeed = 0.3;
+float routeSpeed = 0.4;
 
 COMMON::Waypoint testSquare[5] = {   ///example waypoint list for testing
         {0.0, 0.0, 0.0, routeSpeed},
@@ -133,37 +133,38 @@ COMMON::Waypoint ecodisasterRoute[98] = {   //dumb field-ploughing
         {-0.400, 1.050,  0.000, 0.00}
 };
 
-COMMON::Waypoint escapeRouteRoute[30] = {   //average/centreline route
-        {0.000, 0.065,  0.000, routeSpeed},
-        {0.000, 0.265,  0.000, routeSpeed},
-        {0.000, 0.365,  0.000, routeSpeed},
-        {0.000, 0.565,  0.000, routeSpeed},
-        {0.000, 0.665,  0.374, routeSpeed},
-        {0.056, 0.856,  1.013, routeSpeed},
-        {0.195, 0.986,  1.571, routeSpeed},
-        {0.295, 0.986,  1.571, routeSpeed},
-        {0.495, 0.986,  1.944, routeSpeed},
-        {0.615, 0.900,  2.866, routeSpeed},
-        {0.689, 0.736,  3.142, routeSpeed},
-        {0.689, 0.636,  3.142, routeSpeed},
-        {0.689, 0.589,  2.768, routeSpeed},
-        {0.775, 0.369,  2.129, routeSpeed},
-        {0.884, 0.239,  1.571, routeSpeed},
-        {1.184, 0.239,  1.571, routeSpeed},
-        {1.234, 0.239,  1.197, routeSpeed},
-        {1.304, 0.325,  0.275, routeSpeed},
-        {1.378, 0.589,  0.000, routeSpeed},
-        {1.378, 0.689,  0.000, routeSpeed},
-        {1.378, 0.736,  0.374, routeSpeed},
-        {1.464, 0.956,  1.013, routeSpeed},
-        {1.673, 0.986,  1.571, routeSpeed},
-        {1.873, 0.986,  1.571, routeSpeed},
-        {2.073, 0.986,  1.571, routeSpeed},
-        {2.373, 0.986,  1.571, routeSpeed},
-        {2.533, 0.986,  1.571, 0},
-        {2.616, 0.986,  1.571, 0},
-        {2.619, 0.986,  1.588, 0.0},
-        {2.90, 0.986,  1.588, 0.0}
+COMMON::Waypoint escapeRouteRoute[32] = {   //average/centreline route
+        {0.000, 0.465,  0.000, routeSpeed},
+        {0.000, 0.665,  0.000, routeSpeed},
+        {0.000, 0.865,  0.000, routeSpeed},
+        {0.000, 0.900,  0.000, routeSpeed},
+        {0.000, 0.936,  0.374, routeSpeed},
+        {0.086, 1.156,  1.013, routeSpeed},
+        {0.295, 1.286,  1.571, routeSpeed},
+        {0.495, 1.286,  1.571, routeSpeed},
+        {0.695, 1.286,  1.944, routeSpeed},
+        {0.815, 1.200,  2.866, routeSpeed},
+        {0.9, 1.036,  3.142, routeSpeed},
+        {0.900, 0.836,  3.142, routeSpeed},
+        {0.900, 0.636,  3.142, routeSpeed},
+        {0.900, 0.589,  2.768, routeSpeed},
+        {1.075, 0.469,  2.129, routeSpeed},
+        {1.284, 0.339,  1.571, routeSpeed},
+        {1.484, 0.339,  1.571, routeSpeed},
+        {1.604, 0.425,  0.275, routeSpeed},
+        {1.678, 0.589,  0.000, routeSpeed},
+        {1.678, 0.789,  0.000, routeSpeed},
+        {1.678, 0.989,  0.000, routeSpeed},
+        {1.678, 1.036,  0.374, routeSpeed},
+        {1.764, 1.156,  1.013, routeSpeed},
+        {1.973, 1.286,  1.571, routeSpeed},
+        {2.173, 1.386,  1.571, routeSpeed},
+        {2.473, 1.386,  1.571, routeSpeed},
+        {2.573, 1.386,  1.571, routeSpeed},
+        {2.733, 1.386,  1.571, routeSpeed},
+        {2.716, 1.386,  1.571, routeSpeed},
+        {2.819, 1.386,  1.588, 0.0},
+        {3.10, 1.386,  1.588, 0.0}
 };
 
 
