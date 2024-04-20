@@ -40,7 +40,7 @@ namespace WAYPOINTS {
 
         PID headingPID = PID(headingPGain, headingIGain, headingDGain, UPDATE_RATE); // used for steering to waypoints
 
-        float wallPGain = 60;
+        float wallPGain = 0.0; //was 60
         float wallIGain = 0.0;
         float wallDGain = 0.0;
 
