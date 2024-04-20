@@ -35,10 +35,10 @@ namespace MIXER {
         // turn rate in radians/sec, and outputs individual wheel speeds in m/s
         // and turn angle of steerable wheels in radians (0, or straight ahead)
 
-        float frontLeft = velocity - angularVelocity + strafeVelocity;
-        float frontRight = velocity + angularVelocity - strafeVelocity;
-        float rearLeft = velocity - angularVelocity - strafeVelocity;
-        float rearRight = velocity + angularVelocity + strafeVelocity;
+        float frontLeft = velocity - angularVelocity - strafeVelocity;
+        float frontRight = velocity + angularVelocity + strafeVelocity;
+        float rearLeft = velocity - angularVelocity + strafeVelocity;
+        float rearRight = velocity + angularVelocity - strafeVelocity;
 
         // Calculating the maximum absolute value to scale the speeds
         float max_abs = std::max(std::max(abs(frontLeft), abs(frontRight)), std::max(abs(rearLeft), abs(rearRight)));
