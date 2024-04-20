@@ -143,7 +143,7 @@ namespace CONFIG {
     constexpr float MAX_CURRENT = 4.0f; //target to limit to
 
     //dynamics
-    constexpr float MAX_VELOCITY = 1.28; // m/s
+    constexpr float MAX_VELOCITY = 3.0; // m/s
     constexpr float MAX_ACCELERATION = 8; // m/s^2
     constexpr float MAX_ANGULAR_VELOCITY = 17; // rad/s
     constexpr float MAX_ANGULAR_ACCELERATION = 20; // rad/s^2
@@ -151,9 +151,9 @@ namespace CONFIG {
 
     // Control constants such as PID & feedforward
     // PID values
-    constexpr float VEL_KP = 1.0f; // Velocity proportional (P) gain
-    constexpr float VEL_KI = 0.5f; // Velocity integral (I) gain
-    constexpr float VEL_KD = 0.1f; // Velocity derivative (D) gain
+    constexpr float VEL_KP = 3.0f; // Velocity proportional (P) gain
+    constexpr float VEL_KI = 0.0f; // Velocity integral (I) gain
+    constexpr float VEL_KD = 0.0f; // Velocity derivative (D) gain
 
 // feedforward values
     constexpr float VEL_FF_GAIN = 1.0f;   // Velocity feedforward gain
