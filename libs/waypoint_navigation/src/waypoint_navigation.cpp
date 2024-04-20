@@ -159,7 +159,7 @@ float WaypointNavigation::getOffsetFromWallDistances(const VehicleState& current
     // gives a positive return for an offset to the right
     float offset = (currentState.tofDistances.right-currentState.tofDistances.left)/2;    
     // constrain offset to the max it can practically be in the narrow sections
-    float clearanceOnCourse = 0.25;
+    float clearanceOnCourse = 0.5; //was 0.25
     offset = std::clamp(offset, -clearanceOnCourse, clearanceOnCourse);
     return offset;
 }

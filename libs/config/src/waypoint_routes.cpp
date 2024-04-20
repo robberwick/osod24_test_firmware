@@ -1,6 +1,6 @@
 #include "waypoint_routes.h"
 
-float routeSpeed = 0.4;
+float routeSpeed = 0.5;
 
 COMMON::Waypoint testSquare[5] = {   ///example waypoint list for testing
         {0.0, 0.0, 0.0, routeSpeed},
@@ -163,8 +163,8 @@ COMMON::Waypoint escapeRouteRoute[32] = {   //average/centreline route
         {2.573, 1.386,  1.571, routeSpeed},
         {2.733, 1.386,  1.571, routeSpeed},
         {2.716, 1.386,  1.571, routeSpeed},
-        {2.819, 1.386,  1.588, 0.0},
-        {3.10, 1.386,  1.588, 0.0}
+        {3.1, 1.386,  1.588, 0.0},
+        {3.50, 1.386,  1.588, 0.0}
 };
 
 
