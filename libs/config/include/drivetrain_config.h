@@ -18,7 +18,7 @@ namespace CONFIG {
     #define PI_NOON 5
     #define TEMPLE_OF_DOOM 6
 
-    #define CURRENT_CHALLENGE ECO_DISASTER
+    #define CURRENT_CHALLENGE LAVA_PALAVA
 
     inline uint I2C_TIMEOUT_US = 5000;
 
