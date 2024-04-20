@@ -85,45 +85,45 @@ namespace CONFIG {
         constexpr COMMON::Waypoint* waypointBuffer = ecodisasterRoute;
         constexpr size_t waypointCount = sizeof(ecodisasterRoute) / sizeof(ecodisasterRoute[0]);
     #elif (CURRENT_CHALLENGE == ESCAPE_ROUTE)
-        const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-        const float EXTERNAL_GEAR_RATIO = 1;
+        constexpr float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
+        constexpr float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
         constexpr COMMON::Waypoint* waypointBuffer = escapeRouteRoute;
         constexpr size_t waypointCount = sizeof(escapeRouteRoute) / sizeof(escapeRouteRoute[0]);
     #elif (CURRENT_CHALLENGE == ZOMBIE_APOCALYPSE)
-        const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-        const float EXTERNAL_GEAR_RATIO = 1;
+        constexpr float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
+        constexpr float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #elif (CURRENT_CHALLENGE == MINESWEEPER)
-        const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-        const float EXTERNAL_GEAR_RATIO = 1;
+        constexpr float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
+        constexpr float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = 1.6; //metres square
         constexpr COMMON::Waypoint* waypointBuffer = minesweeperRoute;
         constexpr size_t waypointCount = sizeof(minesweeperRoute) / sizeof(minesweeperRoute[0]);
     #elif (CURRENT_CHALLENGE == PI_NOON)
-        const float WHEEL_DIAMETER = MECANUM_DIAMETER;
-        const float EXTERNAL_GEAR_RATIO = 1;
+        constexpr float WHEEL_DIAMETER = MECANUM_DIAMETER;
+        constexpr float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = 2.4; //metres square
     #elif  (CURRENT_CHALLENGE == LAVA_PALAVA)
-        const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-        const float EXTERNAL_GEAR_RATIO = 1;
+        constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
+        constexpr float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
         constexpr COMMON::Waypoint* waypointBuffer = lavaRoute;
         constexpr size_t waypointCount = sizeof(lavaRoute)/ sizeof(lavaRoute[0]);
     #elif  (CURRENT_CHALLENGE == TEMPLE_OF_DOOM)
-        const float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
-        const float EXTERNAL_GEAR_RATIO = 1;
+        constexpr float WHEEL_DIAMETER = LARGE_WHEEL_DIAMETER;
+        constexpr float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_STYLE = Car;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #else
         // Default case
-        const float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
-        const float EXTERNAL_GEAR_RATIO = 1;
+        constexpr float WHEEL_DIAMETER = SMALL_WHEEL_DIAMETER;
+        constexpr float EXTERNAL_GEAR_RATIO = 1;
         constexpr SteeringStyle DRIVING_DIRECTION = CarSteering;
         constexpr float ARENA_SIZE = std::numeric_limits<float>::quiet_NaN();
     #endif

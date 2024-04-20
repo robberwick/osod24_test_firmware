@@ -23,8 +23,8 @@ namespace STOKER {
         motor.speed(pseudo_current_limit(current_motor_speed, command_speed));
         
         // print the motor position, current motors peed, speed, accel, and (speed + accel)
-        printf("millis(): %u  : %d, current motor speed: %f, setpoint: %f, accel: %f, duty: %f\n",
-               millis(), motor_position_, current_motor_speed, speed, accel, motor.duty());
+        //printf("millis(): %u  : %d, current motor speed: %f, setpoint: %f, accel: %f, duty: %f\n",
+        //       millis(), motor_position_, current_motor_speed, speed, accel, motor.duty());
     }
 
     void Stoker::update(const VehicleState newState) {
@@ -40,10 +40,10 @@ namespace STOKER {
 
         float current_limited_speed = std::clamp(command_speed, current_speed - max_speed_change, current_speed + max_speed_change);
 
-        if (command_speed != current_limited_speed){
-            printf("motor: %d's command limited from %f to %f, to reduce current draw\n",
-                                         motor_position_, command_speed, current_limited_speed);
-        }
+        //if (command_speed != current_limited_speed){
+        //    printf("motor: %d's command limited from %f to %f, to reduce current draw\n",
+        //                                 motor_position_, command_speed, current_limited_speed);
+        //}
         return current_limited_speed;
     }
 
