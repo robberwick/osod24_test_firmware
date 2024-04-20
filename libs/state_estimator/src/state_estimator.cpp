@@ -125,10 +125,8 @@ namespace STATE_ESTIMATOR {
         // Calculate average wheel rotation delta for left and right sides
         // for the front wheels we only use the forward component of the movement
         //this should give a more accurate estimate for distance_travelled
-        float left_travel = (encoderCaptures[MOTOR_POSITION::FRONT_LEFT].radians_delta() * cos(estimatedState.driveTrainState.angles.left)
-                             + encoderCaptures[MOTOR_POSITION::REAR_LEFT].radians_delta()) / 2;
-        float right_travel = (encoderCaptures[MOTOR_POSITION::FRONT_RIGHT].radians_delta() * cos(estimatedState.driveTrainState.angles.right)
-                              + encoderCaptures[MOTOR_POSITION::REAR_RIGHT].radians_delta()) / 2;
+        float left_travel = encoderCaptures[MOTOR_POSITION::REAR_LEFT].radians_delta();
+        float right_travel = encoderCaptures[MOTOR_POSITION::REAR_RIGHT].radians_delta();
 
         // convert wheel rotation to distance travelled in meters
         distance_travelled = ((left_travel - right_travel) / 2) * CONFIG::WHEEL_DIAMETER / 2;
