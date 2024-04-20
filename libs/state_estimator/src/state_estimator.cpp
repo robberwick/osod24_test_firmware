@@ -177,11 +177,11 @@ namespace STATE_ESTIMATOR {
         //get current encoder state
         Encoder::Capture encoderCaptures[MOTOR_POSITION::MOTOR_POSITION_COUNT];
         captureEncoders(encoderCaptures);
-        printf("FL: %f, FR: %f, RL: %f, RR: %f, ",
-             encoderCaptures[MOTOR_POSITION::FRONT_LEFT].radians_per_second(),
-             encoderCaptures[MOTOR_POSITION::FRONT_RIGHT].radians_per_second(),
-             encoderCaptures[MOTOR_POSITION::REAR_LEFT].radians_per_second(),
-             encoderCaptures[MOTOR_POSITION::REAR_RIGHT].radians_per_second());
+        //printf("FL: %f, FR: %f, RL: %f, RR: %f, ",
+        //     encoderCaptures[MOTOR_POSITION::FRONT_LEFT].radians_per_second(),
+        //     encoderCaptures[MOTOR_POSITION::FRONT_RIGHT].radians_per_second(),
+        //     encoderCaptures[MOTOR_POSITION::REAR_LEFT].radians_per_second(),
+        //     encoderCaptures[MOTOR_POSITION::REAR_RIGHT].radians_per_second());
         // calculate position deltas
 
         float distance_travelled = 0.0f;
@@ -235,6 +235,8 @@ namespace STATE_ESTIMATOR {
             if (IMU->getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
                 heading = IMU->getYaw() - IMUHeadingOffset;
             }
+        } else {
+            printf("no IMU data available");
         }
     }
 
