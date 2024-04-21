@@ -13,8 +13,8 @@ const char *RX_CHANNEL_NAMES[] = {
 
 const uint NUM_RX_CHANNELS = count_of(RX_CHANNEL_NAMES);
 constexpr uint SYNC_PERIOD_US = 8000; //12800; //20000
-constexpr double MIN_PERIOD_US = 1008; //700;
-constexpr double MAX_PERIOD_US = 2000; //1600;
+constexpr double MIN_PERIOD_US = 1100; //1008; //700;
+constexpr double MAX_PERIOD_US = 1900; //2000; //1600;
 
 ReceiverCPPM::ReceiverCPPM(uint8_t pin) {
     // Initialize CPPM and setup interrupt to read data on core0
