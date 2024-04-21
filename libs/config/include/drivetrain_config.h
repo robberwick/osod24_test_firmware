@@ -155,7 +155,7 @@ namespace CONFIG {
     //dynamics
     constexpr float MAX_VELOCITY = 2.0; // m/s    2m/s is the max achieveable with the small wheels. 4 with the big wheels and no gear reduction
     constexpr float MAX_ACCELERATION = 8; // m/s^2
-    constexpr float MAX_ANGULAR_VELOCITY = 5; // rad/s
+    constexpr float MAX_ANGULAR_VELOCITY = 3; // rad/s (was: 5)
     constexpr float MAX_ANGULAR_ACCELERATION = 20; // rad/s^2
 
 
