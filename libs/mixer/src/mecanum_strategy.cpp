@@ -43,12 +43,12 @@ namespace MIXER {
         // Calculating the maximum absolute value to scale the speeds
         float max_abs = std::max(std::max(abs(frontLeft), abs(frontRight)), std::max(abs(rearLeft), abs(rearRight)));
 
-        if (max_abs > CONFIG::MAX_VELOCITY) {
-            frontLeft /= max_abs;
-            frontRight /= max_abs;
-            rearLeft /= max_abs;
-            rearRight /= max_abs;
-        }
+        // if (max_abs > CONFIG::MAX_VELOCITY) {
+        //     frontLeft /= max_abs;
+        //     frontRight /= max_abs;
+        //     rearLeft /= max_abs;
+        //     rearRight /= max_abs;
+        // }
 
         const float speed_factor = 1.0f;
         float scaled_FL = frontLeft * speed_factor;
